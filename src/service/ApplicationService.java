@@ -44,7 +44,7 @@ public class ApplicationService {
         Client client = clientService.getClient(cpf);
 
         accountService.validateIfAccountCanBeRemoved(client.getCpf());
-        accountService.removeClientAccounts(client.getCpf());
+        accountService.removeClientAccounts(client.getId());
         clientService.delete(client.getCpf());
     }
 

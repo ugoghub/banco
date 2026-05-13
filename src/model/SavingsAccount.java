@@ -3,6 +3,8 @@ package model;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.UUID;
+
 import exception.*;
 
 
@@ -10,8 +12,8 @@ public class SavingsAccount extends Account {
     private LocalDateTime lastInterestApply; // data da ultima vez da aplicação de juros
     private static final BigDecimal INTEREST_RATE = new BigDecimal("0.005");
 
-    public SavingsAccount(String clientCpf) {
-        super(clientCpf);
+    public SavingsAccount(UUID clientId) {
+        super(clientId);
         this.lastInterestApply = this.creationTime;
     }
 
@@ -42,7 +44,7 @@ public class SavingsAccount extends Account {
         this.balance = this.balance.add(interest)
                         .setScale(2, RoundingMode.HALF_UP);
 
-        addTransaction(new Transaction(TypeTransaction.INTEREST, interest, null, this));
+        addTransaction(new Transaction(TypeTransaction.INTEREST, interest, null,this.getId()));
         lastInterestApply = LocalDateTime.now();
         return true;
     }

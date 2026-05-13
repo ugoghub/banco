@@ -20,9 +20,9 @@ public class Client {
         this.email = email;
     }
 
-    /*public UUID getId() {
+    public UUID getId() {
         return id;
-    }*/
+    }
 
     public String getName() {
         return name;

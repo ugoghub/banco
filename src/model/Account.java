@@ -12,16 +12,16 @@ import exception.*;
 
 
 public abstract class Account {
-    protected String clientCpf;
+    protected UUID clientId;
     protected final UUID id;
     protected String branch;
     protected BigDecimal balance;
     protected final LocalDateTime creationTime;
     protected final List<Transaction> transactionHistory;
 
-    public Account(String clientCpf) {
+    public Account(UUID clientId) {
         this.id = UUID.randomUUID();
-        this.clientCpf = clientCpf;
+        this.clientId = clientId;
         this.branch = "0001";
         this.balance = BigDecimal.ZERO;
         this.creationTime = LocalDateTime.now();
@@ -39,7 +39,7 @@ public abstract class Account {
     public boolean accountCanBeRemoved(){
         BigDecimal balance = getBalance();
 
-        return balance.compareTo(BigDecimal.ZERO) != 0;
+        return balance.compareTo(BigDecimal.ZERO) == 0;
     }
 
     public void addTransaction(Transaction transaction) {
@@ -52,7 +52,7 @@ public abstract class Account {
 
     public abstract void withdraw(BigDecimal value) throws InvalidAmountException, InsufficientBalanceException;
 
-    public String getClientCpf() { return clientCpf; }
+    public UUID getClientId() { return clientId; }
 
     public UUID getId() {
         return id;

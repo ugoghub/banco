@@ -1,6 +1,5 @@
 package repository;
 
-import exception.ClientNotFoundException;
 import model.Client;
 
 import java.util.HashMap;

@@ -16,11 +16,11 @@ public class AccountRepository {
         return account;
     }
 
-    public List<Account> getAccountsByClient(String cpf) {
+    public List<Account> getAccountsByClient(UUID id) {
 
         return accounts.values()
                 .stream()
-                .filter(a -> a.getClientCpf().equals(cpf))
+                .filter(a -> a.getClientId().equals(id))
                 .toList();
     }
 
@@ -32,9 +32,9 @@ public class AccountRepository {
         accounts.remove(id);
     }
 
-    public void removeClientAccounts(String cpf) {
+    public void removeClientAccounts(UUID id) {
         accounts.entrySet()
                 .removeIf(entry ->
-                        entry.getValue().getClientCpf().equals(cpf));
+                        entry.getValue().getClientId().equals(id));
     }
 }
