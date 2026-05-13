@@ -1,7 +1,10 @@
 # IntelliJ
+# IntelliJ build output
+out/
+
+# opcional: arquivos do IntelliJ
 .idea/
 *.iml
-out/
 
 # Compiled class files
 *.class
