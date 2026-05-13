@@ -13,11 +13,18 @@ public class ClientService {
         this.clientRepository = clientRepository;
     }
 
-    public void save(String name, String cpf, String email) throws InvalidCpfException, CpfAlreadyExistsException {
-        if (!isCpfValid(cpf)) throw new InvalidCpfException("CPF Inválido");
+    public void save(String name,
+                     String cpf,
+                     String email)
+            throws InvalidCpfException,
+            CpfAlreadyExistsException {
 
-        if(clientRepository.existsByCpf(cpf)){
-            throw new CpfAlreadyExistsException("CPF Já cadastrado");
+        if (!isCpfValid(cpf)) {
+            throw new InvalidCpfException("CPF inválido");
+        }
+
+        if (clientRepository.findById(cpf).isPresent()) {
+            throw new CpfAlreadyExistsException("CPF já cadastrado");
         }
 
         Client client = new Client(name, cpf, email);
@@ -26,12 +33,19 @@ public class ClientService {
     }
 
 
-    public Client get(String cpf) throws ClientNotFoundException {
-        return clientRepository.findById(cpf);
+    public Client getClient(String cpf)
+            throws ClientNotFoundException {
+
+        return clientRepository.
+                findById(cpf).
+                orElseThrow(() ->
+                        new ClientNotFoundException("Cliente não encontrado"));
     }
 
-    public void delete(String cpf) throws ClientNotFoundException {
-        Client client = clientRepository.findById(cpf);
+    public void delete(String cpf)
+            throws ClientNotFoundException {
+
+        Client client = getClient(cpf);
 
         clientRepository.delete(client.getCpf());
     }

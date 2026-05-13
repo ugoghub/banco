@@ -2,10 +2,7 @@ package repository;
 
 import model.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class AccountRepository {
     private final Map<UUID, Account> accounts;
@@ -20,21 +17,22 @@ public class AccountRepository {
     }
 
     public List<Account> getAccountsByClient(String cpf) {
+
         return accounts.values()
                 .stream()
                 .filter(a -> a.getClientCpf().equals(cpf))
                 .toList();
     }
 
-    public Account findById(UUID id){
-        return accounts.get(id);
+    public Optional<Account> findById(UUID id){
+        return Optional.ofNullable(accounts.get(id));
     }
 
-    public void deleteAccount(UUID id){
+    public void removeClientAccount(UUID id){
         accounts.remove(id);
     }
 
-    public void deleteAllAccount(String cpf) {
+    public void removeClientAccounts(String cpf) {
         accounts.entrySet()
                 .removeIf(entry ->
                         entry.getValue().getClientCpf().equals(cpf));

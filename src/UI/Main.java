@@ -79,7 +79,7 @@ public class Main {
                     String cpfClient = InputReader.readCpf(scanner, "Digite seu CPF: ");
 
                     try {
-                        List<Account> accounts = applicationService.getAccountsByClient(cpfClient);
+                        List<Account> accounts = applicationService.getClientAccounts(cpfClient);
 
                         if (accounts.isEmpty()) {
                             System.out.println("Cliente não possui contas");
@@ -110,8 +110,8 @@ public class Main {
                 case 4:
                     String clientCpf = InputReader.readCpf(scanner, "Digite seu Cpf para excluir sua conta: ");
                     try {
-                        applicationService.deleteClient(clientCpf);
-                    } catch (ClientNotFoundException e) {
+                        applicationService.removeClient(clientCpf);
+                    } catch (ClientNotFoundException | AccountDeletionNotAllowedException e) {
                         System.out.println("Erro "+ e.getMessage());
                     }
                     break;
@@ -120,7 +120,7 @@ public class Main {
                     String cpfCli = InputReader.readCpf(scanner, "Digite seu Cpf: ");
 
                     try {
-                        List<Account> accounts = applicationService.getAccountsByClient(cpfCli);
+                        List<Account> accounts = applicationService.getClientAccounts(cpfCli);
 
                         if (accounts.isEmpty()) {
                             System.out.println("Cliente não possui contas");
@@ -138,10 +138,11 @@ public class Main {
                         int choice = InputReader.readOption(scanner,
                                 c -> c > 0 && c <= accounts.size());
 
-                        applicationService.deleteAccount(accounts.get(choice-1).getId());
+                        applicationService.removeClientAccount(accounts.get(choice-1).getId());
 
 
-                    } catch (InvalidCpfException | ClientNotFoundException e) {
+                    } catch (InvalidCpfException | AccountNotFoundException | ClientNotFoundException |
+                             AccountDeletionNotAllowedException e) {
                         System.out.println("Erro: " + e.getMessage());
                     }
 
@@ -236,7 +237,7 @@ public class Main {
                                     "Para quem você deseja transferir? (CPF): ");
 
                     List<Account> accounts =
-                            applicationService.getAccountsByClient(cpfTransfer);
+                            applicationService.getClientAccounts(cpfTransfer);
 
                     if (accounts.isEmpty()) {
                         System.out.println("Cliente não possui contas");

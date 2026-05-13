@@ -16,7 +16,9 @@ public class SavingsAccount extends Account {
     }
 
     @Override
-    public void withdraw(BigDecimal value) throws InvalidAmountException, InsufficientBalanceException {
+    public void withdraw(BigDecimal value)
+            throws InvalidAmountException, InsufficientBalanceException {
+
         if (value.compareTo(BigDecimal.ZERO) <= 0)
             throw new InvalidAmountException("Valor inválido");
 

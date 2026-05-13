@@ -27,18 +27,29 @@ public abstract class Account {
         this.creationTime = LocalDateTime.now();
         this.transactionHistory = new ArrayList<>();
     }
-    public void deposit(BigDecimal value) throws InvalidAmountException {
+    public void deposit(BigDecimal value)
+            throws InvalidAmountException {
+
         if (value.compareTo(BigDecimal.ZERO) <= 0)
             throw new InvalidAmountException("Valor inválido");
+
         this.balance = this.balance.add(value).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public boolean accountCanBeRemoved(){
+        BigDecimal balance = getBalance();
+
+        return balance.compareTo(BigDecimal.ZERO) != 0;
     }
 
     public void addTransaction(Transaction transaction) {
         this.transactionHistory.add(transaction);
     }
+
     public List<Transaction> getTransactionHistory() {
         return Collections.unmodifiableList(transactionHistory);
     }
+
     public abstract void withdraw(BigDecimal value) throws InvalidAmountException, InsufficientBalanceException;
 
     public String getClientCpf() { return clientCpf; }
@@ -50,12 +61,15 @@ public abstract class Account {
     public BigDecimal getBalance() {
         return balance;
     }
+
     public LocalDateTime getCreationTime() {
         return creationTime;
     }
+
     @Override
     public String toString() {
         return getAccountType() + " (ID: " + this.id + ")";
     }
+
     public abstract String getAccountType();
 }

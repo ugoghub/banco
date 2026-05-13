@@ -23,53 +23,84 @@ public class ApplicationService {
         this.transactionService = new TransactionService(accountService);
     }
 
-    public void createClient(String name, String cpf, String email) throws CpfAlreadyExistsException, InvalidCpfException {
+    public void createClient(String name,
+                             String cpf,
+                             String email)
+            throws CpfAlreadyExistsException, InvalidCpfException {
+
         clientService.save(name, cpf, email);
     }
 
-    public Account createAccount(String cpf, TypeAccount type) throws ClientNotFoundException {
+    public Account createAccount(String cpf,
+                                 TypeAccount type)
+            throws ClientNotFoundException {
+
         return accountService.save(cpf, type);
     }
 
-    public void deleteClient(String cpf) throws ClientNotFoundException {
-        Client client = clientService.get(cpf);
+    public void removeClient(String cpf)
+            throws ClientNotFoundException, AccountDeletionNotAllowedException {
 
-        accountService.deleteAllAccount(client.getCpf());
+        Client client = clientService.getClient(cpf);
+
+        accountService.validateIfAccountCanBeRemoved(client.getCpf());
+        accountService.removeClientAccounts(client.getCpf());
         clientService.delete(client.getCpf());
     }
 
-    public void deleteAccount(UUID id) throws ClientNotFoundException {
-        accountService.deleteAccount(id);
+    public void removeClientAccount(UUID id)
+            throws AccountNotFoundException, AccountDeletionNotAllowedException {
+
+        accountService.removeClientAccount(id);
     }
 
-    public void deposit(UUID id, BigDecimal value) throws InvalidAmountException,
+    public void deposit(UUID id,
+
+                        BigDecimal value)
+            throws InvalidAmountException,
             AccountNotFoundException {
+
         transactionService.deposit(id, value);
     }
 
-    public void withdraw(UUID id, BigDecimal value) throws InvalidAmountException, InsufficientBalanceException, AccountNotFoundException {
+    public void withdraw(UUID id,
+                         BigDecimal value)
+            throws InvalidAmountException, InsufficientBalanceException, AccountNotFoundException {
+
         transactionService.withdraw(id, value);
     }
 
-    public void transfer(UUID fromId, UUID toId, BigDecimal value) throws InvalidAmountException, InsufficientBalanceException,
+    public void transfer(UUID fromId,
+                         UUID toId,
+                         BigDecimal value)
+            throws InvalidAmountException, InsufficientBalanceException,
             InvalidTransferException, AccountNotFoundException {
 
         transactionService.transfer(fromId, toId, value);
     }
 
-    public List<Account> getAccountsByClient(String id) throws InvalidCpfException, ClientNotFoundException {
-        return accountService.getAccountsByClient(id);
+    public List<Account> getClientAccounts(String cpf)
+            throws InvalidCpfException, ClientNotFoundException {
+
+        return accountService.getClientAccounts(cpf);
     }
 
-    public Account getAccountOfClient(String cpf, UUID accountId) throws AccountNotFoundException, ClientNotFoundException {
-        return accountService.getAccountOfClient(cpf, accountId);
+    public Account getClientAccount(String cpf,
+                                      UUID accountId)
+            throws AccountNotFoundException, ClientNotFoundException {
+
+        return accountService.getClientAccount(cpf, accountId);
     }
 
-    public Client getClient(String cpf) throws ClientNotFoundException { return clientService.get(cpf); }
+    public Client getClient(String cpf)
+            throws ClientNotFoundException { return clientService.getClient(cpf); }
 
-    public Account getAccount(UUID id) throws AccountNotFoundException { return accountService.get(id); }
+    public Account getAccount(UUID id)
+            throws AccountNotFoundException { return accountService.getAccount(id); }
 
-    public BigDecimal getAccountBalance(UUID id) throws AccountNotFoundException {
+    public BigDecimal getAccountBalance(UUID id)
+            throws AccountNotFoundException {
+
         return accountService.getAccountBalance(id);
     }
 }

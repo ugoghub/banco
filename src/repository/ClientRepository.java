@@ -5,6 +5,7 @@ import model.Client;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class ClientRepository {
     private final Map<String, Client> clients;
@@ -21,18 +22,7 @@ public class ClientRepository {
         clients.remove(cpf);
     }
 
-    public Client findById(String cpf) throws ClientNotFoundException {
-        Client client = clients.get(cpf);
-
-        if (client == null) {
-            throw new ClientNotFoundException("Cliente não encontrado");
-        }
-
-        return client;
-    }
-
-
-    public boolean existsByCpf(String cpf) {
-        return clients.containsKey(cpf);
+    public Optional<Client> findById(String cpf){
+        return Optional.ofNullable(clients.get(cpf));
     }
 }
