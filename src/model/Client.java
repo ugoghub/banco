@@ -1,17 +1,17 @@
 package model;
 
+import model.valueObject.Cpf;
+
 import java.util.UUID;
 
 public class Client {
     private final UUID id;
     private String name;
-    private final String cpf;
+    private final Cpf cpf;
     private String email;
 
-    //CPF como objeto?
-
     public Client(String name,
-                  String cpf,
+                  Cpf cpf,
                   String email) {
 
         this.id = UUID.randomUUID();
@@ -30,9 +30,11 @@ public class Client {
     public void setName(String name) {
         this.name = name;
     }
+
     public String getCpf() {
-        return cpf;
+        return cpf.toString();
     }
+
     public String getEmail() {
         return email;
     }

@@ -42,16 +42,6 @@ public class InputReader {
         }
     }
 
-    public static String readCpf(Scanner scanner, String message) {
-        System.out.print(message);
-
-        String cpf = scanner.nextLine().trim();
-
-        cpf = cpf.replaceAll("[^0-9]", "");
-
-        return cpf;
-    }
-
     public static String readString(Scanner scanner, String message) {
         while (true) {
             System.out.print(message);

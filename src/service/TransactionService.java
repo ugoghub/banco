@@ -2,7 +2,7 @@ package service;
 
 import model.Account;
 import model.Transaction;
-import model.TypeTransaction;
+import model.TransactionType;
 import exception.*;
 
 
@@ -26,7 +26,7 @@ public class TransactionService {
 
         Account account = accountService.getAccount(id);
         account.deposit(value);
-        account.addTransaction(new Transaction(TypeTransaction.DEPOSIT, value, null, account.getId()));
+        account.addTransaction(new Transaction(TransactionType.DEPOSIT, value, null, account.getId()));
     }
 
 
@@ -36,7 +36,7 @@ public class TransactionService {
 
         Account account = accountService.getAccount(id);
         account.withdraw(value);
-        account.addTransaction(new Transaction(TypeTransaction.WITHDRAW, value, account.getId(), null));
+        account.addTransaction(new Transaction(TransactionType.WITHDRAW, value, account.getId(), null));
     }
 
 
@@ -59,7 +59,7 @@ public class TransactionService {
 
         try{
             to.deposit(value);
-            Transaction t = new Transaction(TypeTransaction.TRANSFER, value, from.getId(), to.getId());
+            Transaction t = new Transaction(TransactionType.TRANSFER, value, from.getId(), to.getId());
             from.addTransaction(t);
             to.addTransaction(t);
         }catch(InvalidAmountException e){

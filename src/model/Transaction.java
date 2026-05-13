@@ -2,16 +2,17 @@ package model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 public class Transaction {
-    private final TypeTransaction type;
+    private final TransactionType type;
     private final BigDecimal amount;
     private final LocalDateTime dateTime;
     private final UUID sourceId;
     private final UUID destinationId;
 
-    public Transaction(TypeTransaction type,
+    public Transaction(TransactionType type,
                        BigDecimal amount,
                        UUID sourceId,
                        UUID destinationId){
@@ -23,7 +24,7 @@ public class Transaction {
         this.destinationId = destinationId;
     }
 
-    public TypeTransaction getType() {
+    public TransactionType getType() {
         return type;
     }
 
@@ -31,26 +32,25 @@ public class Transaction {
         return amount;
     }
 
-    public LocalDateTime getDateTime() {
-        return dateTime;
+    public String getDateTime() {
+        return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
     public UUID getSourceId() {
         return sourceId;
     }
 
-    public UUID getdestinationIdId() {
+    public UUID getDestinationId() {
         return destinationId;
     }
 
     @Override
     public String toString() {
-        return "Transaction{" +
-                "dateTime=" + dateTime +
-                ", type=" + type +
-                ", sourceIdId=" + sourceId +
-                ", destinationIdId=" + destinationId +
-                ", amount=" + amount +
+        return "[" + type + "],\n" +
+                "dateTime = " + getDateTime() +
+                ",\n amount = " + amount +
+                ",\n sourceId = " + sourceId +
+                ",\n destinationId = " + destinationId +
                 '}';
     }
 }

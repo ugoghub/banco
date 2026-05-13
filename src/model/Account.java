@@ -9,20 +9,21 @@ import java.util.List;
 import java.util.UUID;
 
 import exception.*;
+import model.valueObject.AccountIdentity;
 
 
 public abstract class Account {
-    protected UUID clientId;
+    private final UUID clientId;
     protected final UUID id;
-    protected String branch;
-    protected BigDecimal balance;
-    protected final LocalDateTime creationTime;
-    protected final List<Transaction> transactionHistory;
+    private final AccountIdentity accountIdentity;
+    private BigDecimal balance;
+    private final LocalDateTime creationTime;
+    private final List<Transaction> transactionHistory;
 
-    public Account(UUID clientId) {
+    public Account(UUID clientId, AccountIdentity accountIdentity) {
         this.id = UUID.randomUUID();
         this.clientId = clientId;
-        this.branch = "0001";
+        this.accountIdentity = accountIdentity;
         this.balance = BigDecimal.ZERO;
         this.creationTime = LocalDateTime.now();
         this.transactionHistory = new ArrayList<>();
@@ -33,7 +34,7 @@ public abstract class Account {
         if (value.compareTo(BigDecimal.ZERO) <= 0)
             throw new InvalidAmountException("Valor inválido");
 
-        this.balance = this.balance.add(value).setScale(2, RoundingMode.HALF_UP);
+        increaseBalance(value);
     }
 
     public boolean accountCanBeRemoved(){
@@ -62,14 +63,25 @@ public abstract class Account {
         return balance;
     }
 
+    protected void increaseBalance(BigDecimal value){
+        this.balance = this.balance.add(value).setScale(2, RoundingMode.HALF_UP);
+    }
+    protected void decreaseBalance(BigDecimal value){
+        this.balance = this.balance.subtract(value).setScale(2, RoundingMode.HALF_UP);
+    }
+
     public LocalDateTime getCreationTime() {
         return creationTime;
     }
 
     @Override
     public String toString() {
-        return getAccountType() + " (ID: " + this.id + ")";
+        return getAccountType() + " | Ag: " + accountIdentity.branch() + " | Conta: " + accountIdentity.accountNumber();
     }
 
     public abstract String getAccountType();
+
+    public AccountIdentity getAccountIdentity() {
+        return accountIdentity;
+    }
 }

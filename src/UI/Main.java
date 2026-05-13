@@ -2,6 +2,7 @@ package UI;
 
 import model.*;
 import exception.*;
+import model.valueObject.Cpf;
 import service.ApplicationService;
 
 import java.math.BigDecimal;
@@ -34,12 +35,12 @@ public class Main {
 
                     String name = InputReader.readString(scanner, "Nome completo: ");
 
-                    String cpf = InputReader.readCpf(scanner, "CPF: ");
+                    String cpf = InputReader.readString(scanner, "CPF: ");
 
                     String email = InputReader.readEmail(scanner, "Email: ");
 
                     try {
-                        applicationService.createClient(name, cpf, email);
+                        applicationService.createClient(name, new Cpf(cpf), email);
                         System.out.println("Cliente cadastrado com sucesso!");
                     } catch (CpfAlreadyExistsException | InvalidCpfException e) {
                         System.out.println("Erro: " + e.getMessage());
@@ -49,7 +50,7 @@ public class Main {
                 // CRIAR CONTA
                 case 2:
 
-                    String cpfAccount = InputReader.readCpf(scanner, "CPF do cliente: ");
+                    String cpfAccount = InputReader.readString(scanner, "CPF do cliente: ");
 
                     try {
                         System.out.println("Tipo da conta:");
@@ -59,13 +60,13 @@ public class Main {
 
                         int typeOption = InputReader.readOption(scanner, t -> t > 0 && t <= 2);
 
-                        TypeAccount type = (typeOption == 1)
-                                ? TypeAccount.CHECKING
-                                : TypeAccount.SAVING;
+                        AccountType type = (typeOption == 1)
+                                ? AccountType.CHECKING
+                                : AccountType.SAVING;
 
                         Account account = applicationService.createAccount(cpfAccount, type);
 
-                        System.out.println("Conta criada com sucesso! ID: " + account.getId());
+                        System.out.println("\nConta criada com sucesso!\n" + account);
 
                     } catch (ClientNotFoundException e) {
                         System.out.println("Erro: " + e.getMessage());
@@ -76,7 +77,7 @@ public class Main {
                 // ACESSAR CONTA
                 case 3:
 
-                    String cpfClient = InputReader.readCpf(scanner, "Digite seu CPF: ");
+                    String cpfClient = InputReader.readString(scanner, "Digite seu CPF: ");
 
                     try {
                         List<Account> accounts = applicationService.getClientAccounts(cpfClient);
@@ -108,7 +109,7 @@ public class Main {
                     break;
 
                 case 4:
-                    String clientCpf = InputReader.readCpf(scanner, "Digite seu Cpf para excluir sua conta: ");
+                    String clientCpf = InputReader.readString(scanner, "Digite seu Cpf para excluir sua conta: ");
                     try {
                         applicationService.removeClient(clientCpf);
                     } catch (ClientNotFoundException | AccountDeletionNotAllowedException e) {
@@ -117,7 +118,7 @@ public class Main {
                     break;
 
                 case 5:
-                    String cpfCli = InputReader.readCpf(scanner, "Digite seu Cpf: ");
+                    String cpfCli = InputReader.readString(scanner, "Digite seu Cpf: ");
 
                     try {
                         List<Account> accounts = applicationService.getClientAccounts(cpfCli);
@@ -233,7 +234,7 @@ public class Main {
                 case 4:
 
                     String cpfTransfer =
-                            InputReader.readCpf(scanner,
+                            InputReader.readString(scanner,
                                     "Para quem você deseja transferir? (CPF): ");
 
                     List<Account> accounts =

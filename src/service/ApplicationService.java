@@ -1,7 +1,10 @@
 package service;
 
-import model.*;
 import exception.*;
+import model.Account;
+import model.AccountType;
+import model.Client;
+import model.valueObject.Cpf;
 import repository.AccountRepository;
 import repository.ClientRepository;
 
@@ -24,15 +27,15 @@ public class ApplicationService {
     }
 
     public void createClient(String name,
-                             String cpf,
+                             Cpf cpf,
                              String email)
             throws CpfAlreadyExistsException, InvalidCpfException {
 
-        clientService.save(name, cpf, email);
+        clientService.save(name, cpf.toString(), email);
     }
 
     public Account createAccount(String cpf,
-                                 TypeAccount type)
+                                 AccountType type)
             throws ClientNotFoundException {
 
         return accountService.save(cpf, type);

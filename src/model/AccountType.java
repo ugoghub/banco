@@ -1,6 +1,6 @@
 package model;
 
-public enum TypeAccount {
+public enum AccountType {
     CHECKING,
     SAVING
 }

@@ -1,9 +1,10 @@
 package service;
 
+import exception.AccountDeletionNotAllowedException;
 import exception.AccountNotFoundException;
 import exception.ClientNotFoundException;
-import exception.AccountDeletionNotAllowedException;
 import model.*;
+import model.valueObject.AccountIdentity;
 import repository.AccountRepository;
 
 import java.math.BigDecimal;
@@ -24,17 +25,19 @@ public class AccountService {
 
 
     public Account save(String cpf,
-                        TypeAccount type)
+                        AccountType type)
             throws ClientNotFoundException {
 
         Client client = clientService.getClient(cpf);
 
         Account account;
 
-        if(type == TypeAccount.CHECKING){
-            account = new CheckingAccount(client.getId());
+        AccountIdentity accountIdentity = accountRepository.generateAccountIdentity();
+
+        if(type == AccountType.CHECKING){
+            account = new CheckingAccount(client.getId(),accountIdentity);
         }else{
-            account = new SavingsAccount(client.getId());
+            account = new SavingsAccount(client.getId(), accountIdentity);
         }
 
         return accountRepository.save(account);
@@ -96,7 +99,9 @@ public class AccountService {
         return account.getBalance();
     }
 
-    public void validateIfAccountCanBeRemoved(String cpf) throws ClientNotFoundException, AccountDeletionNotAllowedException {
+    public void validateIfAccountCanBeRemoved(String cpf)
+            throws ClientNotFoundException, AccountDeletionNotAllowedException {
+
         List<Account> clientAccounts = getClientAccounts(cpf);
 
         boolean hasNonZeroBalance =

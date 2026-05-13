@@ -1,20 +1,21 @@
 package model;
 
+import exception.InsufficientBalanceException;
+import exception.InvalidAmountException;
+import model.valueObject.AccountIdentity;
+
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.UUID;
-
-import exception.*;
 
 
 public class SavingsAccount extends Account {
     private LocalDateTime lastInterestApply; // data da ultima vez da aplicação de juros
-    private static final BigDecimal INTEREST_RATE = new BigDecimal("0.005");
+    private static final BigDecimal INTEREST_RATE = new BigDecimal("0.005"); // valor juros
 
-    public SavingsAccount(UUID clientId) {
-        super(clientId);
-        this.lastInterestApply = this.creationTime;
+    public SavingsAccount(UUID clientId, AccountIdentity accountIdentity) {
+        super(clientId, accountIdentity);
+        this.lastInterestApply = this.getCreationTime();
     }
 
     @Override
@@ -24,12 +25,11 @@ public class SavingsAccount extends Account {
         if (value.compareTo(BigDecimal.ZERO) <= 0)
             throw new InvalidAmountException("Valor inválido");
 
-        if(value.compareTo(balance) > 0) {
+        if(value.compareTo(getBalance()) > 0) {
             throw new InsufficientBalanceException("Saldo Insuficiente");
         }
 
-
-        balance = balance.subtract(value).setScale(2, RoundingMode.HALF_UP);
+        this.decreaseBalance(value);
     }
 
     public boolean isTimeToApplyInterest() {
@@ -39,12 +39,11 @@ public class SavingsAccount extends Account {
     public boolean applyInterest(){
         if(!isTimeToApplyInterest()) return false;
 
-        BigDecimal interest = this.balance.multiply(INTEREST_RATE);
+        BigDecimal interest = getBalance().multiply(INTEREST_RATE);
 
-        this.balance = this.balance.add(interest)
-                        .setScale(2, RoundingMode.HALF_UP);
+        this.increaseBalance(interest);
 
-        addTransaction(new Transaction(TypeTransaction.INTEREST, interest, null,this.getId()));
+        addTransaction(new Transaction(TransactionType.INTEREST, interest, null,this.getId()));
         lastInterestApply = LocalDateTime.now();
         return true;
     }
