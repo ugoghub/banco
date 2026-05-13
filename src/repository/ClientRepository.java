@@ -21,7 +21,7 @@ public class ClientRepository {
         clients.remove(cpf);
     }
 
-    public Optional<Client> findById(String cpf){
+    public Optional<Client> findByCpf(String cpf){
         return Optional.ofNullable(clients.get(cpf));
     }
 }

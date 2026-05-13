@@ -23,7 +23,7 @@ public class ClientService {
             throw new InvalidCpfException("CPF inválido");
         }
 
-        if (clientRepository.findById(cpf).isPresent()) {
+        if (clientRepository.findByCpf(cpf).isPresent()) {
             throw new CpfAlreadyExistsException("CPF já cadastrado");
         }
 
@@ -37,7 +37,7 @@ public class ClientService {
             throws ClientNotFoundException {
 
         return clientRepository.
-                findById(cpf).
+                findByCpf(cpf).
                 orElseThrow(() ->
                         new ClientNotFoundException("Cliente não encontrado"));
     }
