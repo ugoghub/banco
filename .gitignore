@@ -1,0 +1,43 @@
+# IntelliJ
+.idea/
+*.iml
+out/
+
+# Compiled class files
+*.class
+
+# Logs
+*.log
+
+# Package files
+*.jar
+*.war
+*.ear
+
+# Build folders
+target/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+
+# VS Code
+.vscode/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# NetBeans
+nbproject/private/
+build/
+dist/
+
+# Temporary files
+*.tmp
+*.temp
