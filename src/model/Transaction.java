@@ -22,7 +22,7 @@ public class Transaction {
 
         this.type = type;
         this.amount = amount;
-        this.dateTime = LocalDateTime.parse(LocalDateTime.now().format(FORMATTER));
+        this.dateTime = LocalDateTime.now();
         this.sourceIdentity = sourceId;
         this.destinationIdentity = destinationId;
     }
@@ -56,8 +56,8 @@ public class Transaction {
                 Origem: %s
                 Destino: %s
                 """.formatted(
-                type,
-                dateTime,
+                type.getDescription(),
+                dateTime.format(FORMATTER),
                 amount,
                 formatIdentity(sourceIdentity),
                 formatIdentity(destinationIdentity)

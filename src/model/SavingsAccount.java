@@ -14,18 +14,18 @@ public class SavingsAccount extends Account {
     private LocalDateTime lastInterestApply; // data da ultima vez da aplicação de juros
     private static final BigDecimal INTEREST_RATE = new BigDecimal("0.005"); // valor juros
 
-    public SavingsAccount(UUID clientId, AccountIdentity accountIdentity) {
-        super(clientId, accountIdentity);
+    public SavingsAccount(UUID clientId, AccountIdentity accountIdentity, AccountType accountType) {
+        super(clientId, accountIdentity, accountType);
         this.lastInterestApply = this.getCreationTime();
     }
 
     @Override
     public void withdraw(Money value) {
 
-        if (value.isNegative() || value.isZero())
+        if (Money.isNegativeOrZero(value))
             throw new InvalidAmountException("Valor inválido");
 
-        if(value.isGreaterThanOrEqual(getBalance())) {
+        if(value.isGreaterThan(getBalance())) {
             throw new InsufficientBalanceException("Saldo Insuficiente");
         }
 

@@ -284,11 +284,8 @@ public class Main {
 
                     try {
 
-                        AccountIdentity accountsId =
-                                applicationService.getClientAccountsIdentity(account);
-
                         List<Transaction> transactionHistory =
-                                account.getTransactionHistory();
+                                applicationService.getAccountTransactions(account);
 
                         if (transactionHistory.isEmpty()) {
                             System.out.println("Conta sem extrato");

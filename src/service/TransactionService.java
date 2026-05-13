@@ -1,13 +1,12 @@
 package service;
 
+import exception.InvalidAmountException;
+import exception.InvalidTransferException;
 import model.Account;
 import model.Transaction;
 import model.TransactionType;
-import exception.*;
+import model.valueObject.AccountIdentity;
 import model.valueObject.Money;
-
-
-import java.util.UUID;
 
 public class TransactionService {
     private final AccountService accountService;
@@ -18,31 +17,31 @@ public class TransactionService {
     }
 
 
-    public void deposit(UUID id,
+    public void deposit(AccountIdentity id,
                         Money value) {
 
 
-        Account account = accountService.getAccount(id);
+        Account account = accountService.getAccountByAccountIdentity(id);
         account.deposit(value);
         account.addTransaction(new Transaction(TransactionType.DEPOSIT, value, null, account.getAccountIdentity()));
     }
 
 
-    public void withdraw(UUID id,
+    public void withdraw(AccountIdentity id,
                          Money value) {
 
-        Account account = accountService.getAccount(id);
+        Account account = accountService.getAccountByAccountIdentity(id);
         account.withdraw(value);
         account.addTransaction(new Transaction(TransactionType.WITHDRAW, value, account.getAccountIdentity(), null));
     }
 
 
-    public void transfer(UUID fromId,
-                         UUID toId,
+    public void transfer(AccountIdentity fromId,
+                         AccountIdentity toId,
                          Money value) {
 
-        Account from = accountService.getAccount(fromId);
-        Account to = accountService.getAccount(toId);
+        Account from = accountService.getAccountByAccountIdentity(fromId);
+        Account to = accountService.getAccountByAccountIdentity(toId);
 
         if (from.getId().equals(to.getId())) {
             throw new InvalidTransferException("Não é possível transferir para a mesma conta");

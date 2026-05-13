@@ -74,23 +74,24 @@ public class AccountRepository {
         return Optional.ofNullable(accounts.get(id));
     }
 
-    public Optional<AccountIdentity> findByAccountIdentity(AccountIdentity accountIdentity){
+    public Optional<Account> findByAccountIdentity(AccountIdentity accountIdentity){
         UUID uuid = accountIndex.get(accountIdentity);
-        return Optional.ofNullable(findById(uuid).get().getAccountIdentity());
+        return findById(uuid);
     }
 
-    public void removeClientAccount(UUID id){
-        Account removed = accounts.remove(id);
+    public void removeClientAccount(UUID clientId){
+        Account removed = accounts.remove(clientId);
         if(removed != null) accountIndex.remove(removed.getAccountIdentity());
     }
 
-    public void removeClientAccounts(UUID id) {
+    public void removeClientAccounts(UUID clientId) {
         Set<UUID> removedAccountIds = new HashSet<>();
 
-        accounts.entrySet().removeIf(entry -> {
+        accounts.entrySet()
+                .removeIf(entry -> {
 
             boolean remove =
-                    entry.getValue().getClientId().equals(id);
+                    entry.getValue().getClientId().equals(clientId);
 
             if (remove) {
                 removedAccountIds.add(entry.getKey());

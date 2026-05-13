@@ -18,19 +18,20 @@ public abstract class Account {
     private Money balance;
     private final LocalDateTime creationTime;
     private final List<Transaction> transactionHistory;
-    protected AccountType accountType;
+    private final AccountType accountType;
 
-    public Account(UUID clientId, AccountIdentity accountIdentity) {
+    public Account(UUID clientId, AccountIdentity accountIdentity, AccountType accountType) {
         this.id = UUID.randomUUID();
         this.clientId = clientId;
         this.accountIdentity = accountIdentity;
-        this.balance = Money.zero();
+        this.accountType = accountType;
+        this.balance = Money.ZERO;
         this.creationTime = LocalDateTime.now();
         this.transactionHistory = new ArrayList<>();
     }
     public void deposit(Money value) {
 
-        if (value.isNegative() || value.isZero())
+        if (value.compareTo(Money.ZERO) <= 0)
             throw new InvalidAmountException("Valor inválido");
 
         increaseBalance(value);
@@ -73,7 +74,7 @@ public abstract class Account {
 
     @Override
     public String toString() {
-        return accountType.getDescription() + " | Ag: " + accountIdentity.branch() + " | Conta: " + accountIdentity.accountNumber();
+        return accountType.getDescription() + accountIdentity;
     }
     public AccountIdentity getAccountIdentity() {
         return accountIdentity;

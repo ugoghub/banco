@@ -5,14 +5,24 @@ import exception.InvalidCpfException;
 import java.util.Objects;
 
 public record Cpf(String cpf) {
-    public Cpf {
+
+    public Cpf(String cpf) {
+
         Objects.requireNonNull(cpf);
 
-        cpf = cpf.replaceAll("[^0-9]", "");
+        String normalizedCpf =
+                cpf.replaceAll("[^0-9]", "");
 
-        if (!cpfValidator(cpf)) {
+        if (!cpfValidator(normalizedCpf)) {
             throw new InvalidCpfException("CPF inválido");
         }
+
+        this.cpf = normalizedCpf;
+    }
+
+    @Override
+    public String toString() {
+        return cpf.replaceFirst("(\\d{3})(\\d{3})(\\d{3})(\\d{2})", "$1.$2.$3-$4");
     }
 
     private static boolean cpfValidator(String cpf) {

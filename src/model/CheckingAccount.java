@@ -12,18 +12,18 @@ import java.util.UUID;
 public class CheckingAccount extends Account{
     private static final Money WITHDRAW_LIMIT = new Money(new BigDecimal("1000"));
 
-    public CheckingAccount(UUID clientId, AccountIdentity accountIdentity) {
-        super(clientId, accountIdentity);
+    public CheckingAccount(UUID clientId, AccountIdentity accountIdentity, AccountType accountType) {
+        super(clientId, accountIdentity, accountType);
     }
 
     @Override
     public void withdraw(Money value) {
 
-        if (value.isNegative() || value.isZero())
+        if (Money.isNegativeOrZero(value))
             throw new InvalidAmountException("Valor inválido");
 
         Money available = getBalance().add(WITHDRAW_LIMIT);
-        if (!available.isGreaterThanOrEqual(value)) throw new InsufficientBalanceException("Saldo Insuficiente");
+        if (value.isGreaterThan(available)) throw new InsufficientBalanceException("Saldo Insuficiente");
 
         this.decreaseBalance(value);
     }

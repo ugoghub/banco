@@ -1,5 +1,6 @@
 package UI;
 
+import exception.InvalidAmountException;
 import exception.InvalidCpfException;
 import model.valueObject.Cpf;
 import model.valueObject.Money;
@@ -16,14 +17,14 @@ public class InputReader {
                 String input = scanner.nextLine().trim().replace(",", ".");
                 Money value = new Money(new BigDecimal(input));
 
-                if (value.isZero() || value.isNegative()) {
+                if (Money.isNegativeOrZero(value)) {
                     System.out.print("Valor deve ser maior que zero. \n");
                     continue;
                 }
 
                 return value;
 
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException | InvalidAmountException e) {
                 System.out.print("Formato inválido. Tente novamente:\n");
             }
         }

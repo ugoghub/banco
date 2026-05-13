@@ -3,6 +3,7 @@ package service;
 import model.Account;
 import model.AccountType;
 import model.Client;
+import model.Transaction;
 import model.valueObject.AccountIdentity;
 import model.valueObject.Cpf;
 import model.valueObject.Money;
@@ -50,18 +51,16 @@ public class ApplicationService {
     }
 
     public void removeClientAccount(AccountIdentity accountIdentity) {
-        accountService.
-
-        accountService.removeClientAccount(id);
+        accountService.removeClientAccount(accountIdentity);
     }
 
-    public void deposit(UUID id,
+    public void deposit(AccountIdentity id,
                         Money value){
 
         transactionService.deposit(id, value);
     }
 
-    public void withdraw(UUID id,
+    public void withdraw(AccountIdentity id,
                          Money value) {
 
         transactionService.withdraw(id, value);
@@ -79,7 +78,7 @@ public class ApplicationService {
         return accountService.getClientAccountsIdentity(cpf);
     }
 
-    public Account getClientAccount(Cpf cpf,
+    public Account getClientAccountIdentity(Cpf cpf,
                                       UUID accountId) {
 
         return accountService.getClientAccount(cpf, accountId);
@@ -88,13 +87,19 @@ public class ApplicationService {
     public Client getClient(Cpf cpf)
              { return clientService.getClient(cpf); }
 
-    public Account getAccount(AccountIdentity accountIdentity)
+    public Account getAccountByIdentity(AccountIdentity accountIdentity)
              { return accountService.getAccountByAccountIdentity(accountIdentity); }
 
-    public Money getAccountBalance(UUID id)
+    public Money getAccountBalance(AccountIdentity id)
              {
 
         return accountService.getAccountBalance(id);
+    }
+
+    public List<Transaction> getAccountTransactions(AccountIdentity accountIdentity){
+        Account account = getAccountByIdentity(accountIdentity);
+
+        return account.getTransactionHistory();
     }
 }
 
