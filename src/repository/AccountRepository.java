@@ -40,17 +40,15 @@ public class AccountRepository {
 
     public AccountIdentity generateAccountIdentity() {
 
-        String branch;
-        String accountNumber;
+        AccountIdentity accountIdentity;
 
         do {
 
-            branch = generateBranch();
-            accountNumber = generateAccountNumber();
+            accountIdentity = new AccountIdentity(generateBranch(), generateAccountNumber());
 
-        } while(accountExists(new AccountIdentity(branch, accountNumber)));
+        } while(accountExists(accountIdentity));
 
-        return new AccountIdentity(branch, accountNumber);
+        return accountIdentity;
     }
 
     private boolean accountExists(AccountIdentity accountIdentity) {
@@ -63,11 +61,12 @@ public class AccountRepository {
         return account;
     }
 
-    public List<Account> getAccountsByClient(UUID id) {
+    public List<AccountIdentity> getAccountsByClient(UUID id) {
 
         return accounts.values()
                 .stream()
                 .filter(a -> a.getClientId().equals(id))
+                .map(Account::getAccountIdentity)
                 .toList();
     }
 
@@ -75,10 +74,14 @@ public class AccountRepository {
         return Optional.ofNullable(accounts.get(id));
     }
 
+    public Optional<AccountIdentity> findByAccountIdentity(AccountIdentity accountIdentity){
+        UUID uuid = accountIndex.get(accountIdentity);
+        return Optional.ofNullable(findById(uuid).get().getAccountIdentity());
+    }
+
     public void removeClientAccount(UUID id){
-        Account account = accounts.get(id);
-        accounts.remove(id);
-        accountIndex.remove(account.getAccountIdentity());
+        Account removed = accounts.remove(id);
+        if(removed != null) accountIndex.remove(removed.getAccountIdentity());
     }
 
     public void removeClientAccounts(UUID id) {

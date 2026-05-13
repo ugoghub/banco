@@ -2,7 +2,6 @@ package service;
 
 import exception.ClientNotFoundException;
 import exception.CpfAlreadyExistsException;
-import exception.InvalidCpfException;
 import model.Client;
 import model.valueObject.Cpf;
 import repository.ClientRepository;
@@ -15,22 +14,20 @@ public class ClientService {
     }
 
     public void save(String name,
-                     String cpf,
-                     String email)
-            throws CpfAlreadyExistsException, InvalidCpfException {
+                     Cpf cpf,
+                     String email) {
 
         if (clientRepository.findByCpf(cpf).isPresent()) {
             throw new CpfAlreadyExistsException("CPF já cadastrado");
         }
 
-        Client client = new Client(name, new Cpf(cpf), email);
+        Client client = new Client(name, cpf, email);
 
         clientRepository.save(client);
     }
 
 
-    public Client getClient(String cpf)
-            throws ClientNotFoundException {
+    public Client getClient(Cpf cpf) {
 
         return clientRepository.
                 findByCpf(cpf).
@@ -38,8 +35,7 @@ public class ClientService {
                         new ClientNotFoundException("Cliente não encontrado"));
     }
 
-    public void delete(String cpf)
-            throws ClientNotFoundException {
+    public void delete(Cpf cpf) {
 
         Client client = getClient(cpf);
 

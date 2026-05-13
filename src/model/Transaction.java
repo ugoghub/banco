@@ -1,56 +1,72 @@
 package model;
 
-import java.math.BigDecimal;
+import model.valueObject.AccountIdentity;
+import model.valueObject.Money;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.UUID;
 
 public class Transaction {
     private final TransactionType type;
-    private final BigDecimal amount;
+    private final Money amount;
+    private final AccountIdentity sourceIdentity;
+    private final AccountIdentity destinationIdentity;
     private final LocalDateTime dateTime;
-    private final UUID sourceId;
-    private final UUID destinationId;
+    private static final DateTimeFormatter FORMATTER =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     public Transaction(TransactionType type,
-                       BigDecimal amount,
-                       UUID sourceId,
-                       UUID destinationId){
+                       Money amount,
+                       AccountIdentity sourceId,
+                       AccountIdentity destinationId) {
 
         this.type = type;
         this.amount = amount;
-        this.dateTime = LocalDateTime.now();
-        this.sourceId = sourceId;
-        this.destinationId = destinationId;
+        this.dateTime = LocalDateTime.parse(LocalDateTime.now().format(FORMATTER));
+        this.sourceIdentity = sourceId;
+        this.destinationIdentity = destinationId;
     }
 
     public TransactionType getType() {
         return type;
     }
 
-    public BigDecimal getAmount() {
+    public Money getAmount() {
         return amount;
     }
 
-    public String getDateTime() {
-        return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    public LocalDateTime getDateTime() {
+        return dateTime;
     }
 
-    public UUID getSourceId() {
-        return sourceId;
+    public AccountIdentity getSourceId() {
+        return sourceIdentity;
     }
 
-    public UUID getDestinationId() {
-        return destinationId;
+    public AccountIdentity getDestinationId() {
+        return destinationIdentity;
     }
 
     @Override
     public String toString() {
-        return "[" + type + "],\n" +
-                "dateTime = " + getDateTime() +
-                ",\n amount = " + amount +
-                ",\n sourceId = " + sourceId +
-                ",\n destinationId = " + destinationId +
-                '}';
+        return """
+                [%s]
+                Data: %s
+                Valor: R$ %s
+                Origem: %s
+                Destino: %s
+                """.formatted(
+                type,
+                dateTime,
+                amount,
+                formatIdentity(sourceIdentity),
+                formatIdentity(destinationIdentity)
+        );
+    }
+
+    private String formatIdentity(AccountIdentity identity) {
+        if (identity == null) return "-";
+
+        return identity.branch() + " / " + identity.accountNumber();
     }
 }

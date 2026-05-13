@@ -2,12 +2,12 @@ package service;
 
 import exception.AccountDeletionNotAllowedException;
 import exception.AccountNotFoundException;
-import exception.ClientNotFoundException;
 import model.*;
 import model.valueObject.AccountIdentity;
+import model.valueObject.Cpf;
+import model.valueObject.Money;
 import repository.AccountRepository;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,9 +24,8 @@ public class AccountService {
     }
 
 
-    public Account save(String cpf,
-                        AccountType type)
-            throws ClientNotFoundException {
+    public Account save(Cpf cpf,
+                        AccountType type) {
 
         Client client = clientService.getClient(cpf);
 
@@ -44,16 +43,15 @@ public class AccountService {
     }
 
 
-    public List<Account> getClientAccounts(String cpf) throws ClientNotFoundException {
+    public List<AccountIdentity> getClientAccountsIdentity(Cpf cpf) {
         Client client = clientService.getClient(cpf);
 
         return accountRepository.getAccountsByClient(client.getId());
     }
 
 
-    public Account getClientAccount(String cpf,
-                                      UUID id)
-            throws AccountNotFoundException, ClientNotFoundException {
+    public Account getClientAccount(Cpf cpf,
+                                      UUID id){
 
         Client client = clientService.getClient(cpf);
 
@@ -70,8 +68,7 @@ public class AccountService {
         accountRepository.removeClientAccounts(id);
     }
 
-    public void removeClientAccount(UUID id)
-            throws AccountNotFoundException, AccountDeletionNotAllowedException {
+    public void removeClientAccount(UUID id) {
 
         Account account = getAccount(id);
 
@@ -82,9 +79,15 @@ public class AccountService {
         accountRepository.removeClientAccount(account.getId());
     }
 
+    public AccountIdentity getAccountByAccountIdentity(AccountIdentity accountIdentity) {
 
-    public Account getAccount(UUID id)
-            throws AccountNotFoundException {
+        return accountRepository.
+                findByAccountIdentity(accountIdentity).
+                orElseThrow(() -> new AccountNotFoundException("Conta não encontrada"));
+    }
+
+
+    public Account getAccountById(UUID id) {
 
         return accountRepository.
                 findById(id).
@@ -92,21 +95,19 @@ public class AccountService {
     }
 
 
-    public BigDecimal getAccountBalance(UUID id)
-            throws AccountNotFoundException {
+    public Money getAccountBalance(UUID id) {
 
         Account account = getAccount(id);
         return account.getBalance();
     }
 
-    public void validateIfAccountCanBeRemoved(String cpf)
-            throws ClientNotFoundException, AccountDeletionNotAllowedException {
+    public void validateIfAccountCanBeRemoved(Cpf cpf) {
 
         List<Account> clientAccounts = getClientAccounts(cpf);
 
         boolean hasNonZeroBalance =
                 clientAccounts.stream()
-                        .anyMatch(a -> a.getBalance().compareTo(BigDecimal.ZERO) != 0);
+                        .anyMatch(a -> !a.getBalance().isZero());
 
         if(hasNonZeroBalance){
             throw new AccountDeletionNotAllowedException("Cliente possui conta com pendência de saldo");

@@ -1,14 +1,16 @@
 package UI;
 
-import model.*;
 import exception.*;
+import model.Account;
+import model.AccountType;
+import model.Transaction;
+import model.valueObject.AccountIdentity;
 import model.valueObject.Cpf;
+import model.valueObject.Money;
 import service.ApplicationService;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Scanner;
-import java.util.UUID;
 
 public class Main {
 
@@ -35,12 +37,12 @@ public class Main {
 
                     String name = InputReader.readString(scanner, "Nome completo: ");
 
-                    String cpf = InputReader.readString(scanner, "CPF: ");
+                    Cpf cpf = InputReader.readCpf(scanner, "CPF: ");
 
                     String email = InputReader.readEmail(scanner, "Email: ");
 
                     try {
-                        applicationService.createClient(name, new Cpf(cpf), email);
+                        applicationService.createClient(name, cpf, email);
                         System.out.println("Cliente cadastrado com sucesso!");
                     } catch (CpfAlreadyExistsException | InvalidCpfException e) {
                         System.out.println("Erro: " + e.getMessage());
@@ -50,7 +52,7 @@ public class Main {
                 // CRIAR CONTA
                 case 2:
 
-                    String cpfAccount = InputReader.readString(scanner, "CPF do cliente: ");
+                    Cpf cpfAccount = InputReader.readCpf(scanner, "CPF do cliente: ");
 
                     try {
                         System.out.println("Tipo da conta:");
@@ -62,7 +64,7 @@ public class Main {
 
                         AccountType type = (typeOption == 1)
                                 ? AccountType.CHECKING
-                                : AccountType.SAVING;
+                                : AccountType.SAVINGS;
 
                         Account account = applicationService.createAccount(cpfAccount, type);
 
@@ -77,10 +79,10 @@ public class Main {
                 // ACESSAR CONTA
                 case 3:
 
-                    String cpfClient = InputReader.readString(scanner, "Digite seu CPF: ");
+                    Cpf cpfClient = InputReader.readCpf(scanner, "Digite seu CPF: ");
 
                     try {
-                        List<Account> accounts = applicationService.getClientAccounts(cpfClient);
+                        List<AccountIdentity> accounts = applicationService.getClientAccountsIdentity(cpfClient);
 
                         if (accounts.isEmpty()) {
                             System.out.println("Cliente não possui contas");
@@ -89,7 +91,7 @@ public class Main {
 
                         int i = 1;
 
-                        for (Account account : accounts) {
+                        for (AccountIdentity account : accounts) {
                             System.out.printf("%d - %s\n", i++, account);
                         }
 
@@ -98,9 +100,9 @@ public class Main {
                         int choice = InputReader.readOption(scanner,
                                 c -> c > 0 && c <= accounts.size());
 
-                        Account accountOfClient = accounts.get(choice - 1);
+                        AccountIdentity accountIdentity = accounts.get(choice - 1);
 
-                        accountMenu(scanner, applicationService, accountOfClient.getId());
+                        accountMenu(scanner, applicationService, accountIdentity);
 
                     } catch (InvalidCpfException | ClientNotFoundException e) {
                         System.out.println("Erro: " + e.getMessage());
@@ -109,7 +111,7 @@ public class Main {
                     break;
 
                 case 4:
-                    String clientCpf = InputReader.readString(scanner, "Digite seu Cpf para excluir sua conta: ");
+                    Cpf clientCpf = InputReader.readCpf(scanner, "Digite seu Cpf para excluir sua conta: ");
                     try {
                         applicationService.removeClient(clientCpf);
                     } catch (ClientNotFoundException | AccountDeletionNotAllowedException e) {
@@ -118,10 +120,10 @@ public class Main {
                     break;
 
                 case 5:
-                    String cpfCli = InputReader.readString(scanner, "Digite seu Cpf: ");
+                    Cpf cpfCli = InputReader.readCpf(scanner, "Digite seu Cpf: ");
 
                     try {
-                        List<Account> accounts = applicationService.getClientAccounts(cpfCli);
+                        List<AccountIdentity> accounts = applicationService.getClientAccountsIdentity(cpfCli);
 
                         if (accounts.isEmpty()) {
                             System.out.println("Cliente não possui contas");
@@ -130,7 +132,7 @@ public class Main {
 
                         int i = 1;
 
-                        for (Account account : accounts) {
+                        for (AccountIdentity account : accounts) {
                             System.out.printf("%d - %s\n", i++, account);
                         }
 
@@ -139,7 +141,7 @@ public class Main {
                         int choice = InputReader.readOption(scanner,
                                 c -> c > 0 && c <= accounts.size());
 
-                        applicationService.removeClientAccount(accounts.get(choice-1).getId());
+                        applicationService.removeClientAccount(accounts.get(choice-1));
 
 
                     } catch (InvalidCpfException | AccountNotFoundException | ClientNotFoundException |
@@ -163,12 +165,11 @@ public class Main {
     // MENU DA CONTA
     private static void accountMenu(Scanner scanner,
                                     ApplicationService applicationService,
-                                    UUID accountId)
-            throws InvalidCpfException, ClientNotFoundException {
+                                    AccountIdentity account) {
 
         while (true) {
 
-            System.out.println("\n===== CONTA " + accountId + " =====");
+            System.out.println("\n===== CONTA " + account + " =====");
             System.out.println("1 - Depositar");
             System.out.println("2 - Sacar");
             System.out.println("3 - Ver saldo");
@@ -184,11 +185,11 @@ public class Main {
 
                 case 1:
 
-                    BigDecimal depositValue =
+                    Money depositValue =
                             InputReader.readMoney(scanner, "Valor: ");
 
                     try {
-                        applicationService.deposit(accountId, depositValue);
+                        applicationService.deposit(account, depositValue);
                         System.out.println("Depósito realizado!");
                     } catch (InvalidAmountException |
                              AccountNotFoundException e) {
@@ -200,11 +201,11 @@ public class Main {
 
                 case 2:
 
-                    BigDecimal withdrawValue =
+                    Money withdrawValue =
                             InputReader.readMoney(scanner, "Valor: ");
 
                     try {
-                        applicationService.withdraw(accountId, withdrawValue);
+                        applicationService.withdraw(account, withdrawValue);
                         System.out.println("Saque realizado!");
 
                     } catch (InvalidAmountException |
@@ -222,8 +223,7 @@ public class Main {
                         System.out.println(
                                 "Saldo: R$ " +
                                         applicationService
-                                                .getAccountBalance(accountId)
-                                                .toPlainString());
+                                                .getAccountBalance(account));
 
                     } catch (AccountNotFoundException e) {
                         System.out.println("Erro: " + e.getMessage());
@@ -233,12 +233,12 @@ public class Main {
 
                 case 4:
 
-                    String cpfTransfer =
-                            InputReader.readString(scanner,
+                    Cpf cpfTransfer =
+                            InputReader.readCpf(scanner,
                                     "Para quem você deseja transferir? (CPF): ");
 
-                    List<Account> accounts =
-                            applicationService.getClientAccounts(cpfTransfer);
+                    List<AccountIdentity> accounts =
+                            applicationService.getClientAccountsIdentity(cpfTransfer);
 
                     if (accounts.isEmpty()) {
                         System.out.println("Cliente não possui contas");
@@ -247,8 +247,8 @@ public class Main {
 
                     int i = 1;
 
-                    for (Account account : accounts) {
-                        System.out.printf("%d - %s\n", i++, account);
+                    for (AccountIdentity accountIdentity : accounts) {
+                        System.out.printf("%d - %s\n", i++, accountIdentity);
                     }
 
                     System.out.println("Escolha a conta que você deseja transferir: ");
@@ -256,15 +256,15 @@ public class Main {
                     int choice = InputReader.readOption(scanner,
                             c -> c > 0 && c <= accounts.size());
 
-                    BigDecimal value =
+                    Money value =
                             InputReader.readMoney(scanner,
                                     "Digite o valor da transferência: ");
 
                     try {
 
                         applicationService.transfer(
-                                accountId,
-                                accounts.get(choice - 1).getId(),
+                                account,
+                                accounts.get(choice - 1),
                                 value
                         );
 
@@ -284,14 +284,15 @@ public class Main {
 
                     try {
 
-                        Account account =
-                                applicationService.getAccount(accountId);
+                        AccountIdentity accountsId =
+                                applicationService.getClientAccountsIdentity(account);
 
                         List<Transaction> transactionHistory =
                                 account.getTransactionHistory();
 
                         if (transactionHistory.isEmpty()) {
                             System.out.println("Conta sem extrato");
+                            break;
                         }
 
                         for (Transaction transaction : transactionHistory) {

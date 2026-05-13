@@ -1,18 +1,22 @@
 package UI;
 
+import exception.InvalidCpfException;
+import model.valueObject.Cpf;
+import model.valueObject.Money;
+
 import java.math.BigDecimal;
 import java.util.Scanner;
 import java.util.function.Predicate;
 
 public class InputReader {
-    public static BigDecimal readMoney(Scanner scanner,  String message) {
+    public static Money readMoney(Scanner scanner, String message) {
         while (true) {
             System.out.print(message);
             try {
                 String input = scanner.nextLine().trim().replace(",", ".");
-                BigDecimal value = new BigDecimal(input);
+                Money value = new Money(new BigDecimal(input));
 
-                if (value.compareTo(BigDecimal.ZERO) <= 0) {
+                if (value.isZero() || value.isNegative()) {
                     System.out.print("Valor deve ser maior que zero. \n");
                     continue;
                 }
@@ -54,6 +58,26 @@ public class InputReader {
             }
 
             return input;
+        }
+    }
+
+    public static Cpf readCpf(Scanner scanner, String message) {
+        while (true) {
+            System.out.print(message);
+
+            try {
+                String input = scanner.nextLine().trim();
+
+                if (input.isBlank()) {
+                    System.out.println("Entrada inválida.\n");
+                    continue;
+                }
+
+                return new Cpf(input);
+
+            } catch (InvalidCpfException e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 

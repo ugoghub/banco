@@ -1,13 +1,14 @@
 package repository;
 
 import model.Client;
+import model.valueObject.Cpf;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 public class ClientRepository {
-    private final Map<String, Client> clients;
+    private final Map<Cpf, Client> clients;
 
     public ClientRepository() {
         this.clients = new HashMap<>();
@@ -17,11 +18,11 @@ public class ClientRepository {
         clients.put(client.getCpf(), client);
     }
 
-    public void delete(String cpf){
+    public void delete(Cpf cpf){
         clients.remove(cpf);
     }
 
-    public Optional<Client> findByCpf(String cpf){
+    public Optional<Client> findByCpf(Cpf cpf){
         return Optional.ofNullable(clients.get(cpf));
     }
 }

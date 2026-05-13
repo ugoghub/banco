@@ -31,8 +31,8 @@ public class Client {
         this.name = name;
     }
 
-    public String getCpf() {
-        return cpf.toString();
+    public Cpf getCpf() {
+        return cpf;
     }
 
     public String getEmail() {

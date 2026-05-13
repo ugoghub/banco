@@ -1,46 +1,43 @@
 package model;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import exception.InvalidAmountException;
+import model.valueObject.AccountIdentity;
+import model.valueObject.Money;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import exception.*;
-import model.valueObject.AccountIdentity;
-
 
 public abstract class Account {
     private final UUID clientId;
     protected final UUID id;
     private final AccountIdentity accountIdentity;
-    private BigDecimal balance;
+    private Money balance;
     private final LocalDateTime creationTime;
     private final List<Transaction> transactionHistory;
+    protected AccountType accountType;
 
     public Account(UUID clientId, AccountIdentity accountIdentity) {
         this.id = UUID.randomUUID();
         this.clientId = clientId;
         this.accountIdentity = accountIdentity;
-        this.balance = BigDecimal.ZERO;
+        this.balance = Money.zero();
         this.creationTime = LocalDateTime.now();
         this.transactionHistory = new ArrayList<>();
     }
-    public void deposit(BigDecimal value)
-            throws InvalidAmountException {
+    public void deposit(Money value) {
 
-        if (value.compareTo(BigDecimal.ZERO) <= 0)
+        if (value.isNegative() || value.isZero())
             throw new InvalidAmountException("Valor inválido");
 
         increaseBalance(value);
     }
 
     public boolean accountCanBeRemoved(){
-        BigDecimal balance = getBalance();
-
-        return balance.compareTo(BigDecimal.ZERO) == 0;
+        return balance.isZero();
     }
 
     public void addTransaction(Transaction transaction) {
@@ -51,7 +48,7 @@ public abstract class Account {
         return Collections.unmodifiableList(transactionHistory);
     }
 
-    public abstract void withdraw(BigDecimal value) throws InvalidAmountException, InsufficientBalanceException;
+    public abstract void withdraw(Money value);
 
     public UUID getClientId() { return clientId; }
 
@@ -59,15 +56,15 @@ public abstract class Account {
         return id;
     }
 
-    public BigDecimal getBalance() {
+    public Money getBalance() {
         return balance;
     }
 
-    protected void increaseBalance(BigDecimal value){
-        this.balance = this.balance.add(value).setScale(2, RoundingMode.HALF_UP);
+    protected void increaseBalance(Money value){
+        this.balance = this.balance.add(value);
     }
-    protected void decreaseBalance(BigDecimal value){
-        this.balance = this.balance.subtract(value).setScale(2, RoundingMode.HALF_UP);
+    protected void decreaseBalance(Money value){
+        this.balance = this.balance.subtract(value);
     }
 
     public LocalDateTime getCreationTime() {
@@ -76,11 +73,8 @@ public abstract class Account {
 
     @Override
     public String toString() {
-        return getAccountType() + " | Ag: " + accountIdentity.branch() + " | Conta: " + accountIdentity.accountNumber();
+        return accountType.getDescription() + " | Ag: " + accountIdentity.branch() + " | Conta: " + accountIdentity.accountNumber();
     }
-
-    public abstract String getAccountType();
-
     public AccountIdentity getAccountIdentity() {
         return accountIdentity;
     }

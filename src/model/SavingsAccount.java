@@ -3,6 +3,7 @@ package model;
 import exception.InsufficientBalanceException;
 import exception.InvalidAmountException;
 import model.valueObject.AccountIdentity;
+import model.valueObject.Money;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,13 +20,12 @@ public class SavingsAccount extends Account {
     }
 
     @Override
-    public void withdraw(BigDecimal value)
-            throws InvalidAmountException, InsufficientBalanceException {
+    public void withdraw(Money value) {
 
-        if (value.compareTo(BigDecimal.ZERO) <= 0)
+        if (value.isNegative() || value.isZero())
             throw new InvalidAmountException("Valor inválido");
 
-        if(value.compareTo(getBalance()) > 0) {
+        if(value.isGreaterThanOrEqual(getBalance())) {
             throw new InsufficientBalanceException("Saldo Insuficiente");
         }
 
@@ -39,17 +39,12 @@ public class SavingsAccount extends Account {
     public boolean applyInterest(){
         if(!isTimeToApplyInterest()) return false;
 
-        BigDecimal interest = getBalance().multiply(INTEREST_RATE);
+        Money interest = getBalance().multiply(INTEREST_RATE);
 
         this.increaseBalance(interest);
 
-        addTransaction(new Transaction(TransactionType.INTEREST, interest, null,this.getId()));
+        addTransaction(new Transaction(TransactionType.INTEREST, interest, null,this.getAccountIdentity()));
         lastInterestApply = LocalDateTime.now();
         return true;
-    }
-
-    @Override
-    public String getAccountType() {
-        return "Conta Poupança";
     }
 }

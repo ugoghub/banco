@@ -2,22 +2,20 @@ package model.valueObject;
 
 import exception.InvalidCpfException;
 
-public class Cpf {
-    private final String cpf;
+import java.util.Objects;
 
-    public Cpf(String cpf) throws InvalidCpfException {
-        if(!cpfValidator(cpf)){
-            throw new InvalidCpfException("Cpf invalido");
+public record Cpf(String cpf) {
+    public Cpf {
+        Objects.requireNonNull(cpf);
+
+        cpf = cpf.replaceAll("[^0-9]", "");
+
+        if (!cpfValidator(cpf)) {
+            throw new InvalidCpfException("CPF inválido");
         }
-        this.cpf = cpf;
     }
 
-    @Override
-    public String toString() {
-        return cpf;
-    }
-
-    private static boolean cpfValidator(String cpf){
+    private static boolean cpfValidator(String cpf) {
 
         if (cpf == null || cpf.isBlank()) return false;
 
