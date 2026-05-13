@@ -9,6 +9,7 @@ import model.valueObject.Cpf;
 import model.valueObject.Money;
 import repository.AccountRepository;
 import repository.ClientRepository;
+import repository.TransactionRepository;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,10 +22,11 @@ public class ApplicationService {
     public ApplicationService() {
         ClientRepository clientRepository = new ClientRepository();
         AccountRepository accountRepository = new AccountRepository();
+        TransactionRepository transactionRepository = new TransactionRepository();
 
         this.clientService = new ClientService(clientRepository);
         this.accountService = new AccountService(accountRepository, clientService);
-        this.transactionService = new TransactionService(accountService);
+        this.transactionService = new TransactionService(accountService, transactionRepository);
     }
 
     public void createClient(String name,
@@ -97,9 +99,8 @@ public class ApplicationService {
     }
 
     public List<Transaction> getAccountTransactions(AccountIdentity accountIdentity){
-        Account account = getAccountByIdentity(accountIdentity);
-
-        return account.getTransactionHistory();
+        Account accountByIdentity = getAccountByIdentity(accountIdentity);
+        return transactionService.getTransactionHistory(accountByIdentity.getId());
     }
 }
 

@@ -17,7 +17,7 @@ public class CheckingAccount extends Account{
     }
 
     @Override
-    public void withdraw(Money value) {
+    public Transaction withdraw(Money value) {
 
         if (Money.isNegativeOrZero(value))
             throw new InvalidAmountException("Valor inválido");
@@ -26,5 +26,6 @@ public class CheckingAccount extends Account{
         if (value.isGreaterThan(available)) throw new InsufficientBalanceException("Saldo Insuficiente");
 
         this.decreaseBalance(value);
+        return new Transaction(TransactionType.WITHDRAW, value, this.getAccountIdentity(), null);
     }
 }

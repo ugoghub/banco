@@ -7,13 +7,18 @@ import model.Transaction;
 import model.TransactionType;
 import model.valueObject.AccountIdentity;
 import model.valueObject.Money;
+import repository.TransactionRepository;
+
+import java.util.List;
+import java.util.UUID;
 
 public class TransactionService {
     private final AccountService accountService;
+    private final TransactionRepository transactionRepository;
 
-
-    public TransactionService(AccountService accountService) {
+    public TransactionService(AccountService accountService, TransactionRepository transactionRepository) {
         this.accountService = accountService;
+        this.transactionRepository = transactionRepository;
     }
 
 
@@ -22,8 +27,7 @@ public class TransactionService {
 
 
         Account account = accountService.getAccountByAccountIdentity(id);
-        account.deposit(value);
-        account.addTransaction(new Transaction(TransactionType.DEPOSIT, value, null, account.getAccountIdentity()));
+        transactionRepository.save(account.getId(), account.deposit(value));
     }
 
 
@@ -31,8 +35,7 @@ public class TransactionService {
                          Money value) {
 
         Account account = accountService.getAccountByAccountIdentity(id);
-        account.withdraw(value);
-        account.addTransaction(new Transaction(TransactionType.WITHDRAW, value, account.getAccountIdentity(), null));
+        transactionRepository.save(account.getId(), account.withdraw(value));
     }
 
 
@@ -51,12 +54,16 @@ public class TransactionService {
 
         try {
             to.deposit(value);
-            Transaction t = new Transaction(TransactionType.TRANSFER, value, from.getAccountIdentity(), to.getAccountIdentity());
-            from.addTransaction(t);
-            to.addTransaction(t);
+            Transaction transaction = new Transaction(TransactionType.TRANSFER, value, from.getAccountIdentity(), to.getAccountIdentity());
+            transactionRepository.save(from.getId(), transaction);
+            transactionRepository.save(to.getId(), transaction);
         } catch (InvalidAmountException e) {
             from.deposit(value);
             throw e;
         }
+    }
+
+    public List<Transaction> getTransactionHistory(UUID account) {
+        return transactionRepository.getTransactionsByAccountId(account);
     }
 }

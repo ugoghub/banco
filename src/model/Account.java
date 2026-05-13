@@ -17,7 +17,6 @@ public abstract class Account {
     private final AccountIdentity accountIdentity;
     private Money balance;
     private final LocalDateTime creationTime;
-    private final List<Transaction> transactionHistory;
     private final AccountType accountType;
 
     public Account(UUID clientId, AccountIdentity accountIdentity, AccountType accountType) {
@@ -27,29 +26,21 @@ public abstract class Account {
         this.accountType = accountType;
         this.balance = Money.ZERO;
         this.creationTime = LocalDateTime.now();
-        this.transactionHistory = new ArrayList<>();
     }
-    public void deposit(Money value) {
+    public Transaction deposit(Money value) {
 
         if (value.compareTo(Money.ZERO) <= 0)
             throw new InvalidAmountException("Valor inválido");
 
         increaseBalance(value);
+        return new Transaction(TransactionType.DEPOSIT, value, null, this.getAccountIdentity());
     }
 
     public boolean accountCanBeRemoved(){
         return balance.isZero();
     }
 
-    public void addTransaction(Transaction transaction) {
-        this.transactionHistory.add(transaction);
-    }
-
-    public List<Transaction> getTransactionHistory() {
-        return Collections.unmodifiableList(transactionHistory);
-    }
-
-    public abstract void withdraw(Money value);
+    public abstract Transaction withdraw(Money value);
 
     public UUID getClientId() { return clientId; }
 
