@@ -4,15 +4,12 @@ import model.Account;
 import model.AccountType;
 import model.Client;
 import model.Transaction;
-import model.valueObject.AccountIdentity;
-import model.valueObject.Cpf;
-import model.valueObject.Money;
+import model.valueObject.*;
 import repository.AccountRepository;
 import repository.ClientRepository;
 import repository.TransactionRepository;
 
 import java.util.List;
-import java.util.UUID;
 
 public class ApplicationService {
     private final ClientService clientService;
@@ -29,14 +26,14 @@ public class ApplicationService {
         this.transactionService = new TransactionService(accountService, transactionRepository);
     }
 
-    public void createClient(String name,
+    public void createClient(PersonName name,
                              Cpf cpf,
-                             String email) {
+                             Email email) {
 
         clientService.save(name, cpf, email);
     }
 
-    public Account createAccount(Cpf cpf,
+    public AccountIdentity createAccount(Cpf cpf,
                                  AccountType type)
              {
 
@@ -45,7 +42,7 @@ public class ApplicationService {
 
     public void removeClient(Cpf cpf) {
 
-        Client client = clientService.getClient(cpf);
+        Client client = clientService.getClientByCpf(cpf);
 
         accountService.validateIfAccountCanBeRemoved(client.getCpf());
         accountService.removeClientAccounts(client.getId());
@@ -80,17 +77,8 @@ public class ApplicationService {
         return accountService.getClientAccountsIdentity(cpf);
     }
 
-    public Account getClientAccountIdentity(Cpf cpf,
-                                      UUID accountId) {
-
-        return accountService.getClientAccount(cpf, accountId);
-    }
-
     public Client getClient(Cpf cpf)
-             { return clientService.getClient(cpf); }
-
-    public Account getAccountByIdentity(AccountIdentity accountIdentity)
-             { return accountService.getAccountByAccountIdentity(accountIdentity); }
+             { return clientService.getClientByCpf(cpf); }
 
     public Money getAccountBalance(AccountIdentity id)
              {
@@ -99,7 +87,7 @@ public class ApplicationService {
     }
 
     public List<Transaction> getAccountTransactions(AccountIdentity accountIdentity){
-        Account accountByIdentity = getAccountByIdentity(accountIdentity);
+        Account accountByIdentity = accountService.getAccountByAccountIdentity(accountIdentity);
         return transactionService.getTransactionHistory(accountByIdentity.getId());
     }
 }

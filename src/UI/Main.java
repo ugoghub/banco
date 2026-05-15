@@ -1,12 +1,9 @@
 package UI;
 
 import exception.*;
-import model.Account;
 import model.AccountType;
 import model.Transaction;
-import model.valueObject.AccountIdentity;
-import model.valueObject.Cpf;
-import model.valueObject.Money;
+import model.valueObject.*;
 import service.ApplicationService;
 
 import java.util.List;
@@ -35,11 +32,11 @@ public class Main {
                 // CRIAR CLIENTE
                 case 1:
 
-                    String name = InputReader.readString(scanner, "Nome completo: ");
+                    PersonName name = InputReader.readValidated(scanner, "Nome completo: ",PersonName::new);
 
-                    Cpf cpf = InputReader.readCpf(scanner, "CPF: ");
+                    Cpf cpf = InputReader.readValidated(scanner, "CPF: ", Cpf::new);
 
-                    String email = InputReader.readEmail(scanner, "Email: ");
+                    Email email = InputReader.readValidated(scanner, "Email: ", Email::new);
 
                     try {
                         applicationService.createClient(name, cpf, email);
@@ -52,7 +49,7 @@ public class Main {
                 // CRIAR CONTA
                 case 2:
 
-                    Cpf cpfAccount = InputReader.readCpf(scanner, "CPF do cliente: ");
+                    Cpf cpfAccount = InputReader.readValidated(scanner, "CPF do cliente: ", Cpf::new);
 
                     try {
                         System.out.println("Tipo da conta:");
@@ -66,7 +63,7 @@ public class Main {
                                 ? AccountType.CHECKING
                                 : AccountType.SAVINGS;
 
-                        Account account = applicationService.createAccount(cpfAccount, type);
+                        AccountIdentity account = applicationService.createAccount(cpfAccount, type);
 
                         System.out.println("\nConta criada com sucesso!\n" + account);
 
@@ -79,7 +76,7 @@ public class Main {
                 // ACESSAR CONTA
                 case 3:
 
-                    Cpf cpfClient = InputReader.readCpf(scanner, "Digite seu CPF: ");
+                    Cpf cpfClient = InputReader.readValidated(scanner, "Digite seu CPF: ", Cpf::new);
 
                     try {
                         List<AccountIdentity> accounts = applicationService.getClientAccountsIdentity(cpfClient);
@@ -111,7 +108,7 @@ public class Main {
                     break;
 
                 case 4:
-                    Cpf clientCpf = InputReader.readCpf(scanner, "Digite seu Cpf para excluir sua conta: ");
+                    Cpf clientCpf = InputReader.readValidated(scanner, "Digite seu CPF: ", Cpf::new);
                     try {
                         applicationService.removeClient(clientCpf);
                     } catch (ClientNotFoundException | AccountDeletionNotAllowedException e) {
@@ -120,7 +117,7 @@ public class Main {
                     break;
 
                 case 5:
-                    Cpf cpfCli = InputReader.readCpf(scanner, "Digite seu Cpf: ");
+                    Cpf cpfCli = InputReader.readValidated(scanner, "Digite seu CPF: ", Cpf::new);
 
                     try {
                         List<AccountIdentity> accounts = applicationService.getClientAccountsIdentity(cpfCli);
@@ -169,7 +166,7 @@ public class Main {
 
         while (true) {
 
-            System.out.println("\n===== CONTA " + account + " =====");
+            System.out.println("\n===== " + account + " =====");
             System.out.println("1 - Depositar");
             System.out.println("2 - Sacar");
             System.out.println("3 - Ver saldo");
@@ -234,8 +231,7 @@ public class Main {
                 case 4:
 
                     Cpf cpfTransfer =
-                            InputReader.readCpf(scanner,
-                                    "Para quem você deseja transferir? (CPF): ");
+                            InputReader.readValidated(scanner, "Digite seu CPF: ", Cpf::new);
 
                     List<AccountIdentity> accounts =
                             applicationService.getClientAccountsIdentity(cpfTransfer);

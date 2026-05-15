@@ -2,6 +2,8 @@ package service;
 
 import exception.AccountDeletionNotAllowedException;
 import exception.AccountNotFoundException;
+import exception.AccountOwnerShipException;
+import exception.InvalidAccountTypeException;
 import model.*;
 import model.valueObject.AccountIdentity;
 import model.valueObject.Cpf;
@@ -17,54 +19,62 @@ public class AccountService {
     private final ClientService clientService;
 
     public AccountService(AccountRepository accountRepository,
-                          ClientService clientService){
+                          ClientService clientService) {
 
         this.accountRepository = accountRepository;
         this.clientService = clientService;
     }
 
 
-    public Account save(Cpf cpf,
-                        AccountType type) {
+    public AccountIdentity save(Cpf cpf,
+                                AccountType type) {
 
-        Client client = clientService.getClient(cpf);
+        Client client = clientService.getClientByCpf(cpf);
 
         Account account;
+        AccountIdentity accountIdentity;
 
-        AccountIdentity accountIdentity = accountRepository.generateAccountIdentity();
+        do {
 
-        if(type == AccountType.CHECKING){
-            account = new CheckingAccount(client.getId(),accountIdentity, type);
-        }else{
-            account = new SavingsAccount(client.getId(), accountIdentity, type);
+            accountIdentity = AccountIdentity.generate();
+
+        } while (accountExists(accountIdentity));
+
+        switch (type) {
+            case AccountType.CHECKING -> account = new CheckingAccount(client.getId(), accountIdentity, type);
+            case AccountType.SAVINGS -> account = new SavingsAccount(client.getId(), accountIdentity, type);
+            default -> throw new InvalidAccountTypeException("Tipo de conta inválido");
         }
 
         return accountRepository.save(account);
     }
 
+    private boolean accountExists(AccountIdentity accountIdentity){
+        return accountRepository.exists(accountIdentity);
+    }
 
     public List<AccountIdentity> getClientAccountsIdentity(Cpf cpf) {
-        Client client = clientService.getClient(cpf);
+        Client client = clientService.getClientByCpf(cpf);
 
         return accountRepository.getAccountsByClient(client.getId());
     }
 
 
-    public Account getClientAccount(Cpf cpf,
-                                      UUID id){
+    public AccountIdentity getClientAccount(Cpf cpf,
+                                            AccountIdentity id) {
 
-        Client client = clientService.getClient(cpf);
+        Client client = clientService.getClientByCpf(cpf);
 
-        Account account = getAccountById(id);
+        Account account = getAccountByAccountIdentity(id);
 
-        if(!client.getId().equals(account.getClientId())){
-            throw new AccountNotFoundException("Conta não pertence ao cliente");
+        if (!client.getId().equals(account.getClientId())) {
+            throw new AccountOwnerShipException("Conta não pertence ao cliente");
         }
 
-        return account;
+        return account.getAccountIdentity();
     }
 
-    public void removeClientAccounts(UUID clientId){
+    public void removeClientAccounts(UUID clientId) {
         accountRepository.removeClientAccounts(clientId);
     }
 
@@ -72,7 +82,7 @@ public class AccountService {
 
         Account account = getAccountByAccountIdentity(id);
 
-        if (!account.accountCanBeRemoved()) {
+        if (!account.canBeRemoved()) {
             throw new AccountDeletionNotAllowedException("Conta não pode ser excluída com saldo diferente de zero");
         }
 
@@ -83,14 +93,6 @@ public class AccountService {
 
         return accountRepository.
                 findByAccountIdentity(accountIdentity).
-                orElseThrow(() -> new AccountNotFoundException("Conta não encontrada"));
-    }
-
-
-    public Account getAccountById(UUID id) {
-
-        return accountRepository.
-                findById(id).
                 orElseThrow(() -> new AccountNotFoundException("Conta não encontrada"));
     }
 
@@ -109,7 +111,7 @@ public class AccountService {
                 .anyMatch(a ->
                         !getAccountBalance(a).isZero());
 
-        if(hasNonZeroBalance){
+        if (hasNonZeroBalance) {
             throw new AccountDeletionNotAllowedException("Cliente possui conta com pendência de saldo");
         }
     }

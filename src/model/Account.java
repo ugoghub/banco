@@ -5,9 +5,6 @@ import model.valueObject.AccountIdentity;
 import model.valueObject.Money;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 
@@ -36,7 +33,7 @@ public abstract class Account {
         return new Transaction(TransactionType.DEPOSIT, value, null, this.getAccountIdentity());
     }
 
-    public boolean accountCanBeRemoved(){
+    public boolean canBeRemoved(){
         return balance.isZero();
     }
 
@@ -65,7 +62,7 @@ public abstract class Account {
 
     @Override
     public String toString() {
-        return accountType.getDescription() + accountIdentity;
+        return accountType.getDescription() + " | " + accountIdentity;
     }
     public AccountIdentity getAccountIdentity() {
         return accountIdentity;

@@ -19,7 +19,7 @@ public class CheckingAccount extends Account{
     @Override
     public Transaction withdraw(Money value) {
 
-        if (Money.isNegativeOrZero(value))
+        if (value.isNegativeOrZero())
             throw new InvalidAmountException("Valor inválido");
 
         Money available = getBalance().add(WITHDRAW_LIMIT);

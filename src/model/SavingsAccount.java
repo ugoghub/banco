@@ -22,7 +22,7 @@ public class SavingsAccount extends Account {
     @Override
     public Transaction withdraw(Money value) {
 
-        if (Money.isNegativeOrZero(value))
+        if (value.isNegativeOrZero())
             throw new InvalidAmountException("Valor inválido");
 
         if(value.isGreaterThan(getBalance())) {
@@ -45,7 +45,6 @@ public class SavingsAccount extends Account {
         this.increaseBalance(interest);
 
         //adicionar transaction
-
 
         lastInterestApply = LocalDateTime.now();
         return true;

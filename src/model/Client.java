@@ -1,18 +1,20 @@
 package model;
 
 import model.valueObject.Cpf;
+import model.valueObject.Email;
+import model.valueObject.PersonName;
 
 import java.util.UUID;
 
 public class Client {
     private final UUID id;
-    private String name;
+    private PersonName name;
     private final Cpf cpf;
-    private String email;
+    private Email email;
 
-    public Client(String name,
+    public Client(PersonName name,
                   Cpf cpf,
-                  String email) {
+                  Email email) {
 
         this.id = UUID.randomUUID();
         this.name = name;
@@ -24,21 +26,21 @@ public class Client {
         return id;
     }
 
-    public String getName() {
+    public PersonName getName() {
         return name;
     }
-    public void setName(String name) {
-        this.name = name;
+    public void changeName(PersonName newName) {
+        this.name = newName;
     }
 
     public Cpf getCpf() {
         return cpf;
     }
 
-    public String getEmail() {
+    public Email getEmail() {
         return email;
     }
-    public void setEmail(String email) {
-        this.email = email;
+    public void changeEmail(Email newEmail) {
+        this.email = newEmail;
     }
 }

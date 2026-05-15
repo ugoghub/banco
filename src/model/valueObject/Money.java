@@ -12,7 +12,7 @@ public record Money(BigDecimal value) implements Comparable<Money>{
 
     public Money {
         if (value == null) {
-            throw new InvalidAmountException("Valor não pode ser null ou negativo");
+            throw new InvalidAmountException("Valor não pode ser null");
         }
 
         value = value.setScale(2, RoundingMode.HALF_UP);
@@ -22,8 +22,8 @@ public record Money(BigDecimal value) implements Comparable<Money>{
         return value.compareTo(BigDecimal.ZERO) == 0;
     }
 
-    public static boolean isNegativeOrZero(Money money){
-        return money.compareTo(Money.ZERO) <= 0;
+    public boolean isNegativeOrZero(){
+        return value.compareTo(BigDecimal.ZERO) <= 0;
     }
 
     public boolean isGreaterThan(Money other){
