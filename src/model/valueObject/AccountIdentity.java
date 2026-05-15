@@ -5,12 +5,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public record AccountIdentity(String branch, String accountNumber) {
 
-    public AccountIdentity(String branch, String accountNumber){
+    public AccountIdentity {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(accountNumber);
-
-        this.branch = branch;
-        this.accountNumber = accountNumber;
     }
 
     private static String generateBranch() {

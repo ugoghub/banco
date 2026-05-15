@@ -1,0 +1,22 @@
+generateUniqueAccountKey() deveria ser synchronized
+
+WITHDRAW_LIMIT ainda hardcoded
+
+cpf e uuid de client
+
+AccountFactory
+
+Interface Repository
+
+equals/hashcode client, account...
+
+AccountIdentityGenerator e validar formato de agencia e conta
+CpfValidator como classe
+Money.of() esconder bigDecimal
+
+acoount nao criar transaction
+
+CHANGEEMAIL() -> client.changeEmail não atualiza clientsByEmail
+
+existsByCpf()
+existsByEmail()

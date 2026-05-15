@@ -30,6 +30,7 @@ public class Client {
         return name;
     }
     public void changeName(PersonName newName) {
+        if(name.equals(newName)) return; //nao permite alterar nome para o mesmo nome
         this.name = newName;
     }
 
@@ -41,6 +42,7 @@ public class Client {
         return email;
     }
     public void changeEmail(Email newEmail) {
+        if(email.equals(newEmail)) return; //nao permite alterar email para o mesmo email
         this.email = newEmail;
     }
 }

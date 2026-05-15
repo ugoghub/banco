@@ -2,7 +2,6 @@ package service;
 
 import exception.AccountDeletionNotAllowedException;
 import exception.AccountNotFoundException;
-import exception.AccountOwnerShipException;
 import exception.InvalidAccountTypeException;
 import model.*;
 import model.valueObject.AccountIdentity;
@@ -59,20 +58,6 @@ public class AccountService {
         return accountRepository.getAccountsByClient(client.getId());
     }
 
-
-    public AccountIdentity getClientAccount(Cpf cpf,
-                                            AccountIdentity id) {
-
-        Client client = clientService.getClientByCpf(cpf);
-
-        Account account = getAccountByAccountIdentity(id);
-
-        if (!client.getId().equals(account.getClientId())) {
-            throw new AccountOwnerShipException("Conta não pertence ao cliente");
-        }
-
-        return account.getAccountIdentity();
-    }
 
     public void removeClientAccounts(UUID clientId) {
         accountRepository.removeClientAccounts(clientId);

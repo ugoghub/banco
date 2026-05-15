@@ -18,6 +18,6 @@ public class TransactionRepository {
     }
 
     public List<Transaction> getTransactionsByAccountId(UUID id){
-        return transactions.getOrDefault(id, Collections.emptyList());
+        return Collections.unmodifiableList(transactions.getOrDefault(id, Collections.emptyList()));
     }
 }
