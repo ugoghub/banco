@@ -5,8 +5,10 @@ import model.valueObject.Money;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 public class Transaction {
+    private final UUID id;
     private final TransactionType type;
     private final Money amount;
     private final AccountIdentity sourceIdentity;
@@ -20,11 +22,16 @@ public class Transaction {
                        AccountIdentity sourceId,
                        AccountIdentity destinationId) {
 
+        this.id = UUID.randomUUID();
         this.type = type;
         this.amount = amount;
         this.dateTime = LocalDateTime.now();
         this.sourceIdentity = sourceId;
         this.destinationIdentity = destinationId;
+    }
+
+    public UUID getId() {
+        return id;
     }
 
     public TransactionType getType() {
@@ -55,12 +62,14 @@ public class Transaction {
                 Valor: R$ %s
                 Origem: %s
                 Destino: %s
+                Id: %s
                 """.formatted(
                 type.getDescription(),
                 dateTime.format(FORMATTER),
                 amount,
                 formatIdentity(sourceIdentity),
-                formatIdentity(destinationIdentity)
+                formatIdentity(destinationIdentity),
+                id.toString()
         );
     }
 

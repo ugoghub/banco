@@ -49,21 +49,6 @@ public class AccountService {
         return accountRepository.getAccountsByClient(client.getId());
     }
 
-
-    public Account getClientAccount(Cpf cpf,
-                                      UUID id){
-
-        Client client = clientService.getClient(cpf);
-
-        Account account = getAccountById(id);
-
-        if(!client.getId().equals(account.getClientId())){
-            throw new AccountNotFoundException("Conta não pertence ao cliente");
-        }
-
-        return account;
-    }
-
     public void removeClientAccounts(UUID clientId){
         accountRepository.removeClientAccounts(clientId);
     }
@@ -83,14 +68,6 @@ public class AccountService {
 
         return accountRepository.
                 findByAccountIdentity(accountIdentity).
-                orElseThrow(() -> new AccountNotFoundException("Conta não encontrada"));
-    }
-
-
-    public Account getAccountById(UUID id) {
-
-        return accountRepository.
-                findById(id).
                 orElseThrow(() -> new AccountNotFoundException("Conta não encontrada"));
     }
 

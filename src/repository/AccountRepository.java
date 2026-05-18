@@ -90,15 +90,15 @@ public class AccountRepository {
         accounts.entrySet()
                 .removeIf(entry -> {
 
-            boolean remove =
-                    entry.getValue().getClientId().equals(clientId);
+                    boolean remove =
+                            entry.getValue().getClientId().equals(clientId);
 
-            if (remove) {
-                removedAccountIds.add(entry.getKey());
-            }
+                    if (remove) {
+                        removedAccountIds.add(entry.getKey());
+                    }
 
-            return remove;
-        });
+                    return remove;
+                });
 
         accountIndex.entrySet().removeIf(entry ->
                 removedAccountIds.contains(entry.getValue()));
