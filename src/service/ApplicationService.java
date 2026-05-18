@@ -49,8 +49,8 @@ public class ApplicationService {
         clientService.delete(client.getCpf());
     }
 
-    public void removeClientAccount(AccountIdentity accountIdentity) {
-        accountService.removeClientAccount(accountIdentity);
+    public void removeAccount(AccountIdentity accountIdentity) {
+        accountService.removeAccount(accountIdentity);
     }
 
     public void deposit(AccountIdentity id,

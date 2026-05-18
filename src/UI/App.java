@@ -3,12 +3,15 @@ package UI;
 import UI.menu.AccountMenu;
 import UI.menu.ClientMenu;
 import UI.menu.InitialMenu;
+import model.AccountType;
 import model.Client;
+import model.valueObjects.AccountIdentity;
 import service.ApplicationService;
 import model.valueObjects.PersonName;
 import model.valueObjects.Email;
 import model.valueObjects.Cpf;
 
+import java.util.List;
 import java.util.Scanner;
 
 public class App {
@@ -53,7 +56,7 @@ public class App {
 
         try {
 
-            var cpf = InputReader.readValidated(
+            Cpf cpf = InputReader.readValidated(
                     scanner,
                     "CPF: ",
                     Cpf::new
@@ -78,19 +81,19 @@ public class App {
 
         try {
 
-            var name = InputReader.readValidated(
+            PersonName name = InputReader.readValidated(
                     scanner,
                     "Nome completo: ",
                     PersonName::new
             );
 
-            var cpf = InputReader.readValidated(
+            Cpf cpf = InputReader.readValidated(
                     scanner,
                     "CPF: ",
                     Cpf::new
             );
 
-            var email = InputReader.readValidated(
+            Email email = InputReader.readValidated(
                     scanner,
                     "Email: ",
                     Email::new
@@ -168,12 +171,12 @@ public class App {
                     o -> o > 0 && o <= 2
             );
 
-            var type =
+            AccountType type =
                     option == 1
                             ? model.AccountType.CHECKING
                             : model.AccountType.SAVINGS;
 
-            var account = applicationService.createAccount(
+            AccountIdentity account = applicationService.createAccount(
                     loggedClient.getCpf(),
                     type
             );
@@ -193,7 +196,7 @@ public class App {
 
         try {
 
-            var accounts =
+            List<AccountIdentity> accounts =
                     applicationService.getClientAccountsIdentity(
                             loggedClient.getCpf()
                     );
@@ -207,7 +210,7 @@ public class App {
 
             int i = 1;
 
-            for (var account : accounts) {
+            for (AccountIdentity account : accounts) {
                 System.out.printf(
                         "%d - %s\n",
                         i++,
@@ -222,7 +225,7 @@ public class App {
                     o -> o > 0 && o <= accounts.size()
             );
 
-            applicationService.removeClientAccount(
+            applicationService.removeAccount(
                     accounts.get(option - 1)
             );
 

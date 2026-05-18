@@ -16,7 +16,7 @@ public record AccountIdentity(String branch, String accountNumber) {
         }
 
         if (!accountNumber.matches("\\d{6}-\\d")){
-            throw new ValidationException("Invalid AcoountNumber");
+            throw new ValidationException("AcoountNumber inválida");
         }
     }
 

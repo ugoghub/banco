@@ -44,7 +44,7 @@ public class AccountRepository {
         return findById(uuid);
     }
 
-    public void removeClientAccount(UUID accountId){
+    public void removeAccount(UUID accountId){
         Account removed = accounts.remove(accountId);
         if(removed != null) accountIndex.remove(removed.getAccountIdentity());
     }

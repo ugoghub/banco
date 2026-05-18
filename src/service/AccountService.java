@@ -40,8 +40,8 @@ public class AccountService {
         } while (accountRepository.exists(accountIdentity));
 
         switch (type) {
-            case AccountType.CHECKING -> account = new CheckingAccount(client.getId(), accountIdentity, type);
-            case AccountType.SAVINGS -> account = new SavingsAccount(client.getId(), accountIdentity, type);
+            case CHECKING -> account = new CheckingAccount(client.getId(), accountIdentity, type);
+            case SAVINGS -> account = new SavingsAccount(client.getId(), accountIdentity, type);
             default -> throw new InvalidAccountTypeException("Tipo de conta inválido");
         }
 
@@ -59,7 +59,7 @@ public class AccountService {
         accountRepository.removeClientAccounts(clientId);
     }
 
-    public void removeClientAccount(AccountIdentity id) {
+    public void removeAccount(AccountIdentity id) {
 
         Account account = getAccountByAccountIdentity(id);
 
@@ -67,7 +67,7 @@ public class AccountService {
             throw new AccountDeletionNotAllowedException("Conta não pode ser excluída com saldo diferente de zero");
         }
 
-        accountRepository.removeClientAccount(account.getId());
+        accountRepository.removeAccount(account.getId());
     }
 
     public Account getAccountByAccountIdentity(AccountIdentity accountIdentity) {
