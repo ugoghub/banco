@@ -1,36 +1,31 @@
 package model.valueObjects;
 
+import exception.ValidationException;
+import util.AccountIdentityGenerator;
+
 import java.util.Objects;
-import java.util.concurrent.ThreadLocalRandom;
 
 public record AccountIdentity(String branch, String accountNumber) {
 
     public AccountIdentity {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(accountNumber);
+
+        if (!branch.matches("\\d{2}")){
+            throw new ValidationException("Branch inválida");
+        }
+
+        if (!accountNumber.matches("\\d{6}-\\d")){
+            throw new ValidationException("Invalid AcoountNumber");
+        }
     }
 
     private static String generateBranch() {
-        int branch = ThreadLocalRandom.current().nextInt(0, 10);
-
-        return String.format("%04d", branch);
+        return AccountIdentityGenerator.generateBranch();
     }
 
     private static String generateAccountNumber() {
-        String accountNumber = String.format("%06d",
-                ThreadLocalRandom.current().nextInt(0, 1_000_000));
-
-        return accountNumber + "-" + generateDigit(accountNumber);
-    }
-
-    private static int generateDigit(String accountNumber) {
-        int sum = 0;
-
-        for(char c : accountNumber.toCharArray()) {
-            sum += Character.getNumericValue(c);
-        }
-
-        return sum % 10;
+        return AccountIdentityGenerator.generateAccountNumber();
     }
 
     public static AccountIdentity generate() {

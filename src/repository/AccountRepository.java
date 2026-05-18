@@ -38,6 +38,8 @@ public class AccountRepository {
     }
 
     public Optional<Account> findByAccountIdentity(AccountIdentity accountIdentity){
+        if(!exists(accountIdentity)) return Optional.empty();
+
         UUID uuid = accountIndex.get(accountIdentity);
         return findById(uuid);
     }

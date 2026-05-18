@@ -31,15 +31,12 @@ public class MainMenu {
 
             int option = InputReader.readOption(
                     scanner,
-                    o -> o >= 0 && o <= 5
+                    o -> o >= 0 && o <= 2
             );
 
             switch (option) {
-                case 1 -> createClient();
-                case 2 -> createAccount();
-                case 3 -> accessAccount();
-                case 4 -> removeClient();
-                case 5 -> removeAccount();
+                case 1 -> login();
+                case 2 -> createClient();
                 case 0 -> {
                     System.out.println("Saindo...");
                     return;
@@ -51,13 +48,25 @@ public class MainMenu {
     private void printMenu() {
 
         System.out.println("\n===== BANKLITE =====");
-        System.out.println("1 - Criar cliente");
-        System.out.println("2 - Criar conta");
-        System.out.println("3 - Acessar conta");
-        System.out.println("4 - Excluir cliente");
-        System.out.println("5 - Excluir conta");
+        System.out.println("== Bem-vindo ==\n\n!");
+        System.out.println("1 - Fazer login");
+        System.out.println("2 - Criar Conta");
         System.out.println("0 - Sair");
         System.out.print("Escolha: ");
+    }
+
+    private void login(){
+        System.out.println("1 - CPF\n 2 - Email\n Escolha: ");
+        int i = InputReader.readOption(scanner, o -> o >= 0 && o <= 2);
+
+        switch (i){
+            case 1:
+                InputReader.readValidated(scanner, "Digite seu Cpf: ", Cpf::new);
+            case 2:
+                InputReader.readValidated(scanner, "Digite seu email: ", Email::new);
+            default:
+                System.out.println("Opção inválida");
+        }
     }
 
     private void createClient() {

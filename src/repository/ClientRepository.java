@@ -9,27 +9,35 @@ import java.util.Map;
 import java.util.Optional;
 
 public class ClientRepository {
-    private final Map<Cpf, Client> clients;
+    private final Map<Cpf, Client> clientsByCpf;
     private final Map<Email, Client> clientsByEmail;
 
     public ClientRepository() {
-        this.clients = new HashMap<>();
+        this.clientsByCpf = new HashMap<>();
         this.clientsByEmail = new HashMap<>();
     }
 
     public void save(Client client){
-        clients.put(client.getCpf(), client);
+        clientsByCpf.put(client.getCpf(), client);
         clientsByEmail.put(client.getEmail(), client);
     }
 
     public void delete(Cpf cpf){
-        Client client = clients.remove(cpf);
+        Client client = clientsByCpf.remove(cpf);
 
         if(client != null) clientsByEmail.remove(client.getEmail());
     }
 
+    public boolean existsByCpf(Cpf cpf){
+        return clientsByCpf.containsKey(cpf);
+    }
+
+    public boolean existsByEmail(Email email){
+        return clientsByEmail.containsKey(email);
+    }
+
     public Optional<Client> findByCpf(Cpf cpf) {
-        return findBy(clients, cpf);
+        return findBy(clientsByCpf, cpf);
     }
 
     public Optional<Client> findByEmail(Email email){

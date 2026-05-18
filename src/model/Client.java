@@ -43,6 +43,8 @@ public class Client {
     }
     public void changeEmail(Email newEmail) {
         if(email.equals(newEmail)) return; //nao permite alterar email para o mesmo email
+
+        //ainda nao implementado. essa alteração torna o repositorio inconsistente. repositorio deve controlar trocas de email.
         this.email = newEmail;
     }
 }
