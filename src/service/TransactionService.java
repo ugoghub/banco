@@ -5,8 +5,8 @@ import exception.InvalidTransferException;
 import model.Account;
 import model.Transaction;
 import model.TransactionType;
-import model.valueObject.AccountIdentity;
-import model.valueObject.Money;
+import model.valueObjects.AccountIdentity;
+import model.valueObjects.Money;
 import repository.TransactionRepository;
 
 import java.util.List;

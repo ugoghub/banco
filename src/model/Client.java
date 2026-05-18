@@ -1,18 +1,20 @@
 package model;
 
-import model.valueObject.Cpf;
+import model.valueObjects.Cpf;
+import model.valueObjects.Email;
+import model.valueObjects.PersonName;
 
 import java.util.UUID;
 
 public class Client {
     private final UUID id;
-    private String name;
+    private PersonName name;
     private final Cpf cpf;
-    private String email;
+    private Email email;
 
-    public Client(String name,
+    public Client(PersonName name,
                   Cpf cpf,
-                  String email) {
+                  Email email) {
 
         this.id = UUID.randomUUID();
         this.name = name;
@@ -24,21 +26,23 @@ public class Client {
         return id;
     }
 
-    public String getName() {
+    public PersonName getName() {
         return name;
     }
-    public void setName(String name) {
-        this.name = name;
+    public void changeName(PersonName newName) {
+        if(name.equals(newName)) return; //nao permite alterar nome para o mesmo nome
+        this.name = newName;
     }
 
     public Cpf getCpf() {
         return cpf;
     }
 
-    public String getEmail() {
+    public Email getEmail() {
         return email;
     }
-    public void setEmail(String email) {
-        this.email = email;
+    public void changeEmail(Email newEmail) {
+        if(email.equals(newEmail)) return; //nao permite alterar email para o mesmo email
+        this.email = newEmail;
     }
 }

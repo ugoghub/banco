@@ -1,10 +1,9 @@
 package repository;
 
-import model.*;
-import model.valueObject.AccountIdentity;
+import model.Account;
+import model.valueObjects.AccountIdentity;
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class AccountRepository {
     private final Map<UUID, Account> accounts;
@@ -15,57 +14,21 @@ public class AccountRepository {
         this.accountIndex = new HashMap<>();
     }
 
-    private String generateBranch() {
-        int branch = ThreadLocalRandom.current().nextInt(0, 10);
-
-        return String.format("%04d", branch);
-    }
-
-    private String generateAccountNumber() {
-        String accountNumber = String.format("%06d",
-                ThreadLocalRandom.current().nextInt(0, 1_000_000));
-
-        return accountNumber + "-" + generateDigit(accountNumber);
-    }
-
-    private int generateDigit(String accountNumber) {
-        int sum = 0;
-
-        for(char c : accountNumber.toCharArray()) {
-            sum += Character.getNumericValue(c);
-        }
-
-        return sum % 10;
-    }
-
-    public AccountIdentity generateAccountIdentity() {
-
-        AccountIdentity accountIdentity;
-
-        do {
-
-            accountIdentity = new AccountIdentity(generateBranch(), generateAccountNumber());
-
-        } while(accountExists(accountIdentity));
-
-        return accountIdentity;
-    }
-
-    private boolean accountExists(AccountIdentity accountIdentity) {
+    public boolean exists(AccountIdentity accountIdentity) {
         return accountIndex.containsKey(accountIdentity);
     }
 
-    public Account save(Account account){
+    public AccountIdentity save(Account account){
         accountIndex.put(account.getAccountIdentity(), account.getId());
         accounts.put(account.getId(), account);
-        return account;
+        return account.getAccountIdentity();
     }
 
-    public List<AccountIdentity> getAccountsByClient(UUID id) {
+    public List<AccountIdentity> getAccountsByClient(UUID clientId) {
 
         return accounts.values()
                 .stream()
-                .filter(a -> a.getClientId().equals(id))
+                .filter(a -> a.getClientId().equals(clientId))
                 .map(Account::getAccountIdentity)
                 .toList();
     }
@@ -79,8 +42,8 @@ public class AccountRepository {
         return findById(uuid);
     }
 
-    public void removeClientAccount(UUID clientId){
-        Account removed = accounts.remove(clientId);
+    public void removeClientAccount(UUID accountId){
+        Account removed = accounts.remove(accountId);
         if(removed != null) accountIndex.remove(removed.getAccountIdentity());
     }
 

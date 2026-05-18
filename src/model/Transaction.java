@@ -1,7 +1,7 @@
 package model;
 
-import model.valueObject.AccountIdentity;
-import model.valueObject.Money;
+import model.valueObjects.AccountIdentity;
+import model.valueObjects.Money;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

@@ -2,8 +2,8 @@ package model;
 
 import exception.InsufficientBalanceException;
 import exception.InvalidAmountException;
-import model.valueObject.AccountIdentity;
-import model.valueObject.Money;
+import model.valueObjects.AccountIdentity;
+import model.valueObjects.Money;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -22,7 +22,7 @@ public class SavingsAccount extends Account {
     @Override
     public Transaction withdraw(Money value) {
 
-        if (Money.isNegativeOrZero(value))
+        if (value.isNegativeOrZero())
             throw new InvalidAmountException("Valor inválido");
 
         if(value.isGreaterThan(getBalance())) {
@@ -45,7 +45,6 @@ public class SavingsAccount extends Account {
         this.increaseBalance(interest);
 
         //adicionar transaction
-
 
         lastInterestApply = LocalDateTime.now();
         return true;
