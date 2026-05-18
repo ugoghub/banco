@@ -16,7 +16,7 @@ public class ClientService {
         this.clientRepository = clientRepository;
     }
 
-    public void save(PersonName name,
+    public Client save(PersonName name,
                      Cpf cpf,
                      Email email) {
 
@@ -31,6 +31,8 @@ public class ClientService {
         Client client = new Client(name, cpf, email);
 
         clientRepository.save(client);
+
+        return client;
     }
 
 

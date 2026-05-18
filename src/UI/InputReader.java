@@ -1,5 +1,6 @@
 package UI;
 
+import exception.InvalidAmountException;
 import exception.InvalidOptionException;
 import exception.ValidationException;
 import model.valueObjects.Money;
@@ -17,7 +18,7 @@ public class InputReader {
                 String input = scanner.nextLine().trim().replace(",", ".");
                 return new Money(new BigDecimal(input));
 
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException | InvalidAmountException e) {
                 System.out.print("Formato inválido. Tente novamente:\n");
             }
         }

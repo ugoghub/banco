@@ -1,10 +1,14 @@
 package UI.menu;
 
 import UI.InputReader;
-import UI.selector.AccountSelector;
-import exception.*;
+import exception.AccountNotFoundException;
+import exception.InsufficientBalanceException;
+import exception.InvalidAmountException;
+import exception.InvalidTransferException;
+import model.Client;
 import model.Transaction;
-import model.valueObjects.*;
+import model.valueObjects.AccountIdentity;
+import model.valueObjects.Money;
 import service.ApplicationService;
 
 import java.util.List;
@@ -12,22 +16,75 @@ import java.util.Scanner;
 
 public class AccountMenu {
 
-    private final Scanner scanner;
-    private final ApplicationService applicationService;
-
-    public AccountMenu(
+    public static void start(
             Scanner scanner,
-            ApplicationService applicationService
+            ApplicationService applicationService,
+            Client client
     ) {
-        this.scanner = scanner;
-        this.applicationService = applicationService;
+
+        List<AccountIdentity> accounts =
+                applicationService
+                        .getClientAccountsIdentity(
+                                client.getCpf()
+                        );
+
+        if (accounts.isEmpty()) {
+
+            System.out.println(
+                    "Cliente não possui contas"
+            );
+
+            return;
+        }
+
+        int i = 1;
+
+        for (AccountIdentity account : accounts) {
+
+            System.out.printf(
+                    "%d - %s\n",
+                    i++,
+                    account
+            );
+        }
+
+        System.out.print("\nEscolha: ");
+
+        int choice = InputReader.readOption(
+                scanner,
+                c -> c > 0 && c <= accounts.size()
+        );
+
+        AccountIdentity account =
+                accounts.get(choice - 1);
+
+        menuLoop(
+                scanner,
+                applicationService,
+                account
+        );
     }
 
-    public void show(AccountIdentity account) {
+    private static void menuLoop(
+            Scanner scanner,
+            ApplicationService applicationService,
+            AccountIdentity account
+    ) {
 
         while (true) {
 
-            printMenu(account);
+            System.out.println("""
+
+                    ===== CONTA =====
+                    1 - Depositar
+                    2 - Sacar
+                    3 - Ver saldo
+                    4 - Transferir
+                    5 - Extrato
+                    0 - Voltar
+                    """);
+
+            System.out.print("Escolha: ");
 
             int option = InputReader.readOption(
                     scanner,
@@ -35,11 +92,35 @@ public class AccountMenu {
             );
 
             switch (option) {
-                case 1 -> deposit(account);
-                case 2 -> withdraw(account);
-                case 3 -> showBalance(account);
-                case 4 -> transfer(account);
-                case 5 -> showTransactions(account);
+
+                case 1 -> deposit(
+                        scanner,
+                        applicationService,
+                        account
+                );
+
+                case 2 -> withdraw(
+                        scanner,
+                        applicationService,
+                        account
+                );
+
+                case 3 -> showBalance(
+                        applicationService,
+                        account
+                );
+
+                case 4 -> transfer(
+                        scanner,
+                        applicationService,
+                        account
+                );
+
+                case 5 -> statement(
+                        applicationService,
+                        account
+                );
+
                 case 0 -> {
                     return;
                 }
@@ -47,46 +128,62 @@ public class AccountMenu {
         }
     }
 
-    private void printMenu(AccountIdentity account) {
-
-        System.out.println("\n===== " + account + " =====");
-        System.out.println("1 - Depositar");
-        System.out.println("2 - Sacar");
-        System.out.println("3 - Ver saldo");
-        System.out.println("4 - Transferir");
-        System.out.println("5 - Extrato");
-        System.out.println("0 - Voltar");
-        System.out.print("Escolha: ");
-    }
-
-    private void deposit(AccountIdentity account) {
-
-        Money value = InputReader.readMoney(scanner, "Valor: ");
+    private static void deposit(
+            Scanner scanner,
+            ApplicationService applicationService,
+            AccountIdentity account
+    ) {
 
         try {
 
-            applicationService.deposit(account, value);
+            Money value =
+                    InputReader.readMoney(
+                            scanner,
+                            "Valor: "
+                    );
 
-            System.out.println("Depósito realizado!");
+            applicationService.deposit(
+                    account,
+                    value
+            );
+
+            System.out.println(
+                    "Depósito realizado!"
+            );
 
         } catch (
                 InvalidAmountException |
                 AccountNotFoundException e
         ) {
 
-            System.out.println("Erro: " + e.getMessage());
+            System.out.println(
+                    "Erro: " + e.getMessage()
+            );
         }
     }
 
-    private void withdraw(AccountIdentity account) {
-
-        Money value = InputReader.readMoney(scanner, "Valor: ");
+    private static void withdraw(
+            Scanner scanner,
+            ApplicationService applicationService,
+            AccountIdentity account
+    ) {
 
         try {
 
-            applicationService.withdraw(account, value);
+            Money value =
+                    InputReader.readMoney(
+                            scanner,
+                            "Valor: "
+                    );
 
-            System.out.println("Saque realizado!");
+            applicationService.withdraw(
+                    account,
+                    value
+            );
+
+            System.out.println(
+                    "Saque realizado!"
+            );
 
         } catch (
                 InvalidAmountException |
@@ -94,91 +191,123 @@ public class AccountMenu {
                 AccountNotFoundException e
         ) {
 
-            System.out.println("Erro: " + e.getMessage());
+            System.out.println(
+                    "Erro: " + e.getMessage()
+            );
         }
     }
 
-    private void showBalance(AccountIdentity account) {
+    private static void showBalance(
+            ApplicationService applicationService,
+            AccountIdentity account
+    ) {
 
         try {
 
             System.out.println(
-                    "Saldo: " +
-                            applicationService.getAccountBalance(account)
+                    "Saldo: "
+                            + applicationService
+                            .getAccountBalance(account)
             );
 
-        } catch (AccountNotFoundException e) {
-            System.out.println("Erro: " + e.getMessage());
+        } catch (Exception e) {
+
+            System.out.println(
+                    "Erro: " + e.getMessage()
+            );
         }
     }
 
-    private void transfer(AccountIdentity account) {
-
-        Cpf cpf = InputReader.readValidated(
-                scanner,
-                "CPF do destinatário: ",
-                Cpf::new
-        );
+    private static void transfer(
+            Scanner scanner,
+            ApplicationService applicationService,
+            AccountIdentity from
+    ) {
 
         try {
 
-            List<AccountIdentity> accounts =
-                    applicationService.getClientAccountsIdentity(cpf);
+            String branch =
+                    InputReader.readValidated(
+                            scanner,
+                            "Agência destino: ",
+                            s -> s
+                    );
 
-            if (accounts.isEmpty()) {
-                System.out.println("Cliente não possui contas");
-                return;
-            }
+            String number =
+                    InputReader.readValidated(
+                            scanner,
+                            "Conta destino: ",
+                            s -> s
+                    );
 
-            AccountIdentity destination = AccountSelector.select(
-                    scanner,
-                    accounts,
-                    "Escolha a conta destino: "
-            );
+            AccountIdentity to =
+                    new AccountIdentity(
+                            branch,
+                            number
+                    );
 
-            Money value = InputReader.readMoney(
-                    scanner,
-                    "Valor da transferência: "
-            );
+            Money value =
+                    InputReader.readMoney(
+                            scanner,
+                            "Valor: "
+                    );
 
             applicationService.transfer(
-                    account,
-                    destination,
+                    from,
+                    to,
                     value
             );
 
-            System.out.println("Transferência realizada!");
+            System.out.println(
+                    "Transferência realizada!"
+            );
 
         } catch (
                 InvalidAmountException |
                 InvalidTransferException |
                 InsufficientBalanceException |
-                ClientNotFoundException |
                 AccountNotFoundException e
         ) {
 
-            System.out.println("Erro: " + e.getMessage());
+            System.out.println(
+                    "Erro: " + e.getMessage()
+            );
         }
     }
 
-    private void showTransactions(AccountIdentity account) {
+    private static void statement(
+            ApplicationService applicationService,
+            AccountIdentity account
+    ) {
 
         try {
 
-            List<Transaction> history =
-                    applicationService.getAccountTransactions(account);
+            List<Transaction> transactions =
+                    applicationService
+                            .getAccountTransactions(
+                                    account
+                            );
 
-            if (history.isEmpty()) {
-                System.out.println("Conta sem extrato");
+            if (transactions.isEmpty()) {
+
+                System.out.println(
+                        "Conta sem extrato"
+                );
+
                 return;
             }
 
-            for (Transaction transaction : history) {
+            for (Transaction transaction
+                    : transactions) {
+
                 System.out.println(transaction);
             }
 
-        } catch (AccountNotFoundException e) {
-            System.out.println("Erro: " + e.getMessage());
+        } catch (Exception e) {
+
+            System.out.println(
+                    "Erro: " + e.getMessage()
+            );
         }
     }
 }
