@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public record Cpf(String value) {
 
-    public Cpf{
+    public Cpf {
 
         Objects.requireNonNull(value);
 
@@ -15,6 +15,7 @@ public record Cpf(String value) {
         if (!cpfValidator(value)) {
             throw new InvalidCpfException("CPF inválido");
         }
+
     }
 
     @Override

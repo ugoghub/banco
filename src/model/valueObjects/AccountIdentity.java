@@ -1,7 +1,7 @@
 package model.valueObjects;
 
 import exception.ValidationException;
-import util.AccountIdentityGenerator;
+import generator.AccountIdentityGenerator;
 
 import java.util.Objects;
 
@@ -20,16 +20,8 @@ public record AccountIdentity(String branch, String accountNumber) {
         }
     }
 
-    private static String generateBranch() {
-        return AccountIdentityGenerator.generateBranch();
-    }
-
-    private static String generateAccountNumber() {
-        return AccountIdentityGenerator.generateAccountNumber();
-    }
-
     public static AccountIdentity generate() {
-        return new AccountIdentity(generateBranch(), generateAccountNumber());
+        return AccountIdentityGenerator.generate();
     }
 
     @Override

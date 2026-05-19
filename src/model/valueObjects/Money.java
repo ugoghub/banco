@@ -6,14 +6,13 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.Locale;
+import java.util.Objects;
 
 public record Money(BigDecimal value) implements Comparable<Money>{
     public static final Money ZERO = new Money(BigDecimal.ZERO);
 
     public Money {
-        if (value == null) {
-            throw new InvalidAmountException("Valor não pode ser null");
-        }
+        Objects.requireNonNull(value);
 
         value = value.setScale(2, RoundingMode.HALF_UP);
     }

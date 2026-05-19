@@ -8,6 +8,7 @@ import model.valueObjects.*;
 import repository.AccountRepository;
 import repository.ClientRepository;
 import repository.TransactionRepository;
+import service.dto.ClientData;
 
 import java.util.List;
 
@@ -26,11 +27,11 @@ public class ApplicationService {
         this.transactionService = new TransactionService(accountService, transactionRepository);
     }
 
-    public Client createClient(PersonName name,
+    public void createClient(PersonName name,
                              Cpf cpf,
                              Email email) {
 
-        return clientService.save(name, cpf, email);
+        clientService.save(name, cpf, email);
     }
 
     public AccountIdentity createAccount(Cpf cpf,
@@ -88,7 +89,17 @@ public class ApplicationService {
         return transactionService.getTransactionHistory(accountByIdentity.getId());
     }
 
-    public Client getClient(Cpf cpf) {
-        return clientService.getClientByCpf(cpf);
+    public ClientData getClientData(Cpf cpf) {
+        Client client = clientService.getClientByCpf(cpf);
+
+        return new ClientData(client.getName().value(), client.getCpf().value(), client.getEmail().value());
+    }
+
+    public void changeName(Cpf cpf, PersonName name) {
+        clientService.changeName(cpf, name);
+    }
+
+    public void changeEmail(Cpf cpf, Email email) {
+        clientService.changeEmail(cpf, email);
     }
 }

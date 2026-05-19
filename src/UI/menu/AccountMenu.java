@@ -1,13 +1,10 @@
 package UI.menu;
 
 import UI.InputReader;
-import exception.AccountNotFoundException;
-import exception.InsufficientBalanceException;
-import exception.InvalidAmountException;
-import exception.InvalidTransferException;
-import model.Client;
+import exception.*;
 import model.Transaction;
 import model.valueObjects.AccountIdentity;
+import model.valueObjects.Cpf;
 import model.valueObjects.Money;
 import service.ApplicationService;
 
@@ -19,13 +16,13 @@ public class AccountMenu {
     public static void start(
             Scanner scanner,
             ApplicationService applicationService,
-            Client client
+            Cpf cpf
     ) {
 
         List<AccountIdentity> accounts =
                 applicationService
                         .getClientAccountsIdentity(
-                                client.getCpf()
+                                cpf
                         );
 
         if (accounts.isEmpty()) {
@@ -210,7 +207,7 @@ public class AccountMenu {
                             .getAccountBalance(account)
             );
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
 
             System.out.println(
                     "Erro: " + e.getMessage()
@@ -266,7 +263,8 @@ public class AccountMenu {
                 InvalidAmountException |
                 InvalidTransferException |
                 InsufficientBalanceException |
-                AccountNotFoundException e
+                AccountNotFoundException |
+                ValidationException e
         ) {
 
             System.out.println(
@@ -303,7 +301,7 @@ public class AccountMenu {
                 System.out.println(transaction);
             }
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
 
             System.out.println(
                     "Erro: " + e.getMessage()

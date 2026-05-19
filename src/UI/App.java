@@ -3,13 +3,17 @@ package UI;
 import UI.menu.AccountMenu;
 import UI.menu.ClientMenu;
 import UI.menu.InitialMenu;
+import exception.AccountDeletionNotAllowedException;
+import exception.ClientNotFoundException;
+import exception.CpfAlreadyExistsException;
+import exception.EmailAlreadyExistsException;
 import model.AccountType;
-import model.Client;
 import model.valueObjects.AccountIdentity;
-import service.ApplicationService;
-import model.valueObjects.PersonName;
-import model.valueObjects.Email;
 import model.valueObjects.Cpf;
+import model.valueObjects.Email;
+import model.valueObjects.PersonName;
+import service.ApplicationService;
+import service.dto.ClientData;
 
 import java.util.List;
 import java.util.Scanner;
@@ -19,7 +23,7 @@ public class App {
     private final Scanner scanner;
     private final ApplicationService applicationService;
 
-    private Client loggedClient;
+    private Cpf loggedCpf;
 
     public App() {
         this.scanner = new Scanner(System.in);
@@ -54,73 +58,90 @@ public class App {
 
     private void login() {
 
+        Cpf cpf = InputReader.readValidated(
+                scanner,
+                "CPF: ",
+                Cpf::new
+        );
+
         try {
 
-            Cpf cpf = InputReader.readValidated(
-                    scanner,
-                    "CPF: ",
-                    Cpf::new
-            );
+            applicationService.getClientData(cpf);
 
-            loggedClient = applicationService.getClient(cpf);
+            loggedCpf = cpf;
+
+            System.out.println("\nBem vindo!");
+
+            enterClientMenu();
+
+        } catch (ClientNotFoundException e) {
 
             System.out.println(
-                    "\nBem vindo, "
-                            + loggedClient.getName().value()
-                            + "!"
+                    "Erro: " + e.getMessage()
             );
-
-            enterClientMenu(loggedClient);
-
-        } catch (Exception e) {
-            System.out.println("Erro: " + e.getMessage());
         }
     }
 
     private void register() {
 
+        PersonName name = InputReader.readValidated(
+                scanner,
+                "Nome completo: ",
+                PersonName::new
+        );
+
+        Cpf cpf = InputReader.readValidated(
+                scanner,
+                "CPF: ",
+                Cpf::new
+        );
+
+        Email email = InputReader.readValidated(
+                scanner,
+                "Email: ",
+                Email::new
+        );
+
         try {
 
-            PersonName name = InputReader.readValidated(
-                    scanner,
-                    "Nome completo: ",
-                    PersonName::new
+            applicationService.createClient(
+                    name,
+                    cpf,
+                    email
             );
 
-            Cpf cpf = InputReader.readValidated(
-                    scanner,
-                    "CPF: ",
-                    Cpf::new
-            );
-
-            Email email = InputReader.readValidated(
-                    scanner,
-                    "Email: ",
-                    Email::new
-            );
-
-            loggedClient = applicationService.createClient(name, cpf, email);
+            loggedCpf = cpf;
 
             System.out.println(
                     "\nCliente cadastrado com sucesso!"
             );
 
-            enterClientMenu(loggedClient);
+            enterClientMenu();
 
-        } catch (Exception e) {
-            System.out.println("Erro: " + e.getMessage());
+        } catch (
+                CpfAlreadyExistsException |
+                EmailAlreadyExistsException e
+        ) {
+
+            System.out.println(
+                    "Erro: " + e.getMessage()
+            );
         }
     }
 
-    private void enterClientMenu(Client client) {
+    private void enterClientMenu() {
 
-        while (loggedClient != null) {
+        while (loggedCpf != null) {
+
+            ClientData client =
+                    applicationService
+                            .getClientData(loggedCpf);
 
             ClientMenu.show(client);
 
             int option = InputReader.readOption(
                     scanner,
-                    o -> o >= 0 && o <= 4
+                    o -> o >= 0 && o <= 6
             );
 
             switch (option) {
@@ -130,17 +151,20 @@ public class App {
                 case 2 -> AccountMenu.start(
                         scanner,
                         applicationService,
-                        client
+                        loggedCpf
                 );
 
-                case 3 -> removeBankAccount();
+                case 3 -> showData(client);
 
-                case 4 -> {
+                case 4 -> changeData();
+
+                case 5 -> removeBankAccount();
+
+                case 6 -> {
 
                     removeClient();
 
-                    // se removeu cliente, sai do menu
-                    if (loggedClient == null) {
+                    if (loggedCpf == null) {
                         return;
                     }
                 }
@@ -149,6 +173,75 @@ public class App {
                     logout();
                     return;
                 }
+            }
+        }
+    }
+
+    private void showData(ClientData client) {
+
+        System.out.println("== DADOS ==\n");
+
+        System.out.printf(
+                "Nome: %s\n",
+                client.name()
+        );
+
+        System.out.printf(
+                "Cpf: %s\n",
+                client.cpf()
+        );
+
+        System.out.printf(
+                "Email: %s\n",
+                client.email()
+        );
+    }
+
+    private void changeData() {
+
+        System.out.println(
+                "Escolha o campo que você deseja alterar: "
+        );
+
+        System.out.println(
+                "1 - Nome\n2 - Email"
+        );
+
+        int option = InputReader.readOption(
+                scanner,
+                o -> o >= 1 && o <= 2
+        );
+
+        switch (option) {
+
+            case 1 -> {
+
+                PersonName personName =
+                        InputReader.readValidated(
+                                scanner,
+                                "Digite o novo nome: ",
+                                PersonName::new
+                        );
+
+                applicationService.changeName(
+                        loggedCpf,
+                        personName
+                );
+            }
+
+            case 2 -> {
+
+                Email email =
+                        InputReader.readValidated(
+                                scanner,
+                                "Digite o novo email: ",
+                                Email::new
+                        );
+
+                applicationService.changeEmail(
+                        loggedCpf,
+                        email
+                );
             }
         }
     }
@@ -177,7 +270,7 @@ public class App {
                             : model.AccountType.SAVINGS;
 
             AccountIdentity account = applicationService.createAccount(
-                    loggedClient.getCpf(),
+                    loggedCpf,
                     type
             );
 
@@ -198,7 +291,7 @@ public class App {
 
             List<AccountIdentity> accounts =
                     applicationService.getClientAccountsIdentity(
-                            loggedClient.getCpf()
+                            loggedCpf
                     );
 
             if (accounts.isEmpty()) {
@@ -243,23 +336,28 @@ public class App {
         try {
 
             applicationService.removeClient(
-                    loggedClient.getCpf()
+                    loggedCpf
             );
 
             System.out.println(
                     "Cliente removido com sucesso!"
             );
 
-            loggedClient = null;
+            loggedCpf = null;
 
-        } catch (Exception e) {
-            System.out.println("Erro: " + e.getMessage());
+        } catch (
+                AccountDeletionNotAllowedException e
+        ) {
+
+            System.out.println(
+                    "Erro: " + e.getMessage()
+            );
         }
     }
 
     private void logout() {
 
-        loggedClient = null;
+        loggedCpf = null;
 
         System.out.println(
                 "\nLogout realizado!"

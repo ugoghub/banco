@@ -1,15 +1,21 @@
-package util;
+package generator;
+
+import model.valueObjects.AccountIdentity;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-public abstract class AccountIdentityGenerator {
-    public static String generateBranch() {
+public final class AccountIdentityGenerator {
+
+    private AccountIdentityGenerator() {
+    }
+
+    private static String generateBranch() {
         int branch = ThreadLocalRandom.current().nextInt(0, 10);
 
         return String.format("%02d", branch);
     }
 
-    public static String generateAccountNumber() {
+    private static String generateAccountNumber() {
         String accountNumber = String.format("%06d",
                 ThreadLocalRandom.current().nextInt(0, 1_000_000));
 
@@ -24,5 +30,9 @@ public abstract class AccountIdentityGenerator {
         }
 
         return sum % 10;
+    }
+
+    public static AccountIdentity generate(){
+        return new AccountIdentity(generateBranch(), generateAccountNumber());
     }
 }

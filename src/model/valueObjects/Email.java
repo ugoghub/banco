@@ -11,9 +11,12 @@ public record Email(String value) {
             Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
 
     public Email {
+
         Objects.requireNonNull(value);
 
-        value = value.trim().toLowerCase();
+        value = value
+                .trim()
+                .toLowerCase();
 
         if (!EMAIL_PATTERN.matcher(value).matches()) {
             throw new InvalidEmailException("Email inválido");
