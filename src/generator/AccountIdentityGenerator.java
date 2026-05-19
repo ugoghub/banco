@@ -10,7 +10,7 @@ public final class AccountIdentityGenerator {
     }
 
     private static String generateBranch() {
-        int branch = ThreadLocalRandom.current().nextInt(0, 10);
+        int branch = ThreadLocalRandom.current().nextInt(0, 30);
 
         return String.format("%02d", branch);
     }

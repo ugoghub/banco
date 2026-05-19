@@ -3,7 +3,8 @@ package model;
 public enum TransactionType {
     DEPOSIT("Depósito"),
     INTEREST("Rendimento"),
-    TRANSFER("Transferência"),
+    TRANSFER_SENT("Transferência Enviada"),
+    TRANSFER_RECEIVED("Transferência Recebida"),
     WITHDRAW("Saque");
 
     private final String description;

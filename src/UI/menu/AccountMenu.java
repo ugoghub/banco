@@ -207,7 +207,7 @@ public class AccountMenu {
                             .getAccountBalance(account)
             );
 
-        } catch (RuntimeException e) {
+        } catch (AccountNotFoundException e) {
 
             System.out.println(
                     "Erro: " + e.getMessage()
@@ -301,7 +301,7 @@ public class AccountMenu {
                 System.out.println(transaction);
             }
 
-        } catch (RuntimeException e) {
+        } catch (AccountNotFoundException e) {
 
             System.out.println(
                     "Erro: " + e.getMessage()

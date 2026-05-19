@@ -3,12 +3,14 @@ package service;
 import exception.AccountDeletionNotAllowedException;
 import exception.AccountNotFoundException;
 import exception.InvalidAccountTypeException;
+import generator.AccountIdentityGenerator;
 import model.*;
 import model.valueObjects.AccountIdentity;
 import model.valueObjects.Cpf;
 import model.valueObjects.Money;
 import repository.AccountRepository;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,16 +19,18 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final ClientService clientService;
 
+    private final Clock clock;
+
     public AccountService(AccountRepository accountRepository,
-                          ClientService clientService) {
+                          ClientService clientService, Clock clock) {
 
         this.accountRepository = accountRepository;
         this.clientService = clientService;
+        this.clock = clock;
     }
 
 
-    public AccountIdentity save(Cpf cpf,
-                                AccountType type) {
+    public AccountIdentity save(Cpf cpf, AccountType type) {
 
         Client client = clientService.getClientByCpf(cpf);
 
@@ -35,13 +39,13 @@ public class AccountService {
 
         do {
 
-            accountIdentity = AccountIdentity.generate();
+            accountIdentity = AccountIdentityGenerator.generate();
 
         } while (accountRepository.exists(accountIdentity));
 
-        switch (type) {
-            case CHECKING -> account = new CheckingAccount(client.getId(), accountIdentity, type);
-            case SAVINGS -> account = new SavingsAccount(client.getId(), accountIdentity, type);
+        switch (type){
+            case CHECKING -> account = new CheckingAccount(client.getId(), accountIdentity, clock);
+            case SAVINGS -> account = new SavingsAccount(client.getId(), accountIdentity, clock);
             default -> throw new InvalidAccountTypeException("Tipo de conta inválido");
         }
 

@@ -10,6 +10,7 @@ import repository.ClientRepository;
 import repository.TransactionRepository;
 import service.dto.ClientData;
 
+import java.time.Clock;
 import java.util.List;
 
 public class ApplicationService {
@@ -17,13 +18,17 @@ public class ApplicationService {
     private final AccountService accountService;
     private final TransactionService transactionService;
 
+    private final Clock clock;
+
     public ApplicationService() {
+        clock = Clock.systemDefaultZone();
+
         ClientRepository clientRepository = new ClientRepository();
         AccountRepository accountRepository = new AccountRepository();
         TransactionRepository transactionRepository = new TransactionRepository();
 
         this.clientService = new ClientService(clientRepository);
-        this.accountService = new AccountService(accountRepository, clientService);
+        this.accountService = new AccountService(accountRepository, clientService, clock);
         this.transactionService = new TransactionService(accountService, transactionRepository);
     }
 
@@ -34,8 +39,7 @@ public class ApplicationService {
         clientService.save(name, cpf, email);
     }
 
-    public AccountIdentity createAccount(Cpf cpf,
-                                         AccountType type)
+    public AccountIdentity createAccount(Cpf cpf, AccountType type)
     {
 
         return accountService.save(cpf, type);
@@ -57,20 +61,20 @@ public class ApplicationService {
     public void deposit(AccountIdentity id,
                         Money value){
 
-        transactionService.deposit(id, value);
+        transactionService.deposit(id, value, clock);
     }
 
     public void withdraw(AccountIdentity id,
                          Money value) {
 
-        transactionService.withdraw(id, value);
+        transactionService.withdraw(id, value, clock);
     }
 
     public void transfer(AccountIdentity fromId,
                          AccountIdentity toId,
                          Money value) {
 
-        transactionService.transfer(fromId, toId, value);
+        transactionService.transfer(fromId, toId, value, clock);
     }
 
     public List<AccountIdentity> getClientAccountsIdentity(Cpf cpf) {

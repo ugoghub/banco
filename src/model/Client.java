@@ -1,5 +1,7 @@
 package model;
 
+import exception.InvalidEmailException;
+import exception.InvalidPersonNameException;
 import model.valueObjects.Cpf;
 import model.valueObjects.Email;
 import model.valueObjects.PersonName;
@@ -30,7 +32,7 @@ public class Client {
         return name;
     }
     public void changeName(PersonName newName) {
-        if(name.equals(newName)) return; //nao permite alterar nome para o mesmo nome
+        if(name.equals(newName)) throw new InvalidPersonNameException("Nomes iguais. Troca não efutuada");
         this.name = newName;
     }
 
@@ -42,9 +44,7 @@ public class Client {
         return email;
     }
     public void changeEmail(Email newEmail) {
-        if(email.equals(newEmail)) return; //nao permite alterar email para o mesmo email
-
-        //ainda nao implementado. essa alteração torna o repositorio inconsistente. repositorio deve controlar trocas de email.
+        if(email.equals(newEmail)) throw new InvalidEmailException("Emails iguais. Troca não efetuada");
         this.email = newEmail;
     }
 }

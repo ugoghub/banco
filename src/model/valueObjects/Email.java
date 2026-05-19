@@ -12,7 +12,7 @@ public record Email(String value) {
 
     public Email {
 
-        Objects.requireNonNull(value);
+        Objects.requireNonNull(value, "Email não pode ser null");
 
         value = value
                 .trim()

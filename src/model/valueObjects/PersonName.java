@@ -8,7 +8,7 @@ public record PersonName(String value) {
 
     public PersonName {
 
-        Objects.requireNonNull(value);
+        Objects.requireNonNull(value, "Nome não pode ser null");
 
         value = value.trim();
 

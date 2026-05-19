@@ -1,6 +1,5 @@
 package service;
 
-import exception.InvalidAmountException;
 import exception.InvalidTransferException;
 import model.Account;
 import model.Transaction;
@@ -9,6 +8,7 @@ import model.valueObjects.AccountIdentity;
 import model.valueObjects.Money;
 import repository.TransactionRepository;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,25 +23,30 @@ public class TransactionService {
 
 
     public void deposit(AccountIdentity id,
-                        Money value) {
+                        Money value, Clock clock) {
 
 
         Account account = accountService.getAccountByAccountIdentity(id);
-        transactionRepository.save(account.getId(), account.deposit(value));
+        account.deposit(value);
+        transactionRepository.save(account.getId(), new Transaction(TransactionType.DEPOSIT, value,
+                null, account.getAccountIdentity(), clock));
     }
 
 
     public void withdraw(AccountIdentity id,
-                         Money value) {
+                         Money value, Clock clock) {
 
         Account account = accountService.getAccountByAccountIdentity(id);
-        transactionRepository.save(account.getId(), account.withdraw(value));
+        account.withdraw(value);
+       transactionRepository.save(account.getId(), new Transaction(TransactionType.WITHDRAW, value,
+               account.getAccountIdentity(), null, clock));
     }
 
 
     public void transfer(AccountIdentity fromId,
                          AccountIdentity toId,
-                         Money value) {
+                         Money value, Clock clock) {
+
 
         Account from = accountService.getAccountByAccountIdentity(fromId);
         Account to = accountService.getAccountByAccountIdentity(toId);
@@ -51,16 +56,13 @@ public class TransactionService {
         }
 
         from.withdraw(value);
+        to.deposit(value);
+        transactionRepository.save(from.getId(), new Transaction(TransactionType.TRANSFER_SENT, value,
+                from.getAccountIdentity(), null, clock));
 
-        try {
-            to.deposit(value);
-            Transaction transaction = new Transaction(TransactionType.TRANSFER, value, from.getAccountIdentity(), to.getAccountIdentity());
-            transactionRepository.save(from.getId(), transaction);
-            transactionRepository.save(to.getId(), transaction);
-        } catch (InvalidAmountException e) {
-            from.deposit(value);
-            throw e;
-        }
+        transactionRepository.save(to.getId(), new Transaction(TransactionType.TRANSFER_RECEIVED, value,
+                to.getAccountIdentity(), null, clock));
+
     }
 
     public List<Transaction> getTransactionHistory(UUID account) {

@@ -3,6 +3,7 @@ package model;
 import model.valueObjects.AccountIdentity;
 import model.valueObjects.Money;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
@@ -20,12 +21,12 @@ public class Transaction {
     public Transaction(TransactionType type,
                        Money amount,
                        AccountIdentity sourceId,
-                       AccountIdentity destinationId) {
+                       AccountIdentity destinationId, Clock clock) {
 
         this.id = UUID.randomUUID();
         this.type = type;
         this.amount = amount;
-        this.dateTime = LocalDateTime.now();
+        this.dateTime = LocalDateTime.now(clock);
         this.sourceIdentity = sourceId;
         this.destinationIdentity = destinationId;
     }

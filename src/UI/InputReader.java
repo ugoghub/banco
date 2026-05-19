@@ -35,8 +35,8 @@ public class InputReader {
                 }
                 return value;
             } catch (NumberFormatException | InvalidOptionException e) {
-                System.out.print("Opção inválida, digite novamente\n");
-                System.out.println("Escolha: ");
+                System.out.println("Opção inválida, digite novamente.");
+                System.out.print("Escolha: ");
             }
         }
     }

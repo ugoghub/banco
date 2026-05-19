@@ -1,31 +1,32 @@
 package model;
 
-import exception.InsufficientBalanceException;
-import exception.InvalidAmountException;
 import model.valueObjects.AccountIdentity;
 import model.valueObjects.Money;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.util.UUID;
 
+public class CheckingAccount extends Account {
 
-public class CheckingAccount extends Account{
-    private static final Money CREDIT_LIMIT = new Money(new BigDecimal("1000"));
+    private static final Money OVERDRAFT_LIMIT =
+            new Money(new BigDecimal("1000"));
 
-    public CheckingAccount(UUID clientId, AccountIdentity accountIdentity, AccountType accountType) {
-        super(clientId, accountIdentity, accountType);
+    public CheckingAccount(
+            UUID clientId,
+            AccountIdentity accountIdentity,
+            Clock clock
+    ) {
+
+        super(
+                clientId,
+                accountIdentity,
+                clock
+        );
     }
 
     @Override
-    public Transaction withdraw(Money value) {
-
-        if (value.isNegativeOrZero())
-            throw new InvalidAmountException("Valor inválido");
-
-        Money available = getBalance().add(CREDIT_LIMIT);
-        if (value.isGreaterThan(available)) throw new InsufficientBalanceException("Saldo Insuficiente");
-
-        this.decreaseBalance(value);
-        return new Transaction(TransactionType.WITHDRAW, value, this.getAccountIdentity(), null);
+    protected Money minimumAllowedBalance() {
+        return OVERDRAFT_LIMIT.negate();
     }
 }

@@ -3,10 +3,7 @@ package UI;
 import UI.menu.AccountMenu;
 import UI.menu.ClientMenu;
 import UI.menu.InitialMenu;
-import exception.AccountDeletionNotAllowedException;
-import exception.ClientNotFoundException;
-import exception.CpfAlreadyExistsException;
-import exception.EmailAlreadyExistsException;
+import exception.*;
 import model.AccountType;
 import model.valueObjects.AccountIdentity;
 import model.valueObjects.Cpf;
@@ -49,6 +46,7 @@ public class App {
 
                 case 0 -> {
                     System.out.println("Saindo...");
+                    scanner.close();
                     return;
                 }
             }
@@ -266,8 +264,8 @@ public class App {
 
             AccountType type =
                     option == 1
-                            ? model.AccountType.CHECKING
-                            : model.AccountType.SAVINGS;
+                            ? AccountType.CHECKING
+                            : AccountType.SAVINGS;
 
             AccountIdentity account = applicationService.createAccount(
                     loggedCpf,
@@ -280,7 +278,9 @@ public class App {
 
             System.out.println(account);
 
-        } catch (Exception e) {
+        } catch (InvalidAccountTypeException |
+                 AccountDeletionNotAllowedException |
+                 AccountNotFoundException e) {
             System.out.println("Erro: " + e.getMessage());
         }
     }
@@ -326,7 +326,9 @@ public class App {
                     "Conta removida com sucesso!"
             );
 
-        } catch (Exception e) {
+        } catch (InvalidAccountTypeException |
+                 AccountDeletionNotAllowedException |
+                 AccountNotFoundException e) {
             System.out.println("Erro: " + e.getMessage());
         }
     }

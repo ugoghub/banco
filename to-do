@@ -1,0 +1,26 @@
+ClientApplicationService
+AccountApplicationService
+TransactionApplicationService
+
+
+Services ainda expõem entidades internamente
+
+
+Services fazem busca repetida
+Exemplo:
+getClientByCpf(...) é chamado várias vezes.
+
+record ClientData(
+    PersonName name,
+    Cpf cpf,
+    Email email
+)
+
+CreateClientUseCase
+TransferUseCase
+WithdrawUseCase
+
+
+TransactionData
+AccountSummary
+AccountStatement
