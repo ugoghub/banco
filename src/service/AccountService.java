@@ -41,7 +41,7 @@ public class AccountService {
 
             accountIdentity = AccountIdentityGenerator.generate();
 
-        } while (accountRepository.exists(accountIdentity));
+        } while (accountRepository.existsByAccountIdentity(accountIdentity));
 
         switch (type){
             case CHECKING -> account = new CheckingAccount(client.getId(), accountIdentity, clock);

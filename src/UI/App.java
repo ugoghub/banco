@@ -1,5 +1,6 @@
 package UI;
 
+import UI.error.ErrorHandler;
 import UI.menu.AccountMenu;
 import UI.menu.ClientMenu;
 import UI.menu.InitialMenu;
@@ -72,11 +73,8 @@ public class App {
 
             enterClientMenu();
 
-        } catch (ClientNotFoundException e) {
-
-            System.out.println(
-                    "Erro: " + e.getMessage()
-            );
+        } catch (DomainException e) {
+            ErrorHandler.showError(e);
         }
     }
 
@@ -116,14 +114,8 @@ public class App {
 
             enterClientMenu();
 
-        } catch (
-                CpfAlreadyExistsException |
-                EmailAlreadyExistsException e
-        ) {
-
-            System.out.println(
-                    "Erro: " + e.getMessage()
-            );
+        } catch (DomainException e) {
+            ErrorHandler.showError(e);
         }
     }
 
@@ -278,10 +270,8 @@ public class App {
 
             System.out.println(account);
 
-        } catch (InvalidAccountTypeException |
-                 AccountDeletionNotAllowedException |
-                 AccountNotFoundException e) {
-            System.out.println("Erro: " + e.getMessage());
+        } catch (DomainException e) {
+            ErrorHandler.showError(e);
         }
     }
 
@@ -326,10 +316,8 @@ public class App {
                     "Conta removida com sucesso!"
             );
 
-        } catch (InvalidAccountTypeException |
-                 AccountDeletionNotAllowedException |
-                 AccountNotFoundException e) {
-            System.out.println("Erro: " + e.getMessage());
+        } catch (DomainException e) {
+            ErrorHandler.showError(e);
         }
     }
 
@@ -347,13 +335,8 @@ public class App {
 
             loggedCpf = null;
 
-        } catch (
-                AccountDeletionNotAllowedException e
-        ) {
-
-            System.out.println(
-                    "Erro: " + e.getMessage()
-            );
+        } catch (DomainException e) {
+            ErrorHandler.showError(e);
         }
     }
 

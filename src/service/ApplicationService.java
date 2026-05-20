@@ -9,6 +9,7 @@ import repository.AccountRepository;
 import repository.ClientRepository;
 import repository.TransactionRepository;
 import service.dto.ClientData;
+import service.dto.StatementData;
 
 import java.time.Clock;
 import java.util.List;
@@ -88,7 +89,7 @@ public class ApplicationService {
         return accountService.getAccountBalance(id);
     }
 
-    public List<Transaction> getAccountTransactions(AccountIdentity accountIdentity){
+    public List<StatementData> getAccountTransactions(AccountIdentity accountIdentity){
         Account accountByIdentity = accountService.getAccountByAccountIdentity(accountIdentity);
         return transactionService.getTransactionHistory(accountByIdentity.getId());
     }

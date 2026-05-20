@@ -1,6 +1,6 @@
 package exception;
 
-public class EmailAlreadyExistsException extends GlobalException{
+public class EmailAlreadyExistsException extends DomainException {
     public EmailAlreadyExistsException(String message) {
         super(message);
     }

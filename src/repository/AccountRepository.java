@@ -14,7 +14,7 @@ public class AccountRepository {
         this.accountIndex = new HashMap<>();
     }
 
-    public boolean exists(AccountIdentity accountIdentity) {
+    public boolean existsByAccountIdentity(AccountIdentity accountIdentity) {
         return accountIndex.containsKey(accountIdentity);
     }
 
@@ -38,7 +38,7 @@ public class AccountRepository {
     }
 
     public Optional<Account> findByAccountIdentity(AccountIdentity accountIdentity){
-        if(!exists(accountIdentity)) return Optional.empty();
+        if(!existsByAccountIdentity(accountIdentity)) return Optional.empty();
 
         UUID uuid = accountIndex.get(accountIdentity);
         return findById(uuid);

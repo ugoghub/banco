@@ -1,7 +1,7 @@
 package model.valueObjects;
 
-import exception.ValidationException;
-import generator.AccountIdentityGenerator;
+import exception.InvalidAccountNumberException;
+import exception.InvalidBranchException;
 
 import java.util.Objects;
 
@@ -12,11 +12,11 @@ public record AccountIdentity(String branch, String accountNumber) {
         Objects.requireNonNull(accountNumber, "AccountNumber não pode ser null");
 
         if (!branch.matches("\\d{2}")){
-            throw new ValidationException("Branch inválida");
+            throw new InvalidBranchException("Branch inválida");
         }
 
         if (!accountNumber.matches("\\d{6}-\\d")){
-            throw new ValidationException("AccountNumber inválida");
+            throw new InvalidAccountNumberException("AccountNumber inválida");
         }
     }
 

@@ -7,6 +7,7 @@ import model.TransactionType;
 import model.valueObjects.AccountIdentity;
 import model.valueObjects.Money;
 import repository.TransactionRepository;
+import service.dto.StatementData;
 
 import java.time.Clock;
 import java.util.List;
@@ -65,7 +66,17 @@ public class TransactionService {
 
     }
 
-    public List<Transaction> getTransactionHistory(UUID account) {
-        return transactionRepository.getTransactionsByAccountId(account);
+    public List<StatementData> getTransactionHistory(UUID accountId) {
+        List<Transaction> transactionsByAccountId = transactionRepository.getTransactionsByAccountId(accountId);
+
+        return transactionsByAccountId.stream()
+                .map(t -> new StatementData(
+                        t.getType(),
+                        t.getDateTime(),
+                        t.getSourceId(),
+                        t.getDestinationId(),
+                        t.getAmount(),
+                        t.getId()
+                )).toList();
     }
 }

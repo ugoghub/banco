@@ -1,6 +1,6 @@
 package exception;
 
-public class TransferFailedException extends GlobalException{
+public class TransferFailedException extends DomainException {
     public TransferFailedException(String message) {
         super(message);
     }
