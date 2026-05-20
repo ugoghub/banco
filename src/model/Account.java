@@ -66,7 +66,7 @@ public abstract class Account {
 
     private void validatePositiveAmount(Money amount) {
 
-        if (amount.isNegativeOrZero()) {
+        if (amount == null || amount.isNegativeOrZero()) {
             throw new InvalidAmountException(
                     "Valor inválido"
             );

@@ -2,13 +2,13 @@ package model.valueObjects;
 
 import exception.InvalidPersonNameException;
 
-import java.util.Objects;
-
 public record PersonName(String value) {
 
     public PersonName {
 
-        Objects.requireNonNull(value, "Nome não pode ser null");
+        if (value == null) {
+            throw new InvalidPersonNameException("Nome não pode ser null");
+        }
 
         value = value.trim();
 

@@ -3,7 +3,6 @@ package service;
 import model.Account;
 import model.AccountType;
 import model.Client;
-import model.Transaction;
 import model.valueObjects.*;
 import repository.AccountRepository;
 import repository.ClientRepository;

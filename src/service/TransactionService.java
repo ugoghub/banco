@@ -59,10 +59,10 @@ public class TransactionService {
         from.withdraw(value);
         to.deposit(value);
         transactionRepository.save(from.getId(), new Transaction(TransactionType.TRANSFER_SENT, value,
-                from.getAccountIdentity(), null, clock));
+                from.getAccountIdentity(), to.getAccountIdentity(), clock));
 
         transactionRepository.save(to.getId(), new Transaction(TransactionType.TRANSFER_RECEIVED, value,
-                to.getAccountIdentity(), null, clock));
+                from.getAccountIdentity(), to.getAccountIdentity(), clock));
 
     }
 

@@ -2,13 +2,13 @@ package model.valueObjects;
 
 import exception.InvalidCpfException;
 
-import java.util.Objects;
-
 public record Cpf(String value) {
 
     public Cpf {
 
-        Objects.requireNonNull(value, "CPF não pode ser null");
+        if (value == null) {
+            throw new InvalidCpfException("CPF não pode ser null");
+        }
 
         value = value.replaceAll("[^0-9]", "");
 

@@ -246,9 +246,7 @@ public class AccountMenu {
                     "Transferência realizada!"
             );
 
-        } catch (
-                DomainException e
-        ) {
+        } catch (DomainException e) {
             ErrorHandler.showError(e);
         }
     }

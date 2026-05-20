@@ -1,7 +1,6 @@
 package model;
 
-import exception.InvalidEmailException;
-import exception.InvalidPersonNameException;
+import exception.InvalidClientChangeException;
 import model.valueObjects.Cpf;
 import model.valueObjects.Email;
 import model.valueObjects.PersonName;
@@ -32,7 +31,7 @@ public class Client {
         return name;
     }
     public void changeName(PersonName newName) {
-        if(name.equals(newName)) throw new InvalidPersonNameException("Nomes iguais. Troca não efutuada");
+        if(name.equals(newName)) throw new InvalidClientChangeException("Nomes iguais. Troca não efutuada");
         this.name = newName;
     }
 
@@ -44,7 +43,7 @@ public class Client {
         return email;
     }
     public void changeEmail(Email newEmail) {
-        if(email.equals(newEmail)) throw new InvalidEmailException("Emails iguais. Troca não efetuada");
+        if(email.equals(newEmail)) throw new InvalidClientChangeException("Emails iguais. Troca não efetuada");
         this.email = newEmail;
     }
 }
