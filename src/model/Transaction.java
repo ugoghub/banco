@@ -17,15 +17,15 @@ public class Transaction {
 
     public Transaction(TransactionType type,
                        Money amount,
-                       AccountIdentity sourceId,
-                       AccountIdentity destinationId, Clock clock) {
+                       AccountIdentity sourceIdentity,
+                       AccountIdentity destinationIdentity, Clock clock) {
 
         this.id = UUID.randomUUID();
         this.type = type;
         this.amount = amount;
         this.dateTime = LocalDateTime.now(clock);
-        this.sourceIdentity = sourceId;
-        this.destinationIdentity = destinationId;
+        this.sourceIdentity = sourceIdentity;
+        this.destinationIdentity = destinationIdentity;
     }
 
     public UUID getId() {

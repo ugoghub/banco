@@ -25,8 +25,6 @@ public record Cpf(String value) {
 
     private static boolean isValidCpf(String cpf) {
 
-        if (cpf.isBlank()) return false;
-
         if (cpf.length() != 11) return false;
 
         // Bloqueia CPFs com todos os números iguais

@@ -4,7 +4,6 @@ import exception.InvalidOptionException;
 import exception.ValidationException;
 import model.valueObjects.Money;
 
-import java.math.BigDecimal;
 import java.util.Scanner;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -15,7 +14,7 @@ public class InputReader {
             System.out.print(message);
             try {
                 String input = scanner.nextLine().trim().replace(",", ".");
-                return new Money(new BigDecimal(input));
+                return Money.of(input);
 
             } catch (NumberFormatException | ValidationException e) {
                 System.out.print("Formato inválido. Tente novamente:\n");

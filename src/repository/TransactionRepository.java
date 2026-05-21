@@ -11,13 +11,13 @@ public class TransactionRepository {
         this.transactionsByAccountId = new HashMap<>();
     }
 
-    public void save(UUID account, Transaction transaction){
+    public void save(UUID accountId, Transaction transaction){
         transactionsByAccountId
-                .computeIfAbsent(account, k -> new ArrayList<>())
+                .computeIfAbsent(accountId, k -> new ArrayList<>())
                 .add(transaction);
     }
 
-    public List<Transaction> getTransactionsByAccountId(UUID id){
-        return Collections.unmodifiableList(transactionsByAccountId.getOrDefault(id, Collections.emptyList()));
+    public List<Transaction> getTransactionsByAccountId(UUID accountId){
+        return Collections.unmodifiableList(transactionsByAccountId.getOrDefault(accountId, Collections.emptyList()));
     }
 }

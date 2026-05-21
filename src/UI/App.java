@@ -74,7 +74,7 @@ public class App {
             enterClientMenu();
 
         } catch (DomainException e) {
-            ErrorHandler.showError(e);
+            ErrorHandler.printError(e);
         }
     }
 
@@ -115,7 +115,7 @@ public class App {
             enterClientMenu();
 
         } catch (DomainException e) {
-            ErrorHandler.showError(e);
+            ErrorHandler.printError(e);
         }
     }
 
@@ -271,7 +271,7 @@ public class App {
             System.out.println(account);
 
         } catch (DomainException e) {
-            ErrorHandler.showError(e);
+            ErrorHandler.printError(e);
         }
     }
 
@@ -317,7 +317,7 @@ public class App {
             );
 
         } catch (DomainException e) {
-            ErrorHandler.showError(e);
+            ErrorHandler.printError(e);
         }
     }
 
@@ -336,7 +336,7 @@ public class App {
             loggedCpf = null;
 
         } catch (DomainException e) {
-            ErrorHandler.showError(e);
+            ErrorHandler.printError(e);
         }
     }
 

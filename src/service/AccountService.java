@@ -30,7 +30,7 @@ public class AccountService {
     }
 
 
-    public AccountIdentity save(Cpf cpf, AccountType type) {
+    public AccountIdentity createAccount(Cpf cpf, AccountType type) {
 
         Client client = clientService.getClientByCpf(cpf);
 

@@ -2,12 +2,12 @@ package test.model;
 
 import exception.InsufficientBalanceException;
 import exception.InvalidAmountException;
+import model.Account;
 import model.CheckingAccount;
 import model.valueObjects.AccountIdentity;
 import model.valueObjects.Money;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.UUID;
 
@@ -17,25 +17,39 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class CheckingAccountTest {
 
     private final Clock clock =
-            Clock.systemDefaultZone();
+            Clock.systemUTC();
 
     @Test
     void shouldDepositMoney() {
 
         CheckingAccount account =
-                new CheckingAccount(
-                        UUID.randomUUID(),
-                        createIdentity(),
-                        clock
-                );
+                createCheckingAccount();
 
         account.deposit(
-                new Money(new BigDecimal("100"))
+                Money.of("100")
         );
 
         assertEquals(
-                new BigDecimal("100.00"),
-                account.getBalance().value()
+                Money.of("100.00"),
+                account.getBalance()
+        );
+    }
+
+    @Test
+    void shouldIncreaseBalanceAfterDeposit() {
+
+        Account account =
+                new CheckingAccount(
+                        UUID.randomUUID(),
+                        new AccountIdentity("01", "123456-1"),
+                        Clock.systemUTC()
+                );
+
+        account.deposit(Money.of("100"));
+
+        assertEquals(
+                Money.of("100"),
+                account.getBalance()
         );
     }
 
@@ -43,19 +57,15 @@ class CheckingAccountTest {
     void shouldAllowOverdraftUntilLimit() {
 
         CheckingAccount account =
-                new CheckingAccount(
-                        UUID.randomUUID(),
-                        createIdentity(),
-                        clock
-                );
+                createCheckingAccount();
 
         account.withdraw(
-                new Money(new BigDecimal("500"))
+                Money.of("500")
         );
 
         assertEquals(
-                new BigDecimal("-500.00"),
-                account.getBalance().value()
+                Money.of("-500.00"),
+                account.getBalance()
         );
     }
 
@@ -63,24 +73,13 @@ class CheckingAccountTest {
     void shouldNotExceedOverdraftLimit() {
 
         CheckingAccount account =
-                new CheckingAccount(
-                        UUID.randomUUID(),
-                        createIdentity(),
-                        clock
-                );
+                createCheckingAccount();
 
         assertThrows(
                 InsufficientBalanceException.class,
                 () -> account.withdraw(
-                        new Money(new BigDecimal("2000"))
+                        Money.of("2000")
                 )
-        );
-    }
-
-    private AccountIdentity createIdentity() {
-        return new AccountIdentity(
-                "01",
-                "123456-1"
         );
     }
 
@@ -88,23 +87,19 @@ class CheckingAccountTest {
     void shouldWithdrawMoney() {
 
         CheckingAccount account =
-                new CheckingAccount(
-                        UUID.randomUUID(),
-                        createIdentity(),
-                        clock
-                );
+                createCheckingAccount();
 
         account.deposit(
-                new Money(new BigDecimal("100"))
+                Money.of("100")
         );
 
         account.withdraw(
-                new Money(new BigDecimal("40"))
+                Money.of("40")
         );
 
         assertEquals(
-                new BigDecimal("60.00"),
-                account.getBalance().value()
+                Money.of("60.00"),
+                account.getBalance()
         );
     }
 
@@ -112,16 +107,12 @@ class CheckingAccountTest {
     void shouldNotAllowNegativeDeposit() {
 
         CheckingAccount account =
-                new CheckingAccount(
-                        UUID.randomUUID(),
-                        createIdentity(),
-                        clock
-                );
+                createCheckingAccount();
 
         assertThrows(
                 InvalidAmountException.class,
                 () -> account.deposit(
-                        new Money(new BigDecimal("-10"))
+                        Money.of("-10")
                 )
         );
     }
@@ -130,17 +121,28 @@ class CheckingAccountTest {
     void shouldNotAllowZeroWithdraw() {
 
         CheckingAccount account =
-                new CheckingAccount(
-                        UUID.randomUUID(),
-                        createIdentity(),
-                        clock
-                );
+                createCheckingAccount();
 
         assertThrows(
                 InvalidAmountException.class,
                 () -> account.withdraw(
                         Money.ZERO
                 )
+        );
+    }
+
+    private CheckingAccount createCheckingAccount() {
+        return new CheckingAccount(
+                UUID.randomUUID(),
+                createIdentity(),
+                clock
+        );
+    }
+
+    private AccountIdentity createIdentity() {
+        return new AccountIdentity(
+                "01",
+                "123456-1"
         );
     }
 }

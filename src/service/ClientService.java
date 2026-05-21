@@ -17,7 +17,7 @@ public class ClientService {
         this.clientRepository = clientRepository;
     }
 
-    public void save(
+    public void createClient(
             PersonName name,
             Cpf cpf,
             Email email

@@ -3,7 +3,6 @@ package test.service;
 import exception.AccountDeletionNotAllowedException;
 import exception.AccountNotFoundException;
 import exception.ClientNotFoundException;
-import exception.InsufficientBalanceException;
 import model.Account;
 import model.AccountType;
 import model.CheckingAccount;
@@ -14,7 +13,6 @@ import repository.ClientRepository;
 import service.AccountService;
 import service.ClientService;
 
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
@@ -43,37 +41,19 @@ public class AccountServiceTest {
 
         Cpf cpf = new Cpf("52998224725");
 
-        clientService.save(
+        clientService.createClient(
                 new PersonName("Hugo Silva"),
                 cpf,
                 new Email("hugo@gmail.com")
         );
 
         AccountIdentity account =
-                accountService.save(
+                accountService.createAccount(
                         cpf,
                         AccountType.CHECKING
                 );
 
         assertNotNull(account);
-    }
-
-    @Test
-    void shouldIncreaseBalanceAfterDeposit() {
-
-        Account account =
-                new CheckingAccount(
-                        UUID.randomUUID(),
-                        new AccountIdentity("01", "123456-1"),
-                        Clock.systemUTC()
-                );
-
-        account.deposit(new Money(new BigDecimal("100")));
-
-        assertEquals(
-                new Money(new BigDecimal("100")),
-                account.getBalance()
-        );
     }
 
     @Test
@@ -94,7 +74,7 @@ public class AccountServiceTest {
 
         assertThrows(
                 ClientNotFoundException.class,
-                () -> accountService.save(
+                () -> accountService.createAccount(
                         new Cpf("52998224725"),
                         AccountType.CHECKING
                 )
@@ -122,14 +102,14 @@ public class AccountServiceTest {
 
         Cpf cpf = new Cpf("52998224725");
 
-        clientService.save(
+        clientService.createClient(
                 new PersonName("Hugo Silva"),
                 cpf,
                 new Email("hugo@gmail.com")
         );
 
         AccountIdentity identity =
-                accountService.save(
+                accountService.createAccount(
                         cpf,
                         AccountType.CHECKING
                 );
@@ -161,14 +141,14 @@ public class AccountServiceTest {
 
         Cpf cpf = new Cpf("52998224725");
 
-        clientService.save(
+        clientService.createClient(
                 new PersonName("Hugo Silva"),
                 cpf,
                 new Email("hugo@gmail.com")
         );
 
         AccountIdentity identity =
-                accountService.save(
+                accountService.createAccount(
                         cpf,
                         AccountType.CHECKING
                 );
@@ -177,7 +157,7 @@ public class AccountServiceTest {
                 accountService.getAccountByAccountIdentity(identity);
 
         account.deposit(
-                new Money(new BigDecimal("100"))
+                Money.of("100")
         );
 
         assertThrows(
@@ -207,14 +187,14 @@ public class AccountServiceTest {
 
         Cpf cpf = new Cpf("52998224725");
 
-        clientService.save(
+        clientService.createClient(
                 new PersonName("Hugo Silva"),
                 cpf,
                 new Email("hugo@gmail.com")
         );
 
         AccountIdentity identity =
-                accountService.save(
+                accountService.createAccount(
                         cpf,
                         AccountType.CHECKING
                 );
@@ -249,18 +229,18 @@ public class AccountServiceTest {
 
         Cpf cpf = new Cpf("52998224725");
 
-        clientService.save(
+        clientService.createClient(
                 new PersonName("Hugo Silva"),
                 cpf,
                 new Email("hugo@gmail.com")
         );
 
-        accountService.save(
+        accountService.createAccount(
                 cpf,
                 AccountType.CHECKING
         );
 
-        accountService.save(
+        accountService.createAccount(
                 cpf,
                 AccountType.SAVINGS
         );

@@ -24,7 +24,7 @@ public record StatementData(
         return """
                 [%s]
                 Data: %s
-                Valor: R$ %s
+                Valor: %s
                 Origem: %s
                 Destino: %s
                 Id: %s

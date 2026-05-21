@@ -150,7 +150,7 @@ public class AccountMenu {
             );
 
         } catch (DomainException e) {
-            ErrorHandler.showError(e);
+            ErrorHandler.printError(e);
         }
     }
 
@@ -180,7 +180,7 @@ public class AccountMenu {
         } catch (
                 DomainException e
         ) {
-            ErrorHandler.showError(e);
+            ErrorHandler.printError(e);
         }
     }
 
@@ -198,7 +198,7 @@ public class AccountMenu {
             );
 
         } catch (DomainException e) {
-            ErrorHandler.showError(e);
+            ErrorHandler.printError(e);
         }
     }
 
@@ -247,7 +247,7 @@ public class AccountMenu {
             );
 
         } catch (DomainException e) {
-            ErrorHandler.showError(e);
+            ErrorHandler.printError(e);
         }
     }
 
@@ -280,7 +280,7 @@ public class AccountMenu {
             }
 
         } catch (DomainException e) {
-            ErrorHandler.showError(e);
+            ErrorHandler.printError(e);
         }
     }
 }

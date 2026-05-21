@@ -17,8 +17,10 @@ import service.ClientService;
 import service.TransactionService;
 import service.dto.StatementData;
 
-import java.math.BigDecimal;
-import java.time.*;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -602,7 +604,7 @@ class TransactionServiceTest {
     }
 
     private Money money(String value) {
-        return new Money(new BigDecimal(value));
+        return Money.of(value);
     }
 
     private AccountIdentity createCheckingAccount() {
@@ -635,13 +637,13 @@ class TransactionServiceTest {
         Cpf cpf =
                 new Cpf(cpfValue);
 
-        clientService.save(
+        clientService.createClient(
                 new PersonName(name),
                 cpf,
                 new Email(email)
         );
 
-        return accountService.save(
+        return accountService.createAccount(
                 cpf,
                 type
         );

@@ -2,8 +2,11 @@ package UI.error;
 
 import exception.DomainException;
 
-public class ErrorHandler {
-    public static void showError(DomainException e){
+public final class ErrorHandler {
+
+    private ErrorHandler() {}
+
+    public static void printError(DomainException e){
         System.out.println("Erro: " + e.getMessage());
     }
 }

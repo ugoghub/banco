@@ -23,6 +23,10 @@ public class Client {
         this.email = email;
     }
 
+    public Cpf getCpf() {
+        return cpf;
+    }
+
     public UUID getId() {
         return id;
     }
@@ -30,20 +34,22 @@ public class Client {
     public PersonName getName() {
         return name;
     }
-    public void changeName(PersonName newName) {
-        if(name.equals(newName)) throw new InvalidClientChangeException("Nomes iguais. Troca não efutuada");
-        this.name = newName;
-    }
-
-    public Cpf getCpf() {
-        return cpf;
-    }
 
     public Email getEmail() {
         return email;
     }
+
+    public void changeName(PersonName newName) {
+        if(this.name.equals(newName)) throw new InvalidClientChangeException("Novo nome é igual ao nome atual");
+        if(newName == null) throw new InvalidClientChangeException("Nome não pode ser null");
+
+        this.name = newName;
+    }
+
     public void changeEmail(Email newEmail) {
-        if(email.equals(newEmail)) throw new InvalidClientChangeException("Emails iguais. Troca não efetuada");
+        if(this.email.equals(newEmail)) throw new InvalidClientChangeException("Novo email é igual ao email atual");
+        if(newEmail == null) throw new InvalidClientChangeException("Email não pode ser null");
+
         this.email = newEmail;
     }
 }

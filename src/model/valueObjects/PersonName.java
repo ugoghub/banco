@@ -12,7 +12,7 @@ public record PersonName(String value) {
 
         value = value.trim();
 
-        if (!value.matches("^[A-Za-zÀ-ÿ' -]{4,}$")) {
+        if (!value.matches("^[A-Za-zÀ-ÿ' -]{2,}$")) {
             throw new InvalidPersonNameException(
                     "Nome inválido"
             );

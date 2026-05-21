@@ -34,13 +34,13 @@ public class ApplicationService {
                              Cpf cpf,
                              Email email) {
 
-        clientService.save(name, cpf, email);
+        clientService.createClient(name, cpf, email);
     }
 
     public AccountIdentity createAccount(Cpf cpf, AccountType type)
     {
 
-        return accountService.save(cpf, type);
+        return accountService.createAccount(cpf, type);
     }
 
     public void removeClient(Cpf cpf) {

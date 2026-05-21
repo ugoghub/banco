@@ -25,7 +25,7 @@ public class ClientServiceTest {
 
         Cpf cpf = new Cpf("52998224725");
 
-        service.save(
+        service.createClient(
                 new PersonName("Hugo Silva"),
                 cpf,
                 new Email("hugo@gmail.com")
@@ -33,7 +33,7 @@ public class ClientServiceTest {
 
         assertThrows(
                 CpfAlreadyExistsException.class,
-                () -> service.save(
+                () -> service.createClient(
                         new PersonName("Outro Nome"),
                         cpf,
                         new Email("outro@gmail.com")
@@ -52,7 +52,7 @@ public class ClientServiceTest {
 
         Cpf cpf = new Cpf("52998224725");
 
-        service.save(
+        service.createClient(
                 new PersonName("Hugo Silva"),
                 cpf,
                 new Email("hugo@gmail.com")
@@ -81,7 +81,7 @@ public class ClientServiceTest {
         ClientService service =
                 new ClientService(repository);
 
-        service.save(
+        service.createClient(
                 new PersonName("Hugo Silva"),
                 new Cpf("52998224725"),
                 new Email("hugo@gmail.com")
@@ -89,7 +89,7 @@ public class ClientServiceTest {
 
         assertThrows(
                 EmailAlreadyExistsException.class,
-                () -> service.save(
+                () -> service.createClient(
                         new PersonName("Maria"),
                         new Cpf("11144477735"),
                         new Email("hugo@gmail.com")
@@ -108,7 +108,7 @@ public class ClientServiceTest {
 
         Cpf cpf = new Cpf("52998224725");
 
-        service.save(
+        service.createClient(
                 new PersonName("Hugo Silva"),
                 cpf,
                 new Email("hugo@gmail.com")
@@ -133,7 +133,7 @@ public class ClientServiceTest {
 
         Cpf cpf = new Cpf("52998224725");
 
-        service.save(
+        service.createClient(
                 new PersonName("Hugo Silva"),
                 cpf,
                 new Email("old@gmail.com")

@@ -1,12 +1,12 @@
 package test.model;
 
 import exception.InsufficientBalanceException;
+import model.CheckingAccount;
 import model.SavingsAccount;
 import model.valueObjects.AccountIdentity;
 import model.valueObjects.Money;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -25,14 +25,10 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                new SavingsAccount(
-                        UUID.randomUUID(),
-                        createIdentity(),
-                        january
-                );
+                createSavingsAccount(january);
 
         account.deposit(
-                new Money(new BigDecimal("1000"))
+                Money.of("1000")
         );
 
         Clock february =
@@ -47,8 +43,8 @@ public class SavingsAccountTest {
         assertTrue(applied);
 
         assertEquals(
-                new BigDecimal("1005.00"),
-                account.getBalance().value()
+                Money.of("1005"),
+                account.getBalance()
         );
     }
 
@@ -68,11 +64,7 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                new SavingsAccount(
-                        UUID.randomUUID(),
-                        createIdentity(),
-                        january
-                );
+                createSavingsAccount(january);
 
         boolean applied =
                 account.applyInterest(interestBeforeOneMonth);
@@ -80,27 +72,16 @@ public class SavingsAccountTest {
         assertFalse(applied);
     }
 
-    private AccountIdentity createIdentity() {
-        return new AccountIdentity(
-                "01",
-                "123456-1"
-        );
-    }
-
     @Test
     void shouldNotAllowNegativeBalance() {
 
         SavingsAccount account =
-                new SavingsAccount(
-                        UUID.randomUUID(),
-                        createIdentity(),
-                        Clock.systemUTC()
-                );
+                createSavingsAccount(Clock.systemUTC());
 
         assertThrows(
                 InsufficientBalanceException.class,
                 () -> account.withdraw(
-                        new Money(new BigDecimal("1"))
+                        Money.of("1")
                 )
         );
     }
@@ -121,14 +102,10 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                new SavingsAccount(
-                        UUID.randomUUID(),
-                        createIdentity(),
-                        february
-                );
+                createSavingsAccount(february);
 
         account.deposit(
-                new Money(new BigDecimal("1000"))
+                Money.of("1000")
         );
 
         boolean first =
@@ -140,5 +117,20 @@ public class SavingsAccountTest {
         assertTrue(first);
 
         assertFalse(second);
+    }
+
+    private AccountIdentity createIdentity() {
+        return new AccountIdentity(
+                "01",
+                "123456-1"
+        );
+    }
+
+    private SavingsAccount createSavingsAccount(Clock clock) {
+        return new SavingsAccount(
+                UUID.randomUUID(),
+                createIdentity(),
+                clock
+        );
     }
 }

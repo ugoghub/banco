@@ -48,6 +48,10 @@ public class SavingsAccount extends Account {
             return false;
         }
 
+        if (getBalance().isZero()) {
+            return false;
+        }
+
         Money interest =
                 getBalance().multiply(INTEREST_RATE);
 

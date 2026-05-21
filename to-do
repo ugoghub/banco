@@ -5,3 +5,5 @@ TransactionApplicationService
 CreateClientUseCase
 TransferUseCase
 WithdrawUseCase
+
+equals/hashcode em client, account, transaction
