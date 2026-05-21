@@ -13,8 +13,6 @@ public class SavingsAccount extends Account {
     private static final BigDecimal INTEREST_RATE =
             new BigDecimal("0.005");
 
-    private final Clock clock;
-
     private LocalDateTime lastInterestApply;
 
     public SavingsAccount(
@@ -29,7 +27,6 @@ public class SavingsAccount extends Account {
                 clock
         );
 
-        this.clock = clock;
         this.lastInterestApply = getCreationTime();
     }
 
@@ -38,16 +35,16 @@ public class SavingsAccount extends Account {
         return Money.ZERO;
     }
 
-    public boolean isTimeToApplyInterest() {
+    public boolean isTimeToApplyInterest(Clock clock) {
 
         return !lastInterestApply
                 .plusMonths(1)
                 .isAfter(LocalDateTime.now(clock));
     }
 
-    public boolean applyInterest() {
+    public boolean applyInterest(Clock clock) {
 
-        if (!isTimeToApplyInterest()) {
+        if (!isTimeToApplyInterest(clock)) {
             return false;
         }
 

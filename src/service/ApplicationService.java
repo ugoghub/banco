@@ -18,10 +18,8 @@ public class ApplicationService {
     private final AccountService accountService;
     private final TransactionService transactionService;
 
-    private final Clock clock;
-
     public ApplicationService() {
-        clock = Clock.systemDefaultZone();
+        Clock clock = Clock.systemDefaultZone();
 
         ClientRepository clientRepository = new ClientRepository();
         AccountRepository accountRepository = new AccountRepository();
@@ -29,7 +27,7 @@ public class ApplicationService {
 
         this.clientService = new ClientService(clientRepository);
         this.accountService = new AccountService(accountRepository, clientService, clock);
-        this.transactionService = new TransactionService(accountService, transactionRepository);
+        this.transactionService = new TransactionService(accountService, transactionRepository, clock);
     }
 
     public void createClient(PersonName name,
@@ -61,20 +59,20 @@ public class ApplicationService {
     public void deposit(AccountIdentity id,
                         Money value){
 
-        transactionService.deposit(id, value, clock);
+        transactionService.deposit(id, value);
     }
 
     public void withdraw(AccountIdentity id,
                          Money value) {
 
-        transactionService.withdraw(id, value, clock);
+        transactionService.withdraw(id, value);
     }
 
     public void transfer(AccountIdentity fromId,
                          AccountIdentity toId,
                          Money value) {
 
-        transactionService.transfer(fromId, toId, value, clock);
+        transactionService.transfer(fromId, toId, value);
     }
 
     public List<AccountIdentity> getClientAccountsIdentity(Cpf cpf) {

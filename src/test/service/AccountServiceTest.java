@@ -1,0 +1,273 @@
+package test.service;
+
+import exception.AccountDeletionNotAllowedException;
+import exception.AccountNotFoundException;
+import exception.ClientNotFoundException;
+import exception.InsufficientBalanceException;
+import model.Account;
+import model.AccountType;
+import model.CheckingAccount;
+import model.valueObjects.*;
+import org.junit.jupiter.api.Test;
+import repository.AccountRepository;
+import repository.ClientRepository;
+import service.AccountService;
+import service.ClientService;
+
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.util.List;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class AccountServiceTest {
+    @Test
+    void shouldCreateAccount() {
+
+        ClientRepository clientRepository =
+                new ClientRepository();
+
+        AccountRepository accountRepository =
+                new AccountRepository();
+
+        ClientService clientService =
+                new ClientService(clientRepository);
+
+        AccountService accountService =
+                new AccountService(
+                        accountRepository,
+                        clientService,
+                        Clock.systemDefaultZone()
+                );
+
+        Cpf cpf = new Cpf("52998224725");
+
+        clientService.save(
+                new PersonName("Hugo Silva"),
+                cpf,
+                new Email("hugo@gmail.com")
+        );
+
+        AccountIdentity account =
+                accountService.save(
+                        cpf,
+                        AccountType.CHECKING
+                );
+
+        assertNotNull(account);
+    }
+
+    @Test
+    void shouldIncreaseBalanceAfterDeposit() {
+
+        Account account =
+                new CheckingAccount(
+                        UUID.randomUUID(),
+                        new AccountIdentity("01", "123456-1"),
+                        Clock.systemUTC()
+                );
+
+        account.deposit(new Money(new BigDecimal("100")));
+
+        assertEquals(
+                new Money(new BigDecimal("100")),
+                account.getBalance()
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenClientDoesNotExist() {
+
+        ClientRepository clientRepository =
+                new ClientRepository();
+
+        AccountRepository accountRepository =
+                new AccountRepository();
+
+        AccountService accountService =
+                new AccountService(
+                        accountRepository,
+                        new ClientService(clientRepository),
+                        Clock.systemUTC()
+                );
+
+        assertThrows(
+                ClientNotFoundException.class,
+                () -> accountService.save(
+                        new Cpf("52998224725"),
+                        AccountType.CHECKING
+                )
+        );
+    }
+
+    @Test
+    void shouldReturnAccountByIdentity() {
+
+        ClientRepository clientRepository =
+                new ClientRepository();
+
+        AccountRepository accountRepository =
+                new AccountRepository();
+
+        ClientService clientService =
+                new ClientService(clientRepository);
+
+        AccountService accountService =
+                new AccountService(
+                        accountRepository,
+                        clientService,
+                        Clock.systemUTC()
+                );
+
+        Cpf cpf = new Cpf("52998224725");
+
+        clientService.save(
+                new PersonName("Hugo Silva"),
+                cpf,
+                new Email("hugo@gmail.com")
+        );
+
+        AccountIdentity identity =
+                accountService.save(
+                        cpf,
+                        AccountType.CHECKING
+                );
+
+        Account account =
+                accountService.getAccountByAccountIdentity(identity);
+
+        assertEquals(identity, account.getAccountIdentity());
+    }
+
+    @Test
+    void shouldNotRemoveAccountWithBalance() {
+
+        ClientRepository clientRepository =
+                new ClientRepository();
+
+        AccountRepository accountRepository =
+                new AccountRepository();
+
+        ClientService clientService =
+                new ClientService(clientRepository);
+
+        AccountService accountService =
+                new AccountService(
+                        accountRepository,
+                        clientService,
+                        Clock.systemUTC()
+                );
+
+        Cpf cpf = new Cpf("52998224725");
+
+        clientService.save(
+                new PersonName("Hugo Silva"),
+                cpf,
+                new Email("hugo@gmail.com")
+        );
+
+        AccountIdentity identity =
+                accountService.save(
+                        cpf,
+                        AccountType.CHECKING
+                );
+
+        Account account =
+                accountService.getAccountByAccountIdentity(identity);
+
+        account.deposit(
+                new Money(new BigDecimal("100"))
+        );
+
+        assertThrows(
+                AccountDeletionNotAllowedException.class,
+                () -> accountService.removeAccount(identity)
+        );
+    }
+
+    @Test
+    void shouldRemoveAccount() {
+
+        ClientRepository clientRepository =
+                new ClientRepository();
+
+        AccountRepository accountRepository =
+                new AccountRepository();
+
+        ClientService clientService =
+                new ClientService(clientRepository);
+
+        AccountService accountService =
+                new AccountService(
+                        accountRepository,
+                        clientService,
+                        Clock.systemUTC()
+                );
+
+        Cpf cpf = new Cpf("52998224725");
+
+        clientService.save(
+                new PersonName("Hugo Silva"),
+                cpf,
+                new Email("hugo@gmail.com")
+        );
+
+        AccountIdentity identity =
+                accountService.save(
+                        cpf,
+                        AccountType.CHECKING
+                );
+
+        accountService.removeAccount(identity);
+
+        assertThrows(
+                AccountNotFoundException.class,
+                () -> accountService
+                        .getAccountByAccountIdentity(identity)
+        );
+    }
+
+    @Test
+    void shouldReturnClientAccounts() {
+
+        ClientRepository clientRepository =
+                new ClientRepository();
+
+        AccountRepository accountRepository =
+                new AccountRepository();
+
+        ClientService clientService =
+                new ClientService(clientRepository);
+
+        AccountService accountService =
+                new AccountService(
+                        accountRepository,
+                        clientService,
+                        Clock.systemUTC()
+                );
+
+        Cpf cpf = new Cpf("52998224725");
+
+        clientService.save(
+                new PersonName("Hugo Silva"),
+                cpf,
+                new Email("hugo@gmail.com")
+        );
+
+        accountService.save(
+                cpf,
+                AccountType.CHECKING
+        );
+
+        accountService.save(
+                cpf,
+                AccountType.SAVINGS
+        );
+
+        List<AccountIdentity> accounts =
+                accountService.getClientAccountsIdentity(cpf);
+
+        assertEquals(2, accounts.size());
+    }
+}

@@ -1,0 +1,649 @@
+package test.service;
+
+import exception.InsufficientBalanceException;
+import exception.InvalidAmountException;
+import exception.InvalidTransferException;
+import model.Account;
+import model.AccountType;
+import model.TransactionType;
+import model.valueObjects.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import repository.AccountRepository;
+import repository.ClientRepository;
+import repository.TransactionRepository;
+import service.AccountService;
+import service.ClientService;
+import service.TransactionService;
+import service.dto.StatementData;
+
+import java.math.BigDecimal;
+import java.time.*;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class TransactionServiceTest {
+
+    private ClientRepository clientRepository;
+    private AccountRepository accountRepository;
+    private TransactionRepository transactionRepository;
+
+    private ClientService clientService;
+    private AccountService accountService;
+    private TransactionService transactionService;
+
+    @BeforeEach
+    void setup() {
+
+        Clock clock = Clock.systemUTC();
+
+        clientRepository = new ClientRepository();
+        accountRepository = new AccountRepository();
+        transactionRepository = new TransactionRepository();
+
+        clientService =
+                new ClientService(clientRepository);
+
+        accountService =
+                new AccountService(
+                        accountRepository,
+                        clientService,
+                        clock
+                );
+
+        transactionService =
+                new TransactionService(
+                        accountService,
+                        transactionRepository,
+                        clock
+                );
+    }
+
+    private void setupServices(Clock customClock) {
+
+        clientRepository = new ClientRepository();
+        accountRepository = new AccountRepository();
+        transactionRepository = new TransactionRepository();
+
+        clientService =
+                new ClientService(clientRepository);
+
+        accountService =
+                new AccountService(
+                        accountRepository,
+                        clientService,
+                        customClock
+                );
+
+        transactionService =
+                new TransactionService(
+                        accountService,
+                        transactionRepository,
+                        customClock
+                );
+    }
+
+    // =========================
+    // Deposit
+    // =========================
+
+    @Test
+    void shouldDepositMoney() {
+
+        AccountIdentity account =
+                createCheckingAccount();
+
+        deposit(account, "100");
+
+        assertEquals(
+                money("100"),
+                balance(account)
+        );
+    }
+
+    @Test
+    void shouldNotDepositZeroValue() {
+
+        AccountIdentity account =
+                createCheckingAccount();
+
+        assertThrows(
+                InvalidAmountException.class,
+                () -> deposit(account, "0")
+        );
+    }
+
+    @Test
+    void shouldNotDepositNegativeValue() {
+
+        AccountIdentity account =
+                createCheckingAccount();
+
+        assertThrows(
+                InvalidAmountException.class,
+                () -> deposit(account, "-100")
+        );
+    }
+
+    @Test
+    void shouldCreateDepositTransactionHistory() {
+
+        AccountIdentity account =
+                createCheckingAccount();
+
+        deposit(account, "100");
+
+        List<StatementData> history =
+                history(account);
+
+        assertEquals(1, history.size());
+
+        StatementData transaction =
+                history.getFirst();
+
+        assertEquals(
+                TransactionType.DEPOSIT,
+                transaction.type()
+        );
+
+        assertEquals(
+                account,
+                transaction.destination()
+        );
+
+        assertNull(transaction.source());
+    }
+
+    // =========================
+    // Withdraw
+    // =========================
+
+    @Test
+    void shouldWithdrawMoney() {
+
+        AccountIdentity account =
+                createCheckingAccount();
+
+        deposit(account, "200");
+
+        withdraw(account, "50");
+
+        assertEquals(
+                money("150"),
+                balance(account)
+        );
+    }
+
+    @Test
+    void shouldNotWithdrawZeroValue() {
+
+        AccountIdentity account =
+                createCheckingAccount();
+
+        assertThrows(
+                InvalidAmountException.class,
+                () -> withdraw(account, "0")
+        );
+    }
+
+    @Test
+    void shouldNotWithdrawNegativeValue() {
+
+        AccountIdentity account =
+                createCheckingAccount();
+
+        assertThrows(
+                InvalidAmountException.class,
+                () -> withdraw(account, "-50")
+        );
+    }
+
+    @Test
+    void shouldNotWithdrawWithoutBalanceInSavingsAccount() {
+
+        AccountIdentity account =
+                createSavingsAccount();
+
+        assertThrows(
+                InsufficientBalanceException.class,
+                () -> withdraw(account, "1")
+        );
+    }
+
+    @Test
+    void shouldAllowOverdraftInCheckingAccount() {
+
+        AccountIdentity account =
+                createCheckingAccount();
+
+        withdraw(account, "500");
+
+        assertEquals(
+                money("-500"),
+                balance(account)
+        );
+    }
+
+    @Test
+    void checkingAccountShouldAllowNegativeBalanceUntilLimit() {
+
+        AccountIdentity account =
+                createCheckingAccount();
+
+        withdraw(account, "1000");
+
+        assertEquals(
+                money("-1000"),
+                balance(account)
+        );
+    }
+
+    @Test
+    void checkingAccountShouldNotExceedOverdraftLimit() {
+
+        AccountIdentity account =
+                createCheckingAccount();
+
+        assertThrows(
+                InsufficientBalanceException.class,
+                () -> withdraw(account, "1000.01")
+        );
+    }
+
+    @Test
+    void savingsAccountShouldNotAllowNegativeBalance() {
+
+        AccountIdentity account =
+                createSavingsAccount();
+
+        assertThrows(
+                InsufficientBalanceException.class,
+                () -> withdraw(account, "1")
+        );
+    }
+
+    @Test
+    void shouldCreateWithdrawTransactionHistory() {
+
+        AccountIdentity account =
+                createCheckingAccount();
+
+        deposit(account, "500");
+
+        withdraw(account, "200");
+
+        List<StatementData> history =
+                history(account);
+
+        assertEquals(2, history.size());
+
+        StatementData withdraw =
+                history.get(1);
+
+        assertEquals(
+                TransactionType.WITHDRAW,
+                withdraw.type()
+        );
+
+        assertEquals(
+                account,
+                withdraw.source()
+        );
+
+        assertNull(withdraw.destination());
+    }
+
+    // =========================
+    // Transfer
+    // =========================
+
+    @Test
+    void shouldTransferMoneyBetweenAccounts() {
+
+        AccountIdentity from =
+                createCheckingAccount();
+
+        AccountIdentity to =
+                createSavingsAccount();
+
+        deposit(from, "300");
+
+        transfer(from, to, "100");
+
+        assertEquals(
+                money("200"),
+                balance(from)
+        );
+
+        assertEquals(
+                money("100"),
+                balance(to)
+        );
+    }
+
+    @Test
+    void shouldNotTransferToSameAccount() {
+
+        AccountIdentity account =
+                createCheckingAccount();
+
+        assertThrows(
+                InvalidTransferException.class,
+                () -> transfer(account, account, "10")
+        );
+    }
+
+    @Test
+    void shouldNotTransferNegativeValue() {
+
+        AccountIdentity from =
+                createCheckingAccount();
+
+        AccountIdentity to =
+                createSavingsAccount();
+
+        assertThrows(
+                InvalidAmountException.class,
+                () -> transfer(from, to, "-100")
+        );
+    }
+
+    @Test
+    void shouldNotTransferZeroValue() {
+
+        AccountIdentity from =
+                createCheckingAccount();
+
+        AccountIdentity to =
+                createSavingsAccount();
+
+        assertThrows(
+                InvalidAmountException.class,
+                () -> transfer(from, to, "0")
+        );
+    }
+
+    @Test
+    void transferShouldUpdateBothBalances() {
+
+        AccountIdentity from =
+                createCheckingAccount();
+
+        AccountIdentity to =
+                createSavingsAccount();
+
+        deposit(from, "1000");
+
+        transfer(from, to, "300");
+
+        assertEquals(
+                money("700"),
+                balance(from)
+        );
+
+        assertEquals(
+                money("300"),
+                balance(to)
+        );
+    }
+
+    @Test
+    void transferShouldNotCreditDestinationWhenWithdrawFails() {
+
+        AccountIdentity from =
+                createSavingsAccount();
+
+        AccountIdentity to =
+                createCheckingAccount();
+
+        deposit(from, "100");
+
+        assertThrows(
+                InsufficientBalanceException.class,
+                () -> transfer(from, to, "200")
+        );
+
+        assertEquals(
+                money("100"),
+                balance(from)
+        );
+
+        assertEquals(
+                Money.ZERO,
+                balance(to)
+        );
+    }
+
+    @Test
+    void shouldCreateTransferHistoryForBothAccounts() {
+
+        AccountIdentity from =
+                createSavingsAccount();
+
+        AccountIdentity to =
+                createCheckingAccount();
+
+        deposit(from, "200");
+
+        transfer(from, to, "50");
+
+        List<StatementData> fromHistory =
+                history(from);
+
+        List<StatementData> toHistory =
+                history(to);
+
+        assertEquals(2, fromHistory.size());
+        assertEquals(1, toHistory.size());
+
+        assertEquals(
+                TransactionType.TRANSFER_SENT,
+                fromHistory.getLast().type()
+        );
+
+        assertEquals(
+                TransactionType.TRANSFER_RECEIVED,
+                toHistory.getFirst().type()
+        );
+    }
+
+    // =========================
+    // History
+    // =========================
+
+    @Test
+    void shouldReturnEmptyHistory() {
+
+        AccountIdentity account =
+                createCheckingAccount();
+
+        assertTrue(
+                history(account).isEmpty()
+        );
+    }
+
+    @Test
+    void shouldKeepTransactionOrder() {
+
+        AccountIdentity account =
+                createCheckingAccount();
+
+        deposit(account, "100");
+
+        withdraw(account, "50");
+
+        List<StatementData> history =
+                history(account);
+
+        assertEquals(
+                TransactionType.DEPOSIT,
+                history.get(0).type()
+        );
+
+        assertEquals(
+                TransactionType.WITHDRAW,
+                history.get(1).type()
+        );
+    }
+
+    @Test
+    void transactionsShouldHaveUniqueIds() {
+
+        AccountIdentity account =
+                createCheckingAccount();
+
+        deposit(account, "100");
+
+        deposit(account, "200");
+
+        List<StatementData> history =
+                history(account);
+
+        assertNotEquals(
+                history.get(0).id(),
+                history.get(1).id()
+        );
+    }
+
+    // =========================
+    // Clock
+    // =========================
+
+    @Test
+    void transactionShouldUseInjectedClock() {
+
+        Clock fixedClock =
+                Clock.fixed(
+                        Instant.parse("2026-01-10T10:00:00Z"),
+                        ZoneOffset.UTC
+                );
+
+        setupServices(fixedClock);
+
+        AccountIdentity account =
+                createCheckingAccount();
+
+        transactionService.deposit(
+                account,
+                money("100")
+        );
+
+        StatementData transaction =
+                history(account).getFirst();
+
+        assertEquals(
+                LocalDateTime.of(
+                        2026,
+                        1,
+                        10,
+                        10,
+                        0
+                ),
+                transaction.dateTime()
+        );
+    }
+
+    // =========================
+    // Helpers
+    // =========================
+
+    private void deposit(
+            AccountIdentity account,
+            String amount
+    ) {
+
+        transactionService.deposit(
+                account,
+                money(amount)
+        );
+    }
+
+    private void withdraw(
+            AccountIdentity account,
+            String amount
+    ) {
+
+        transactionService.withdraw(
+                account,
+                money(amount)
+        );
+    }
+
+    private void transfer(
+            AccountIdentity from,
+            AccountIdentity to,
+            String amount
+    ) {
+
+        transactionService.transfer(
+                from,
+                to,
+                money(amount)
+        );
+    }
+
+    private Money balance(AccountIdentity account) {
+
+        return accountService
+                .getAccountBalance(account);
+    }
+
+    private List<StatementData> history(
+            AccountIdentity account
+    ) {
+
+        Account entity =
+                accountService
+                        .getAccountByAccountIdentity(account);
+
+        return transactionService
+                .getTransactionHistory(entity.getId());
+    }
+
+    private Money money(String value) {
+        return new Money(new BigDecimal(value));
+    }
+
+    private AccountIdentity createCheckingAccount() {
+
+        return createAccount(
+                "52998224725",
+                "Pedro Silva",
+                "pedro@gmail.com",
+                AccountType.CHECKING
+        );
+    }
+
+    private AccountIdentity createSavingsAccount() {
+
+        return createAccount(
+                "76887934086",
+                "Ana Silva",
+                "ana@gmail.com",
+                AccountType.SAVINGS
+        );
+    }
+
+    private AccountIdentity createAccount(
+            String cpfValue,
+            String name,
+            String email,
+            AccountType type
+    ) {
+
+        Cpf cpf =
+                new Cpf(cpfValue);
+
+        clientService.save(
+                new PersonName(name),
+                cpf,
+                new Email(email)
+        );
+
+        return accountService.save(
+                cpf,
+                type
+        );
+    }
+}

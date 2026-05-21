@@ -16,15 +16,16 @@ import java.util.UUID;
 public class TransactionService {
     private final AccountService accountService;
     private final TransactionRepository transactionRepository;
+    private final Clock clock;
 
-    public TransactionService(AccountService accountService, TransactionRepository transactionRepository) {
+    public TransactionService(AccountService accountService, TransactionRepository transactionRepository, Clock clock) {
         this.accountService = accountService;
         this.transactionRepository = transactionRepository;
+        this.clock = clock;
     }
 
-
     public void deposit(AccountIdentity id,
-                        Money value, Clock clock) {
+                        Money value) {
 
 
         Account account = accountService.getAccountByAccountIdentity(id);
@@ -35,7 +36,7 @@ public class TransactionService {
 
 
     public void withdraw(AccountIdentity id,
-                         Money value, Clock clock) {
+                         Money value) {
 
         Account account = accountService.getAccountByAccountIdentity(id);
         account.withdraw(value);
@@ -46,7 +47,7 @@ public class TransactionService {
 
     public void transfer(AccountIdentity fromId,
                          AccountIdentity toId,
-                         Money value, Clock clock) {
+                         Money value) {
 
 
         Account from = accountService.getAccountByAccountIdentity(fromId);

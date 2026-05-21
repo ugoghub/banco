@@ -2,14 +2,6 @@ ClientApplicationService
 AccountApplicationService
 TransactionApplicationService
 
-
-Services ainda expõem entidades internamente
-
 CreateClientUseCase
 TransferUseCase
 WithdrawUseCase
-
-
-TransactionData
-AccountSummary
-AccountStatement
