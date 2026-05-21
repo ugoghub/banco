@@ -39,24 +39,48 @@ class AccountIdentityTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenAccountNumberIsInvalid() {
-
-        assertThrows(
-                InvalidAccountNumberException.class,
-                () -> new AccountIdentity(
-                        "01",
-                        "123"
-                )
-        );
-    }
-
-    @Test
     void shouldThrowExceptionWhenBranchContainsLetters() {
 
         assertThrows(
                 InvalidBranchException.class,
                 () -> new AccountIdentity(
                         "AA",
+                        "123456-1"
+                )
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenBranchIsNull() {
+
+        assertThrows(
+                InvalidBranchException.class,
+                () -> new AccountIdentity(
+                        null,
+                        "123456-1"
+                )
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenBranchIsEmpty() {
+
+        assertThrows(
+                InvalidBranchException.class,
+                () -> new AccountIdentity(
+                        "",
+                        "123456-1"
+                )
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenBranchContainsSpaces() {
+
+        assertThrows(
+                InvalidBranchException.class,
+                () -> new AccountIdentity(
+                        "  ",
                         "123456-1"
                 )
         );
@@ -75,13 +99,38 @@ class AccountIdentityTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenBranchIsNull() {
+    void shouldThrowExceptionWhenAccountNumberIsNull() {
 
         assertThrows(
-                InvalidBranchException.class,
+                InvalidAccountNumberException.class,
                 () -> new AccountIdentity(
-                        null,
-                        "123456-1"
+                        "01",
+                        null
+                )
+        );
+    }
+
+
+    @Test
+    void shouldThrowExceptionWhenAccountNumberIsInvalid() {
+
+        assertThrows(
+                InvalidAccountNumberException.class,
+                () -> new AccountIdentity(
+                        "01",
+                        "123"
+                )
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenAccountNumberContainsLetters() {
+
+        assertThrows(
+                InvalidAccountNumberException.class,
+                () -> new AccountIdentity(
+                        "01",
+                        "abcdeF-1"
                 )
         );
     }

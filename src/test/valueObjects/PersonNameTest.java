@@ -41,4 +41,45 @@ class PersonNameTest {
                 () -> new PersonName("A")
         );
     }
+
+    @Test
+    void shouldThrowExceptionWhenNameIsNull() {
+
+        assertThrows(
+                InvalidPersonNameException.class,
+                () -> new PersonName(null)
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenNameIsEmpty() {
+
+        assertThrows(
+                InvalidPersonNameException.class,
+                () -> new PersonName("")
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenNameContainsOnlySpaces() {
+
+        assertThrows(
+                InvalidPersonNameException.class,
+                () -> new PersonName("     ")
+        );
+    }
+
+    @Test
+    void shouldNormalizeMultipleInternalSpaces() {
+
+        PersonName name =
+                new PersonName(
+                        "Hugo    Silva"
+                );
+
+        assertEquals(
+                "Hugo Silva",
+                name.value()
+        );
+    }
 }

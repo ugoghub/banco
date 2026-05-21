@@ -1,7 +1,6 @@
 package test.model;
 
 import exception.InsufficientBalanceException;
-import model.CheckingAccount;
 import model.SavingsAccount;
 import model.valueObjects.AccountIdentity;
 import model.valueObjects.Money;
@@ -117,6 +116,123 @@ public class SavingsAccountTest {
         assertTrue(first);
 
         assertFalse(second);
+    }
+
+    @Test
+    void shouldNotApplyInterestWithZeroBalance() {
+
+        Clock january =
+                Clock.fixed(
+                        Instant.parse("2026-01-01T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        Clock february =
+                Clock.fixed(
+                        Instant.parse("2026-02-02T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        SavingsAccount account =
+                createSavingsAccount(january);
+
+        boolean applied =
+                account.applyInterest(february);
+
+        assertFalse(applied);
+
+        assertEquals(
+                Money.ZERO,
+                account.getBalance()
+        );
+    }
+
+    @Test
+    void shouldApplyCompoundInterest() {
+
+        Clock january =
+                Clock.fixed(
+                        Instant.parse("2026-01-01T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        SavingsAccount account =
+                createSavingsAccount(january);
+
+        account.deposit(
+                Money.of("1000")
+        );
+
+        Clock february =
+                Clock.fixed(
+                        Instant.parse("2026-02-02T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        Clock march =
+                Clock.fixed(
+                        Instant.parse("2026-03-03T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        account.applyInterest(february);
+
+        account.applyInterest(march);
+
+        assertEquals(
+                Money.of("1010.03"),
+                account.getBalance()
+        );
+    }
+
+    @Test
+    void shouldApplyCompoundInterestForMultipleMonths() {
+
+        Clock january =
+                Clock.fixed(
+                        Instant.parse("2026-01-01T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        SavingsAccount account =
+                new SavingsAccount(
+                        UUID.randomUUID(),
+                        createIdentity(),
+                        january
+                );
+
+        account.deposit(
+                Money.of("1000")
+        );
+
+        Clock february =
+                Clock.fixed(
+                        Instant.parse("2026-02-02T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        Clock march =
+                Clock.fixed(
+                        Instant.parse("2026-03-02T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        Clock april =
+                Clock.fixed(
+                        Instant.parse("2026-04-02T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        account.applyInterest(february);
+
+        account.applyInterest(march);
+
+        account.applyInterest(april);
+
+        assertEquals(
+                Money.of("1015.08"),
+                account.getBalance()
+        );
     }
 
     private AccountIdentity createIdentity() {

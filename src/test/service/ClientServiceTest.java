@@ -42,6 +42,55 @@ public class ClientServiceTest {
     }
 
     @Test
+    void shouldChangeName() {
+
+        ClientRepository repository =
+                new ClientRepository();
+
+        ClientService service =
+                new ClientService(repository);
+
+        Cpf cpf = new Cpf("52998224725");
+
+        service.createClient(
+                new PersonName("Hugo Silva"),
+                cpf,
+                new Email("hugo@gmail.com")
+        );
+
+        service.changeName(
+                cpf,
+                new PersonName("Pedro Souza")
+        );
+
+        Client client =
+                service.getClientByCpf(cpf);
+
+        assertEquals(
+                "Pedro Souza",
+                client.getName().value()
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenChangingNameFromNonexistentClient() {
+
+        ClientRepository repository =
+                new ClientRepository();
+
+        ClientService service =
+                new ClientService(repository);
+
+        assertThrows(
+                ClientNotFoundException.class,
+                () -> service.changeName(
+                        new Cpf("52998224725"),
+                        new PersonName("Novo Nome")
+                )
+        );
+    }
+
+    @Test
     void shouldChangeEmail() {
 
         ClientRepository repository =
@@ -73,6 +122,24 @@ public class ClientServiceTest {
     }
 
     @Test
+    void shouldThrowExceptionWhenChangingEmailFromNonexistentClient() {
+
+        ClientRepository repository =
+                new ClientRepository();
+
+        ClientService service =
+                new ClientService(repository);
+
+        assertThrows(
+                ClientNotFoundException.class,
+                () -> service.changeEmail(
+                        new Cpf("52998224725"),
+                        new Email("novo@gmail.com")
+                )
+        );
+    }
+
+    @Test
     void shouldNotAllowDuplicateEmail() {
 
         ClientRepository repository =
@@ -92,6 +159,42 @@ public class ClientServiceTest {
                 () -> service.createClient(
                         new PersonName("Maria"),
                         new Cpf("11144477735"),
+                        new Email("hugo@gmail.com")
+                )
+        );
+    }
+
+    @Test
+    void shouldNotAllowChangingEmailToExistingEmail() {
+
+        ClientRepository repository =
+                new ClientRepository();
+
+        ClientService service =
+                new ClientService(repository);
+
+        Cpf cpf1 =
+                new Cpf("52998224725");
+
+        Cpf cpf2 =
+                new Cpf("76887934086");
+
+        service.createClient(
+                new PersonName("Hugo Silva"),
+                cpf1,
+                new Email("hugo@gmail.com")
+        );
+
+        service.createClient(
+                new PersonName("Ana Silva"),
+                cpf2,
+                new Email("ana@gmail.com")
+        );
+
+        assertThrows(
+                EmailAlreadyExistsException.class,
+                () -> service.changeEmail(
+                        cpf2,
                         new Email("hugo@gmail.com")
                 )
         );
@@ -119,6 +222,23 @@ public class ClientServiceTest {
         assertThrows(
                 ClientNotFoundException.class,
                 () -> service.getClientByCpf(cpf)
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDeletingNonexistentClient() {
+
+        ClientRepository repository =
+                new ClientRepository();
+
+        ClientService service =
+                new ClientService(repository);
+
+        assertThrows(
+                ClientNotFoundException.class,
+                () -> service.delete(
+                        new Cpf("52998224725")
+                )
         );
     }
 

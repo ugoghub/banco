@@ -41,4 +41,42 @@ class EmailTest {
                 () -> new Email("teste.com")
         );
     }
+
+    @Test
+    void shouldThrowExceptionWhenEmailIsNull() {
+
+        assertThrows(
+                InvalidEmailException.class,
+                () -> new Email(null)
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenEmailIsEmpty() {
+
+        assertThrows(
+                InvalidEmailException.class,
+                () -> new Email("")
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenEmailHasNoDomain() {
+
+        assertThrows(
+                InvalidEmailException.class,
+                () -> new Email("teste@")
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenEmailHasNoUser() {
+
+        assertThrows(
+                InvalidEmailException.class,
+                () -> new Email("@gmail.com")
+        );
+    }
+
+
 }

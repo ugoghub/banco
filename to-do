@@ -6,4 +6,20 @@ CreateClientUseCase
 TransferUseCase
 WithdrawUseCase
 
+Criar interface para repositories
+
 equals/hashcode em client, account, transaction
+
+Juros acumulados atrasados
+
+Transaction hoje aceita qualquer combinação, nada impede estados inválidos / é praticamente um DTO.
+
+Melhor solução arquitetural
+Factory methods:
+
+Transaction.deposit(...)
+Transaction.withdraw(...)
+Transaction.transferSent(...)
+Transaction.transferReceived(...)
+
+canBeRemoved() talvez pertença ao service

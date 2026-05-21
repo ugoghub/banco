@@ -9,6 +9,9 @@ import model.valueObjects.Money;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -70,6 +73,70 @@ class CheckingAccountTest {
     }
 
     @Test
+    void shouldStartWithZeroBalance() {
+
+        CheckingAccount account =
+                new CheckingAccount(
+                        UUID.randomUUID(),
+                        createIdentity(),
+                        Clock.systemUTC()
+                );
+
+        assertEquals(
+                Money.ZERO,
+                account.getBalance()
+        );
+    }
+
+    @Test
+    void shouldRegisterCreationTime() {
+
+        Clock fixedClock =
+                Clock.fixed(
+                        Instant.parse("2026-01-10T10:00:00Z"),
+                        ZoneOffset.UTC
+                );
+
+        CheckingAccount account =
+                new CheckingAccount(
+                        UUID.randomUUID(),
+                        createIdentity(),
+                        fixedClock
+                );
+
+        assertEquals(
+                LocalDateTime.of(
+                        2026,
+                        1,
+                        10,
+                        10,
+                        0
+                ),
+                account.getCreationTime()
+        );
+    }
+
+    @Test
+    void shouldAllowWithdrawExactlyAtOverdraftLimit() {
+
+        CheckingAccount account =
+                new CheckingAccount(
+                        UUID.randomUUID(),
+                        createIdentity(),
+                        clock
+                );
+
+        account.withdraw(
+                Money.of("1000")
+        );
+
+        assertEquals(
+                Money.of("-1000.00"),
+                account.getBalance()
+        );
+    }
+
+    @Test
     void shouldNotExceedOverdraftLimit() {
 
         CheckingAccount account =
@@ -99,6 +166,50 @@ class CheckingAccountTest {
 
         assertEquals(
                 Money.of("60.00"),
+                account.getBalance()
+        );
+    }
+
+    @Test
+    void shouldReduceNegativeBalanceAfterDeposit() {
+
+        CheckingAccount account =
+                new CheckingAccount(
+                        UUID.randomUUID(),
+                        createIdentity(),
+                        clock
+                );
+
+        account.withdraw(
+                Money.of("500")
+        );
+
+        account.deposit(
+                Money.of("200")
+        );
+
+        assertEquals(
+                Money.of("-300"),
+                account.getBalance()
+        );
+    }
+
+    @Test
+    void shouldKeepBalanceExactlyAtNegativeLimit() {
+
+        CheckingAccount account =
+                new CheckingAccount(
+                        UUID.randomUUID(),
+                        createIdentity(),
+                        clock
+                );
+
+        account.withdraw(
+                Money.of("1000")
+        );
+
+        assertEquals(
+                Money.of("-1000"),
                 account.getBalance()
         );
     }

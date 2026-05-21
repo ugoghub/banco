@@ -1,5 +1,6 @@
 package test.service;
 
+import exception.AccountNotFoundException;
 import exception.InsufficientBalanceException;
 import exception.InvalidAmountException;
 import exception.InvalidTransferException;
@@ -157,6 +158,38 @@ class TransactionServiceTest {
         assertNull(transaction.source());
     }
 
+    @Test
+    void shouldThrowExceptionWhenDepositingIntoNonexistentAccount() {
+
+        AccountIdentity nonexistent =
+                new AccountIdentity(
+                        "01",
+                        "999999-9"
+                );
+
+        assertThrows(
+                AccountNotFoundException.class,
+                () -> deposit(
+                        nonexistent,
+                        "100"
+                )
+        );
+    }
+
+    @Test
+    void shouldRoundMoneyOperationsCorrectly() {
+
+        AccountIdentity account =
+                createCheckingAccount();
+
+        deposit(account, "0.015");
+
+        assertEquals(
+                Money.of("0.02"),
+                balance(account)
+        );
+    }
+
     // =========================
     // Withdraw
     // =========================
@@ -296,6 +329,24 @@ class TransactionServiceTest {
         assertNull(withdraw.destination());
     }
 
+    @Test
+    void shouldThrowExceptionWhenWithdrawingFromNonexistentAccount() {
+
+        AccountIdentity nonexistent =
+                new AccountIdentity(
+                        "01",
+                        "999999-9"
+                );
+
+        assertThrows(
+                AccountNotFoundException.class,
+                () -> withdraw(
+                        nonexistent,
+                        "50"
+                )
+        );
+    }
+
     // =========================
     // Transfer
     // =========================
@@ -367,6 +418,42 @@ class TransactionServiceTest {
     }
 
     @Test
+    void failedTransferShouldNotGenerateHistory() {
+
+        AccountIdentity from =
+                createSavingsAccount();
+
+        AccountIdentity to =
+                createCheckingAccount();
+
+        deposit(from, "100");
+
+        assertThrows(
+                InsufficientBalanceException.class,
+                () -> transfer(
+                        from,
+                        to,
+                        "200"
+                )
+        );
+
+        List<StatementData> fromHistory =
+                history(from);
+
+        List<StatementData> toHistory =
+                history(to);
+
+        assertEquals(1, fromHistory.size());
+
+        assertTrue(toHistory.isEmpty());
+
+        assertEquals(
+                TransactionType.DEPOSIT,
+                fromHistory.getFirst().type()
+        );
+    }
+
+    @Test
     void transferShouldUpdateBothBalances() {
 
         AccountIdentity from =
@@ -418,6 +505,37 @@ class TransactionServiceTest {
     }
 
     @Test
+    void transferShouldGenerateDifferentTransactionIds() {
+
+        AccountIdentity from =
+                createCheckingAccount();
+
+        AccountIdentity to =
+                createSavingsAccount();
+
+        deposit(from, "200");
+
+        transfer(from, to, "50");
+
+        List<StatementData> fromHistory =
+                history(from);
+
+        List<StatementData> toHistory =
+                history(to);
+
+        StatementData sent =
+                fromHistory.getLast();
+
+        StatementData received =
+                toHistory.getFirst();
+
+        assertNotEquals(
+                sent.id(),
+                received.id()
+        );
+    }
+
+    @Test
     void shouldCreateTransferHistoryForBothAccounts() {
 
         AccountIdentity from =
@@ -447,6 +565,76 @@ class TransactionServiceTest {
         assertEquals(
                 TransactionType.TRANSFER_RECEIVED,
                 toHistory.getFirst().type()
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDestinationAccountDoesNotExist() {
+
+        AccountIdentity from =
+                createCheckingAccount();
+
+        AccountIdentity nonexistent =
+                new AccountIdentity(
+                        "01",
+                        "999999-9"
+                );
+
+        deposit(from, "100");
+
+        assertThrows(
+                AccountNotFoundException.class,
+                () -> transfer(
+                        from,
+                        nonexistent,
+                        "50"
+                )
+        );
+    }
+
+    @Test
+    void transferShouldGenerateConsistentTransactionData() {
+
+        AccountIdentity from =
+                createCheckingAccount();
+
+        AccountIdentity to =
+                createSavingsAccount();
+
+        deposit(from, "200");
+
+        transfer(from, to, "50");
+
+        List<StatementData> fromHistory =
+                history(from);
+
+        List<StatementData> toHistory =
+                history(to);
+
+        StatementData sent =
+                fromHistory.getLast();
+
+        StatementData received =
+                toHistory.getFirst();
+
+        assertEquals(
+                from,
+                sent.source()
+        );
+
+        assertEquals(
+                to,
+                sent.destination()
+        );
+
+        assertEquals(
+                from,
+                received.source()
+        );
+
+        assertEquals(
+                to,
+                received.destination()
         );
     }
 
@@ -543,6 +731,50 @@ class TransactionServiceTest {
                         0
                 ),
                 transaction.dateTime()
+        );
+    }
+
+    @Test
+    void shouldKeepCorrectDateTimeForMultipleTransactions() {
+
+        Clock fixedClock =
+                Clock.fixed(
+                        Instant.parse("2026-01-10T10:00:00Z"),
+                        ZoneOffset.UTC
+                );
+
+        setupServices(fixedClock);
+
+        AccountIdentity account =
+                createCheckingAccount();
+
+        deposit(account, "100");
+
+        withdraw(account, "50");
+
+        List<StatementData> history =
+                history(account);
+
+        assertEquals(
+                LocalDateTime.of(
+                        2026,
+                        1,
+                        10,
+                        10,
+                        0
+                ),
+                history.get(0).dateTime()
+        );
+
+        assertEquals(
+                LocalDateTime.of(
+                        2026,
+                        1,
+                        10,
+                        10,
+                        0
+                ),
+                history.get(1).dateTime()
         );
     }
 

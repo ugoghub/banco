@@ -108,4 +108,83 @@ class MoneyTest {
 
         assertTrue(a.isEqual(b));
     }
+
+    @Test
+    void shouldMultiplyValuesCorrectly() {
+
+        Money money =
+                Money.of("10");
+
+        Money result =
+                money.multiply(
+                        new BigDecimal("2.5")
+                );
+
+        assertEquals(
+                new BigDecimal("25.00"),
+                result.value()
+        );
+    }
+
+    @Test
+    void shouldBeImmutableAfterAddition() {
+
+        Money original =
+                Money.of("10");
+
+        Money result =
+                original.add(
+                        Money.of("5")
+                );
+
+        assertEquals(
+                Money.of("10"),
+                original
+        );
+
+        assertEquals(
+                Money.of("15"),
+                result
+        );
+    }
+
+    @Test
+    void negateShouldNotChangeOriginalValue() {
+
+        Money original =
+                Money.of("100");
+
+        Money negated =
+                original.negate();
+
+        assertEquals(
+                Money.of("100"),
+                original
+        );
+
+        assertEquals(
+                Money.of("-100"),
+                negated
+        );
+    }
+
+    @Test
+    void shouldSubtractToNegativeValueCorrectly() {
+
+        Money a =
+                Money.of("5");
+
+        Money b =
+                Money.of("10");
+
+        Money result =
+                a.subtract(b);
+
+        assertEquals(
+                new BigDecimal("-5.00"),
+                result.value()
+        );
+    }
+
+
 }

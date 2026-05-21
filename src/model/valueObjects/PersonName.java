@@ -10,7 +10,9 @@ public record PersonName(String value) {
             throw new InvalidPersonNameException("Nome não pode ser null");
         }
 
-        value = value.trim();
+        value = value
+                .trim()
+                .replaceAll("\\s+", " ");
 
         if (!value.matches("^[A-Za-zÀ-ÿ' -]{2,}$")) {
             throw new InvalidPersonNameException(

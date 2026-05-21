@@ -12,6 +12,9 @@ public record AccountIdentity(String branch, String accountNumber) {
         if (accountNumber == null || !accountNumber.matches("\\d{6}-\\d")) {
             throw new InvalidAccountNumberException("Número da conta inválido");
         }
+
+        branch = branch.trim();
+        accountNumber = accountNumber.trim();
     }
 
     @Override
