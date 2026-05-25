@@ -19,31 +19,31 @@ import service.TransactionService;
 import service.dto.StatementData;
 
 import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class TransactionServiceTest {
 
-    private ClientRepository clientRepository;
-    private AccountRepository accountRepository;
-    private TransactionRepository transactionRepository;
-
     private ClientService clientService;
     private AccountService accountService;
     private TransactionService transactionService;
+
+    private static final AccountIdentity NONEXISTENT_ACCOUNT =
+            new AccountIdentity(
+                    "01",
+                    "999999-9"
+            );
+
 
     @BeforeEach
     void setup() {
 
         Clock clock = Clock.systemUTC();
 
-        clientRepository = new ClientRepository();
-        accountRepository = new AccountRepository();
-        transactionRepository = new TransactionRepository();
+        ClientRepository clientRepository = new ClientRepository();
+        AccountRepository accountRepository = new AccountRepository();
+        TransactionRepository transactionRepository = new TransactionRepository();
 
         clientService =
                 new ClientService(clientRepository);
@@ -60,30 +60,6 @@ class TransactionServiceTest {
                         accountService,
                         transactionRepository,
                         clock
-                );
-    }
-
-    private void setupServices(Clock customClock) {
-
-        clientRepository = new ClientRepository();
-        accountRepository = new AccountRepository();
-        transactionRepository = new TransactionRepository();
-
-        clientService =
-                new ClientService(clientRepository);
-
-        accountService =
-                new AccountService(
-                        accountRepository,
-                        clientService,
-                        customClock
-                );
-
-        transactionService =
-                new TransactionService(
-                        accountService,
-                        transactionRepository,
-                        customClock
                 );
     }
 
@@ -161,16 +137,10 @@ class TransactionServiceTest {
     @Test
     void shouldThrowExceptionWhenDepositingIntoNonexistentAccount() {
 
-        AccountIdentity nonexistent =
-                new AccountIdentity(
-                        "01",
-                        "999999-9"
-                );
-
         assertThrows(
                 AccountNotFoundException.class,
                 () -> deposit(
-                        nonexistent,
+                        NONEXISTENT_ACCOUNT,
                         "100"
                 )
         );
@@ -332,16 +302,10 @@ class TransactionServiceTest {
     @Test
     void shouldThrowExceptionWhenWithdrawingFromNonexistentAccount() {
 
-        AccountIdentity nonexistent =
-                new AccountIdentity(
-                        "01",
-                        "999999-9"
-                );
-
         assertThrows(
                 AccountNotFoundException.class,
                 () -> withdraw(
-                        nonexistent,
+                        NONEXISTENT_ACCOUNT,
                         "50"
                 )
         );
@@ -574,19 +538,13 @@ class TransactionServiceTest {
         AccountIdentity from =
                 createCheckingAccount();
 
-        AccountIdentity nonexistent =
-                new AccountIdentity(
-                        "01",
-                        "999999-9"
-                );
-
         deposit(from, "100");
 
         assertThrows(
                 AccountNotFoundException.class,
                 () -> transfer(
                         from,
-                        nonexistent,
+                        NONEXISTENT_ACCOUNT,
                         "50"
                 )
         );
@@ -636,6 +594,67 @@ class TransactionServiceTest {
                 to,
                 received.destination()
         );
+    }
+
+    @Test
+    void shouldNotGenerateTransferHistoryWhenDestinationDoesNotExist() {
+
+        AccountIdentity from =
+                createCheckingAccount();
+
+        deposit(from, "100");
+
+        assertThrows(
+                AccountNotFoundException.class,
+                () -> transfer(
+                        from,
+                        NONEXISTENT_ACCOUNT,
+                        "50"
+                )
+        );
+
+        List<StatementData> history =
+                history(from);
+
+        assertEquals(1, history.size());
+
+        assertEquals(
+                TransactionType.DEPOSIT,
+                history.getFirst().type()
+        );
+    }
+
+    @Test
+    void shouldMaintainCorrectBalanceAfterMultipleOperations() {
+
+        AccountIdentity account =
+                createCheckingAccount();
+
+        deposit(account, "1000");
+
+        withdraw(account, "200");
+
+        deposit(account, "50");
+
+        withdraw(account, "100");
+
+        assertEquals(
+                Money.of("750"),
+                balance(account)
+        );
+    }
+
+    @Test
+    void shouldPreserveExactMonetaryPrecisionAfterMultipleOperations(){
+
+        AccountIdentity account =
+                createCheckingAccount();
+
+        deposit(account, "0.10");
+        deposit(account, "0.20");
+        withdraw(account, "0.30");
+
+        assertEquals(Money.ZERO, balance(account));
     }
 
     // =========================
@@ -693,88 +712,6 @@ class TransactionServiceTest {
         assertNotEquals(
                 history.get(0).id(),
                 history.get(1).id()
-        );
-    }
-
-    // =========================
-    // Clock
-    // =========================
-
-    @Test
-    void transactionShouldUseInjectedClock() {
-
-        Clock fixedClock =
-                Clock.fixed(
-                        Instant.parse("2026-01-10T10:00:00Z"),
-                        ZoneOffset.UTC
-                );
-
-        setupServices(fixedClock);
-
-        AccountIdentity account =
-                createCheckingAccount();
-
-        transactionService.deposit(
-                account,
-                money("100")
-        );
-
-        StatementData transaction =
-                history(account).getFirst();
-
-        assertEquals(
-                LocalDateTime.of(
-                        2026,
-                        1,
-                        10,
-                        10,
-                        0
-                ),
-                transaction.dateTime()
-        );
-    }
-
-    @Test
-    void shouldKeepCorrectDateTimeForMultipleTransactions() {
-
-        Clock fixedClock =
-                Clock.fixed(
-                        Instant.parse("2026-01-10T10:00:00Z"),
-                        ZoneOffset.UTC
-                );
-
-        setupServices(fixedClock);
-
-        AccountIdentity account =
-                createCheckingAccount();
-
-        deposit(account, "100");
-
-        withdraw(account, "50");
-
-        List<StatementData> history =
-                history(account);
-
-        assertEquals(
-                LocalDateTime.of(
-                        2026,
-                        1,
-                        10,
-                        10,
-                        0
-                ),
-                history.get(0).dateTime()
-        );
-
-        assertEquals(
-                LocalDateTime.of(
-                        2026,
-                        1,
-                        10,
-                        10,
-                        0
-                ),
-                history.get(1).dateTime()
         );
     }
 

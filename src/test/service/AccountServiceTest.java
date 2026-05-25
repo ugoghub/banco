@@ -6,6 +6,7 @@ import exception.ClientNotFoundException;
 import model.Account;
 import model.AccountType;
 import model.valueObjects.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import repository.AccountRepository;
 import repository.ClientRepository;
@@ -18,24 +19,28 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AccountServiceTest {
-    @Test
-    void shouldCreateAccount() {
 
-        ClientRepository clientRepository =
-                new ClientRepository();
+    private ClientService clientService;
+    private AccountService accountService;
 
-        AccountRepository accountRepository =
-                new AccountRepository();
+    @BeforeEach
+    void setup() {
+        ClientRepository clientRepository = new ClientRepository();
+        AccountRepository accountRepository = new AccountRepository();
 
-        ClientService clientService =
+        clientService =
                 new ClientService(clientRepository);
 
-        AccountService accountService =
+        accountService =
                 new AccountService(
                         accountRepository,
                         clientService,
-                        Clock.systemDefaultZone()
+                        Clock.systemUTC()
                 );
+    }
+
+    @Test
+    void shouldCreateAccount() {
 
         Cpf cpf = new Cpf("52998224725");
 
@@ -56,20 +61,6 @@ public class AccountServiceTest {
 
     @Test
     void shouldThrowExceptionWhenClientDoesNotExist() {
-
-        ClientRepository clientRepository =
-                new ClientRepository();
-
-        AccountRepository accountRepository =
-                new AccountRepository();
-
-        AccountService accountService =
-                new AccountService(
-                        accountRepository,
-                        new ClientService(clientRepository),
-                        Clock.systemUTC()
-                );
-
         assertThrows(
                 ClientNotFoundException.class,
                 () -> accountService.createAccount(
@@ -81,22 +72,6 @@ public class AccountServiceTest {
 
     @Test
     void shouldReturnAccountByIdentity() {
-
-        ClientRepository clientRepository =
-                new ClientRepository();
-
-        AccountRepository accountRepository =
-                new AccountRepository();
-
-        ClientService clientService =
-                new ClientService(clientRepository);
-
-        AccountService accountService =
-                new AccountService(
-                        accountRepository,
-                        clientService,
-                        Clock.systemUTC()
-                );
 
         Cpf cpf = new Cpf("52998224725");
 
@@ -120,22 +95,6 @@ public class AccountServiceTest {
 
     @Test
     void shouldNotRemoveAccountWithBalance() {
-
-        ClientRepository clientRepository =
-                new ClientRepository();
-
-        AccountRepository accountRepository =
-                new AccountRepository();
-
-        ClientService clientService =
-                new ClientService(clientRepository);
-
-        AccountService accountService =
-                new AccountService(
-                        accountRepository,
-                        clientService,
-                        Clock.systemUTC()
-                );
 
         Cpf cpf = new Cpf("52998224725");
 
@@ -167,22 +126,6 @@ public class AccountServiceTest {
     @Test
     void shouldRemoveAccount() {
 
-        ClientRepository clientRepository =
-                new ClientRepository();
-
-        AccountRepository accountRepository =
-                new AccountRepository();
-
-        ClientService clientService =
-                new ClientService(clientRepository);
-
-        AccountService accountService =
-                new AccountService(
-                        accountRepository,
-                        clientService,
-                        Clock.systemUTC()
-                );
-
         Cpf cpf = new Cpf("52998224725");
 
         clientService.createClient(
@@ -208,22 +151,6 @@ public class AccountServiceTest {
 
     @Test
     void shouldReturnClientAccounts() {
-
-        ClientRepository clientRepository =
-                new ClientRepository();
-
-        AccountRepository accountRepository =
-                new AccountRepository();
-
-        ClientService clientService =
-                new ClientService(clientRepository);
-
-        AccountService accountService =
-                new AccountService(
-                        accountRepository,
-                        clientService,
-                        Clock.systemUTC()
-                );
 
         Cpf cpf = new Cpf("52998224725");
 
@@ -251,22 +178,6 @@ public class AccountServiceTest {
 
     @Test
     void shouldAssociateAccountWithCorrectClient() {
-
-        ClientRepository clientRepository =
-                new ClientRepository();
-
-        AccountRepository accountRepository =
-                new AccountRepository();
-
-        ClientService clientService =
-                new ClientService(clientRepository);
-
-        AccountService accountService =
-                new AccountService(
-                        accountRepository,
-                        clientService,
-                        Clock.systemUTC()
-                );
 
         Cpf cpf1 =
                 new Cpf("52998224725");
@@ -311,22 +222,6 @@ public class AccountServiceTest {
     @Test
     void shouldThrowExceptionWhenAccountDoesNotExist() {
 
-        ClientRepository clientRepository =
-                new ClientRepository();
-
-        AccountRepository accountRepository =
-                new AccountRepository();
-
-        ClientService clientService =
-                new ClientService(clientRepository);
-
-        AccountService accountService =
-                new AccountService(
-                        accountRepository,
-                        clientService,
-                        Clock.systemUTC()
-                );
-
         AccountIdentity identity =
                 new AccountIdentity(
                         "01",
@@ -342,23 +237,6 @@ public class AccountServiceTest {
 
     @Test
     void shouldThrowExceptionWhenRemovingNonexistentAccount() {
-
-        ClientRepository clientRepository =
-                new ClientRepository();
-
-        AccountRepository accountRepository =
-                new AccountRepository();
-
-        ClientService clientService =
-                new ClientService(clientRepository);
-
-        AccountService accountService =
-                new AccountService(
-                        accountRepository,
-                        clientService,
-                        Clock.systemUTC()
-                );
-
         AccountIdentity identity =
                 new AccountIdentity(
                         "01",
@@ -373,22 +251,6 @@ public class AccountServiceTest {
 
     @Test
     void shouldReturnEmptyAccountsForNewClient() {
-
-        ClientRepository clientRepository =
-                new ClientRepository();
-
-        AccountRepository accountRepository =
-                new AccountRepository();
-
-        ClientService clientService =
-                new ClientService(clientRepository);
-
-        AccountService accountService =
-                new AccountService(
-                        accountRepository,
-                        clientService,
-                        Clock.systemUTC()
-                );
 
         Cpf cpf =
                 new Cpf("52998224725");

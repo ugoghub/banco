@@ -3,7 +3,6 @@ package service;
 import exception.InvalidTransferException;
 import model.Account;
 import model.Transaction;
-import model.TransactionType;
 import model.valueObjects.AccountIdentity;
 import model.valueObjects.Money;
 import repository.TransactionRepository;
@@ -18,7 +17,10 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final Clock clock;
 
-    public TransactionService(AccountService accountService, TransactionRepository transactionRepository, Clock clock) {
+    public TransactionService(AccountService accountService,
+                              TransactionRepository transactionRepository,
+                              Clock clock) {
+
         this.accountService = accountService;
         this.transactionRepository = transactionRepository;
         this.clock = clock;
@@ -29,9 +31,16 @@ public class TransactionService {
 
 
         Account account = accountService.getAccountByAccountIdentity(id);
+
         account.deposit(value);
-        transactionRepository.save(account.getId(), new Transaction(TransactionType.DEPOSIT, value,
-                null, account.getAccountIdentity(), clock));
+
+        transactionRepository.save(
+                account.getId(),
+                Transaction.deposit(
+                        account.getAccountIdentity(),
+                        value,
+                        clock
+                ));
     }
 
 
@@ -39,9 +48,16 @@ public class TransactionService {
                          Money value) {
 
         Account account = accountService.getAccountByAccountIdentity(id);
+
         account.withdraw(value);
-       transactionRepository.save(account.getId(), new Transaction(TransactionType.WITHDRAW, value,
-               account.getAccountIdentity(), null, clock));
+
+       transactionRepository.save(
+               account.getId(),
+               Transaction.withdraw(
+                       account.getAccountIdentity(),
+                       value,
+                       clock
+               ));
     }
 
 
@@ -58,12 +74,22 @@ public class TransactionService {
         }
 
         from.withdraw(value);
-        to.deposit(value);
-        transactionRepository.save(from.getId(), new Transaction(TransactionType.TRANSFER_SENT, value,
-                from.getAccountIdentity(), to.getAccountIdentity(), clock));
 
-        transactionRepository.save(to.getId(), new Transaction(TransactionType.TRANSFER_RECEIVED, value,
-                from.getAccountIdentity(), to.getAccountIdentity(), clock));
+        to.deposit(value);
+
+        transactionRepository.save(
+                from.getId(),
+                Transaction.transferSent(
+                        from.getAccountIdentity(), to.getAccountIdentity(),
+                        value, clock
+                ));
+
+        transactionRepository.save(
+                to.getId(),
+                Transaction.transferReceived(
+                from.getAccountIdentity(), to.getAccountIdentity(),
+                value, clock
+        ));
 
     }
 
@@ -74,8 +100,8 @@ public class TransactionService {
                 .map(t -> new StatementData(
                         t.getType(),
                         t.getDateTime(),
-                        t.getSourceId(),
-                        t.getDestinationId(),
+                        t.getSourceIdentity(),
+                        t.getDestinationIdentity(),
                         t.getAmount(),
                         t.getId()
                 )).toList();

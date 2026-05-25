@@ -1,10 +1,12 @@
 package model;
 
+import exception.InvalidTransactionException;
 import model.valueObjects.AccountIdentity;
 import model.valueObjects.Money;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Transaction {
@@ -15,10 +17,14 @@ public class Transaction {
     private final AccountIdentity destinationIdentity;
     private final LocalDateTime dateTime;
 
-    public Transaction(TransactionType type,
+    private Transaction(TransactionType type,
                        Money amount,
                        AccountIdentity sourceIdentity,
                        AccountIdentity destinationIdentity, Clock clock) {
+
+        Objects.requireNonNull(type);
+        Objects.requireNonNull(amount);
+        Objects.requireNonNull(clock); //ver questão de NullException
 
         this.id = UUID.randomUUID();
         this.type = type;
@@ -26,6 +32,34 @@ public class Transaction {
         this.dateTime = LocalDateTime.now(clock);
         this.sourceIdentity = sourceIdentity;
         this.destinationIdentity = destinationIdentity;
+
+        validateState();
+    }
+
+    public static Transaction deposit(AccountIdentity accountIdentity,
+                                      Money amount,
+                                      Clock clock) {
+        return new Transaction(TransactionType.DEPOSIT, amount, null, accountIdentity, clock);
+    }
+
+    public static Transaction withdraw(AccountIdentity accountIdentity,
+                                      Money amount,
+                                      Clock clock) {
+        return new Transaction(TransactionType.WITHDRAW, amount, accountIdentity, null, clock);
+    }
+
+    public static Transaction transferSent(AccountIdentity from,
+                                   AccountIdentity to,
+                                   Money amount,
+                                   Clock clock) {
+        return new Transaction(TransactionType.TRANSFER_SENT, amount, from, to, clock);
+    }
+
+    public static Transaction transferReceived(AccountIdentity from,
+                                   AccountIdentity to,
+                                   Money amount,
+                                   Clock clock) {
+        return new Transaction(TransactionType.TRANSFER_RECEIVED, amount, from, to, clock);
     }
 
     public UUID getId() {
@@ -44,11 +78,35 @@ public class Transaction {
         return dateTime;
     }
 
-    public AccountIdentity getSourceId() {
+    public AccountIdentity getSourceIdentity() {
         return sourceIdentity;
     }
 
-    public AccountIdentity getDestinationId() {
+    public AccountIdentity getDestinationIdentity() {
         return destinationIdentity;
+    }
+
+    private void validateState() {
+
+        switch (type) {
+
+            case DEPOSIT -> {
+                if (sourceIdentity != null || destinationIdentity == null) {
+                    throw new InvalidTransactionException("Transação inválida");
+                }
+            }
+
+            case WITHDRAW -> {
+                if (sourceIdentity == null || destinationIdentity != null) {
+                    throw new InvalidTransactionException("Transação inválida");
+                }
+            }
+
+            case TRANSFER_SENT, TRANSFER_RECEIVED -> {
+                if (sourceIdentity == null || destinationIdentity == null) {
+                    throw new InvalidTransactionException("Transação inválida");
+                }
+            }
+        }
     }
 }

@@ -56,7 +56,7 @@ public class SavingsAccountTest {
                         ZoneId.systemDefault()
                 );
 
-        Clock interestBeforeOneMonth =
+        Clock stillJanuary =
                 Clock.fixed(
                         Instant.parse("2026-01-15T10:00:00Z"),
                         ZoneId.systemDefault()
@@ -66,7 +66,7 @@ public class SavingsAccountTest {
                 createSavingsAccount(january);
 
         boolean applied =
-                account.applyInterest(interestBeforeOneMonth);
+                account.applyInterest(stillJanuary);
 
         assertFalse(applied);
     }
@@ -148,44 +148,6 @@ public class SavingsAccountTest {
     }
 
     @Test
-    void shouldApplyCompoundInterest() {
-
-        Clock january =
-                Clock.fixed(
-                        Instant.parse("2026-01-01T10:00:00Z"),
-                        ZoneId.systemDefault()
-                );
-
-        SavingsAccount account =
-                createSavingsAccount(january);
-
-        account.deposit(
-                Money.of("1000")
-        );
-
-        Clock february =
-                Clock.fixed(
-                        Instant.parse("2026-02-02T10:00:00Z"),
-                        ZoneId.systemDefault()
-                );
-
-        Clock march =
-                Clock.fixed(
-                        Instant.parse("2026-03-03T10:00:00Z"),
-                        ZoneId.systemDefault()
-                );
-
-        account.applyInterest(february);
-
-        account.applyInterest(march);
-
-        assertEquals(
-                Money.of("1010.03"),
-                account.getBalance()
-        );
-    }
-
-    @Test
     void shouldApplyCompoundInterestForMultipleMonths() {
 
         Clock january =
@@ -195,11 +157,7 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                new SavingsAccount(
-                        UUID.randomUUID(),
-                        createIdentity(),
-                        january
-                );
+                createSavingsAccount(january);
 
         account.deposit(
                 Money.of("1000")
