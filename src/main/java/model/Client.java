@@ -1,7 +1,5 @@
 package model;
 
-import exception.InvalidClientChangeException;
-import exception.InvalidNullArgumentException;
 import model.valueObjects.Cpf;
 import model.valueObjects.Email;
 import model.valueObjects.PersonName;

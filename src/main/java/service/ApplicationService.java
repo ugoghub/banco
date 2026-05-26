@@ -47,25 +47,25 @@ public class ApplicationService {
 
         Client client = clientService.getClientByCpf(cpf);
 
-        accountService.validateIfAccountCanBeRemoved(client.getCpf());
+        accountService.validateIfAccountCanBeRemoved(client.getId());
         accountService.removeClientAccounts(client.getId());
-        clientService.delete(client.getCpf());
+        clientService.delete(client.getId());
     }
 
     public void removeAccount(AccountIdentity accountIdentity) {
         accountService.removeAccount(accountIdentity);
     }
 
-    public void deposit(AccountIdentity id,
+    public void deposit(AccountIdentity identity,
                         Money value){
 
-        transactionService.deposit(id, value);
+        transactionService.deposit(identity, value);
     }
 
-    public void withdraw(AccountIdentity id,
+    public void withdraw(AccountIdentity identity,
                          Money value) {
 
-        transactionService.withdraw(id, value);
+        transactionService.withdraw(identity, value);
     }
 
     public void transfer(AccountIdentity fromId,
@@ -77,13 +77,15 @@ public class ApplicationService {
 
     public List<AccountIdentity> getClientAccountsIdentity(Cpf cpf) {
 
-        return accountService.getClientAccountsIdentity(cpf);
+        Client client = clientService.getClientByCpf(cpf);
+
+        return accountService.getClientAccountsIdentity(client.getId());
     }
 
-    public Money getAccountBalance(AccountIdentity id)
+    public Money getAccountBalance(AccountIdentity identity)
     {
 
-        return accountService.getAccountBalance(id);
+        return accountService.getAccountBalance(identity);
     }
 
     public List<StatementData> getAccountTransactions(AccountIdentity accountIdentity){
@@ -97,11 +99,17 @@ public class ApplicationService {
         return new ClientData(client.getName().value(), client.getCpf().value(), client.getEmail().value());
     }
 
-    public void changeName(Cpf cpf, PersonName name) {
-        clientService.changeName(cpf, name);
+    public Cpf getCpfByEmail(Email email) {
+        return clientService
+                .getClientByEmail(email)
+                .getCpf();
     }
 
-    public void changeEmail(Cpf cpf, Email email) {
-        clientService.changeEmail(cpf, email);
+    public PersonName changeName(Cpf cpf, PersonName name) {
+        return clientService.changeName(cpf, name);
+    }
+
+    public Email changeEmail(Cpf cpf, Email email) {
+        return clientService.changeEmail(cpf, email);
     }
 }

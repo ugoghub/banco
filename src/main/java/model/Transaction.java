@@ -11,13 +11,15 @@ import java.util.UUID;
 
 public class Transaction {
     private final UUID id;
+    private final UUID operationId;
     private final TransactionType type;
     private final Money amount;
     private final AccountIdentity sourceIdentity;
     private final AccountIdentity destinationIdentity;
     private final LocalDateTime dateTime;
 
-    private Transaction(TransactionType type,
+    private Transaction(UUID operationId,
+                        TransactionType type,
                         Money amount,
                         AccountIdentity sourceIdentity,
                         AccountIdentity destinationIdentity, Clock clock) {
@@ -27,6 +29,7 @@ public class Transaction {
         Objects.requireNonNull(clock); //ver questão de NullException
 
         this.id = UUID.randomUUID();
+        this.operationId = operationId;
         this.type = type;
         this.amount = amount;
         this.dateTime = LocalDateTime.now(clock);
@@ -49,12 +52,16 @@ public class Transaction {
         }
     }
 
+
     // =========================
     // Getters
     // =========================
-
     public UUID getId() {
         return id;
+    }
+
+    public UUID getOperationId() {
+        return operationId;
     }
 
     public TransactionType getType() {
@@ -94,6 +101,9 @@ public class Transaction {
     }
 
     private void validateTransfer() {
+        if (operationId == null){
+            throw new InvalidTransactionException("Toda transferência deve possuir um ID de operação");
+        }
         if (sourceIdentity == null || destinationIdentity == null) {
             throw new InvalidTransactionException("Transferência não deve possuir origem e/ou destino nulls");
         }
@@ -106,26 +116,28 @@ public class Transaction {
     public static Transaction deposit(AccountIdentity accountIdentity,
                                       Money amount,
                                       Clock clock) {
-        return new Transaction(TransactionType.DEPOSIT, amount, null, accountIdentity, clock);
+        return new Transaction(null, TransactionType.DEPOSIT, amount, null, accountIdentity, clock);
     }
 
     public static Transaction withdraw(AccountIdentity accountIdentity,
                                        Money amount,
                                        Clock clock) {
-        return new Transaction(TransactionType.WITHDRAW, amount, accountIdentity, null, clock);
+        return new Transaction(null, TransactionType.WITHDRAW, amount, accountIdentity, null, clock);
     }
 
-    public static Transaction transferSent(AccountIdentity from,
+    public static Transaction transferSent(UUID operationId,
+                                           AccountIdentity from,
                                            AccountIdentity to,
                                            Money amount,
                                            Clock clock) {
-        return new Transaction(TransactionType.TRANSFER_SENT, amount, from, to, clock);
+        return new Transaction(operationId, TransactionType.TRANSFER_SENT, amount, from, to, clock);
     }
 
-    public static Transaction transferReceived(AccountIdentity from,
+    public static Transaction transferReceived(UUID operationId,
+                                               AccountIdentity from,
                                                AccountIdentity to,
                                                Money amount,
                                                Clock clock) {
-        return new Transaction(TransactionType.TRANSFER_RECEIVED, amount, from, to, clock);
+        return new Transaction(operationId, TransactionType.TRANSFER_RECEIVED, amount, from, to, clock);
     }
 }

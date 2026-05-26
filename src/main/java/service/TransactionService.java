@@ -51,13 +51,13 @@ public class TransactionService {
 
         account.withdraw(value);
 
-       transactionRepository.save(
-               account.getId(),
-               Transaction.withdraw(
-                       account.getAccountIdentity(),
-                       value,
-                       clock
-               ));
+        transactionRepository.save(
+                account.getId(),
+                Transaction.withdraw(
+                        account.getAccountIdentity(),
+                        value,
+                        clock
+                ));
     }
 
 
@@ -77,20 +77,25 @@ public class TransactionService {
 
         to.deposit(value);
 
+        UUID operationId = UUID.randomUUID();
+
         transactionRepository.save(
                 from.getId(),
                 Transaction.transferSent(
+                        operationId,
                         from.getAccountIdentity(), to.getAccountIdentity(),
                         value, clock
-                ));
+                )
+        );
 
         transactionRepository.save(
                 to.getId(),
                 Transaction.transferReceived(
-                from.getAccountIdentity(), to.getAccountIdentity(),
-                value, clock
-        ));
-
+                        operationId,
+                        from.getAccountIdentity(), to.getAccountIdentity(),
+                        value, clock
+                )
+        );
     }
 
     public List<StatementData> getTransactionHistory(UUID accountId) {

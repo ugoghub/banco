@@ -2,12 +2,12 @@ package model;
 
 import exception.InvalidAmountException;
 import exception.InsufficientBalanceException;
-import exception.InvalidNullArgumentException;
 import model.valueObjects.AccountIdentity;
 import model.valueObjects.Money;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 public abstract class Account {
@@ -67,7 +67,7 @@ public abstract class Account {
 
     private void validatePositiveAmount(Money amount) {
 
-        if(amount == null) throw new InvalidNullArgumentException("Valor não pode ser null");
+        Objects.requireNonNull(amount, "Valor não pode ser nulo");
 
         if (amount.isNegativeOrZero()) {
             throw new InvalidAmountException(

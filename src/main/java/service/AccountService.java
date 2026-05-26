@@ -54,8 +54,8 @@ public class AccountService {
         return account.getAccountIdentity();
     }
 
-    public List<AccountIdentity> getClientAccountsIdentity(Cpf cpf) {
-        Client client = clientService.getClientByCpf(cpf);
+    public List<AccountIdentity> getClientAccountsIdentity(UUID clientId) {
+        Client client = clientService.getClientById(clientId);
 
         return accountRepository.getAccountsByClient(client.getId());
     }
@@ -90,8 +90,8 @@ public class AccountService {
         return account.getBalance();
     }
 
-    public void validateIfAccountCanBeRemoved(Cpf cpf) {
-        List<AccountIdentity> clientAccounts = getClientAccountsIdentity(cpf);
+    public void validateIfAccountCanBeRemoved(UUID clientId) {
+        List<AccountIdentity> clientAccounts = getClientAccountsIdentity(clientId);
 
         boolean hasNonZeroBalance = clientAccounts
                 .stream()

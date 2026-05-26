@@ -3,3 +3,8 @@ extrato depende da ordem
 List<Transaction> preserva ordem de inserção.
 
 rollback de transferencia nao implementedo, já que persistencia é feita em memoria
+
+id_transaction e operationtransaction
+um id próprio do registro e um id da operação
+
+resolve o problema de ligação entre origem e destino de uma transferencia

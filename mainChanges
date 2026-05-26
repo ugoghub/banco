@@ -1,0 +1,11 @@
+ID de operação em transferencias
+
+Usuario agora pode logar usando CPF ou email
+
+Melhoria em ao uso de email, cpf e id no sistema
+
+email serve para login
+cpf identificador na UI
+ID identificar interno
+
+nesse commit aumentei o uso do ID como identificar interno, removendo cpf que antes tambem exercia essa função.

@@ -57,17 +57,50 @@ public class App {
 
     private void login() {
 
-        Cpf cpf = InputReader.readValidated(
+        System.out.println("""
+            
+            ===== LOGIN =====
+            1 - CPF
+            2 - Email
+            """);
+
+        System.out.print("Escolha: ");
+
+        int option = InputReader.readOption(
                 scanner,
-                "CPF: ",
-                Cpf::new
+                o -> o >= 1 && o <= 2
         );
 
         try {
 
-            applicationService.getClientData(cpf);
+            switch (option) {
 
-            loggedCpf = cpf;
+                case 1 -> {
+
+                    Cpf cpf = InputReader.readValidated(
+                            scanner,
+                            "CPF: ",
+                            Cpf::new
+                    );
+
+                    applicationService.getClientData(cpf);
+
+                    loggedCpf = cpf;
+                }
+
+                case 2 -> {
+
+                    Email email = InputReader.readValidated(
+                            scanner,
+                            "Email: ",
+                            Email::new
+                    );
+
+                    loggedCpf =
+                            applicationService
+                                    .getCpfByEmail(email);
+                }
+            }
 
             System.out.println("\nBem vindo!");
 
@@ -106,11 +139,11 @@ public class App {
                     email
             );
 
-            loggedCpf = cpf;
-
             System.out.println(
                     "\nCliente cadastrado com sucesso!"
             );
+
+            loggedCpf = cpf;
 
             enterClientMenu();
 
@@ -119,7 +152,7 @@ public class App {
         }
     }
 
-    private void enterClientMenu() {
+    private  void enterClientMenu() {
 
         while (loggedCpf != null) {
 
@@ -213,10 +246,12 @@ public class App {
                                 PersonName::new
                         );
 
-                applicationService.changeName(
+                PersonName newName = applicationService.changeName(
                         loggedCpf,
                         personName
                 );
+
+                System.out.printf("Nome alterado para %s com sucesso", newName);
             }
 
             case 2 -> {
@@ -228,10 +263,12 @@ public class App {
                                 Email::new
                         );
 
-                applicationService.changeEmail(
+                Email newEmail = applicationService.changeEmail(
                         loggedCpf,
                         email
                 );
+
+                System.out.printf("Email alterado para %s com sucesso", newEmail);
             }
         }
     }

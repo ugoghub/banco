@@ -7,6 +7,8 @@ import model.valueObjects.Email;
 import model.valueObjects.PersonName;
 import repository.ClientRepository;
 
+import java.util.UUID;
+
 public class ClientService {
 
     private final ClientRepository clientRepository;
@@ -39,32 +41,52 @@ public class ClientService {
                         ));
     }
 
-    public void delete(Cpf cpf) {
-
-        Client client = getClientByCpf(cpf);
-
-        clientRepository.delete(client.getCpf());
+    public Client getClientByEmail(Email email) {
+        return clientRepository
+                .findByEmail(email)
+                .orElseThrow(() ->
+                        new ClientNotFoundException(
+                                "Cliente não encontrado"
+                        ));
     }
 
-    public void changeName(
+    public Client getClientById(UUID clientId) {
+        return clientRepository
+                .findById(clientId)
+                .orElseThrow(() ->
+                        new ClientNotFoundException(
+                                "Cliente não encontrado"
+                        ));
+    }
+
+    public void delete(UUID clientId) {
+
+        Client client = getClientById(clientId);
+
+        clientRepository.delete(client.getId());
+    }
+
+    public PersonName changeName(
             Cpf cpf,
             PersonName newName
     ) {
 
-        if(newName == null) throw new InvalidNullArgumentException("Nome não pode ser null");
+        if(newName == null) throw new InvalidPersonNameException("Nome não pode ser null");
 
         Client client = getClientByCpf(cpf);
 
         if(client.getName().equals(newName)) throw new InvalidClientChangeException("Novo nome é igual ao nome atual");
 
         client.changeName(newName);
+
+        return client.getName();
     }
 
-    public void changeEmail(
+    public Email changeEmail(
             Cpf cpf,
             Email newEmail
     ) {
-        if(newEmail == null) throw new InvalidNullArgumentException("Email não pode ser null");
+        if(newEmail == null) throw new InvalidEmailException("Email não pode ser null");
 
         Client client = getClientByCpf(cpf);
 
@@ -80,6 +102,8 @@ public class ClientService {
                 oldEmail,
                 client
         );
+
+        return client.getEmail();
     }
 
     private void validateCpfUniqueness(Cpf cpf) {
