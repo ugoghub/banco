@@ -1,4 +1,4 @@
-package test.valueObjects;
+package valueObjects;
 
 import exception.InvalidPersonNameException;
 import model.valueObjects.PersonName;

@@ -1,4 +1,4 @@
-package test.valueObjects;
+package valueObjects;
 
 import exception.InvalidCpfException;
 import model.valueObjects.Cpf;

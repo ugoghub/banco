@@ -1,4 +1,4 @@
-package test.valueObjects;
+package valueObjects;
 
 import model.valueObjects.Money;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package test.service;
+package service;
 
 import exception.AccountDeletionNotAllowedException;
 import exception.AccountNotFoundException;

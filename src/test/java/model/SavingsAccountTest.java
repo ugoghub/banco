@@ -1,4 +1,4 @@
-package test.model;
+package model;
 
 import exception.InsufficientBalanceException;
 import model.SavingsAccount;

@@ -1,4 +1,4 @@
-package test.service;
+package service;
 
 import exception.ClientNotFoundException;
 import exception.CpfAlreadyExistsException;
