@@ -2,6 +2,7 @@ package model;
 
 import exception.InvalidAmountException;
 import exception.InsufficientBalanceException;
+import exception.InvalidNullArgumentException;
 import model.valueObjects.AccountIdentity;
 import model.valueObjects.Money;
 
@@ -66,7 +67,9 @@ public abstract class Account {
 
     private void validatePositiveAmount(Money amount) {
 
-        if (amount == null || amount.isNegativeOrZero()) {
+        if(amount == null) throw new InvalidNullArgumentException("Valor não pode ser null");
+
+        if (amount.isNegativeOrZero()) {
             throw new InvalidAmountException(
                     "Valor inválido"
             );

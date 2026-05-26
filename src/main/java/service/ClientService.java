@@ -1,8 +1,6 @@
 package service;
 
-import exception.ClientNotFoundException;
-import exception.CpfAlreadyExistsException;
-import exception.EmailAlreadyExistsException;
+import exception.*;
 import model.Client;
 import model.valueObjects.Cpf;
 import model.valueObjects.Email;
@@ -53,7 +51,11 @@ public class ClientService {
             PersonName newName
     ) {
 
+        if(newName == null) throw new InvalidNullArgumentException("Nome não pode ser null");
+
         Client client = getClientByCpf(cpf);
+
+        if(client.getName().equals(newName)) throw new InvalidClientChangeException("Novo nome é igual ao nome atual");
 
         client.changeName(newName);
     }
@@ -62,10 +64,13 @@ public class ClientService {
             Cpf cpf,
             Email newEmail
     ) {
-
-        validateEmailUniqueness(newEmail);
+        if(newEmail == null) throw new InvalidNullArgumentException("Email não pode ser null");
 
         Client client = getClientByCpf(cpf);
+
+        if(client.getEmail().equals(newEmail)) throw new InvalidClientChangeException("Novo email é igual ao email atual");
+
+        validateEmailUniqueness(newEmail);
 
         Email oldEmail = client.getEmail();
 

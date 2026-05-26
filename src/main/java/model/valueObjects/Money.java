@@ -23,7 +23,11 @@ public record Money(BigDecimal value) implements Comparable<Money>{
     }
 
     public static Money of(String amount){
-        return new Money(new BigDecimal(amount));
+        try {
+            return new Money(new BigDecimal(amount));
+        } catch (NumberFormatException e) {
+            throw new InvalidAmountException("Valor inválido");
+        }
     }
 
     public boolean isNegativeOrZero(){

@@ -1,0 +1,5 @@
+TransactionRepository
+extrato depende da ordem
+List<Transaction> preserva ordem de inserção.
+
+rollback de transferencia nao implementedo, já que persistencia é feita em memoria

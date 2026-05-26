@@ -49,6 +49,7 @@ public class SavingsAccount extends Account {
         }
 
         if (getBalance().isZero()) {
+            lastInterestApply = LocalDateTime.now(clock); //registra tentativa de aplicar juros mesmo com saldo zero
             return false;
         }
 

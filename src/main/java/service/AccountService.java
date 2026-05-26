@@ -49,7 +49,9 @@ public class AccountService {
             default -> throw new InvalidAccountTypeException("Tipo de conta inválido");
         }
 
-        return accountRepository.save(account);
+        accountRepository.save(account);
+
+        return account.getAccountIdentity();
     }
 
     public List<AccountIdentity> getClientAccountsIdentity(Cpf cpf) {

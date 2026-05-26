@@ -12,14 +12,54 @@ equals/hashcode em client, account, transaction
 
 Juros acumulados atrasados
 
-Transaction hoje aceita qualquer combinação, nada impede estados inválidos / é praticamente um DTO.
-
-Melhor solução arquitetural
-Factory methods:
-
-Transaction.deposit(...)
-Transaction.withdraw(...)
-Transaction.transferSent(...)
-Transaction.transferReceived(...)
-
 canBeRemoved() talvez pertença ao service
+
+changeName e changeEmail retornar algo
+
+AccountRepository: alterar persistencia para <clientUUID, List/Set <accountUUID/ AccountIdentity>>
+
+
+Map<Cpf, Client>
+Map<Email, Client>
+duplica referências do Client.
+
+Map<UUID, Client>
+Map<Cpf, UUID>
+Map<Email, UUID>
+
+
+
+Problema arquitetural MUITO importante
+Hoje:
+transferência cria:
+
+1 Transaction sent
+1 Transaction received
+independentes.
+
+Consequência
+Não existe transferId ligando ambas.
+
+Você poderia adicionar: UUID operationId compartilhado
+
+Transfer:
+transactionId individual
+operationId compartilhado
+
+
+
+talvez transformar money em public final class Money, para retirar acesso direto ao BigDecimal
+
+testes em novo regex de email
+
+money of()
+
+exceção invalidNullArgument ou usar as já existentes.
+
+testes no geral
+
+talvez: abstract class Transaction com subclasses
+DepositTransaction
+WithdrawTransaction
+TransferSentTransaction
+TransferReceivedTransaction

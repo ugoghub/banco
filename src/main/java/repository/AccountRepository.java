@@ -18,10 +18,9 @@ public class AccountRepository {
         return accountIndex.containsKey(accountIdentity);
     }
 
-    public AccountIdentity save(Account account){
+    public void save(Account account){
         accountIndex.put(account.getAccountIdentity(), account.getId());
         accounts.put(account.getId(), account);
-        return account.getAccountIdentity();
     }
 
     public List<AccountIdentity> getAccountsByClient(UUID clientId) {
