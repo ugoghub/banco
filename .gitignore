@@ -38,7 +38,6 @@ Thumbs.db
 
 # NetBeans
 nbproject/private/
-build/
 dist/
 
 # Temporary files

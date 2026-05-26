@@ -10,7 +10,6 @@ import model.valueObjects.PersonName;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import repository.ClientRepository;
-import service.ClientService;
 
 import static org.junit.jupiter.api.Assertions.*;
 

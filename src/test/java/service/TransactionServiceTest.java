@@ -13,9 +13,6 @@ import org.junit.jupiter.api.Test;
 import repository.AccountRepository;
 import repository.ClientRepository;
 import repository.TransactionRepository;
-import service.AccountService;
-import service.ClientService;
-import service.TransactionService;
 import service.dto.StatementData;
 
 import java.time.Clock;
