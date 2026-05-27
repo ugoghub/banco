@@ -13,7 +13,7 @@ public class SavingsAccount extends Account {
     private static final BigDecimal INTEREST_RATE =
             new BigDecimal("0.005");
 
-    private LocalDateTime lastInterestApply;
+    private LocalDateTime lastInterestAppliedAt;
 
     public SavingsAccount(
             UUID clientId,
@@ -27,7 +27,7 @@ public class SavingsAccount extends Account {
                 clock
         );
 
-        this.lastInterestApply = getCreationTime();
+        this.lastInterestAppliedAt = getCreationTime();
     }
 
     @Override
@@ -35,31 +35,33 @@ public class SavingsAccount extends Account {
         return Money.ZERO;
     }
 
-    public boolean isTimeToApplyInterest(Clock clock) {
+    private boolean isTimeToApplyInterest(Clock clock) {
 
-        return !lastInterestApply
+        return !lastInterestAppliedAt
                 .plusMonths(1)
                 .isAfter(LocalDateTime.now(clock));
     }
 
-    public boolean applyInterest(Clock clock) {
+    public int applyPendingInterests(Clock clock) {
 
-        if (!isTimeToApplyInterest(clock)) {
-            return false;
+        int appliedPeriods = 0;
+
+        while (isTimeToApplyInterest(clock)) {
+
+            if (!getBalance().isZero()) {
+
+                Money interest =
+                        getBalance().multiplyByRate(INTEREST_RATE);
+
+                increaseBalance(interest);
+            }
+
+            lastInterestAppliedAt =
+                    lastInterestAppliedAt.plusMonths(1);
+
+            appliedPeriods++;
         }
 
-        if (getBalance().isZero()) {
-            lastInterestApply = LocalDateTime.now(clock); //registra tentativa de aplicar juros mesmo com saldo zero
-            return false;
-        }
-
-        Money interest =
-                getBalance().multiply(INTEREST_RATE);
-
-        increaseBalance(interest);
-
-        lastInterestApply = LocalDateTime.now(clock);
-
-        return true;
+        return appliedPeriods;
     }
 }

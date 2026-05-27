@@ -37,12 +37,12 @@ public class AccountMenu {
 
         int i = 1;
 
-        for (AccountIdentity account : accounts) {
+        for (AccountIdentity accountIdentity : accounts) {
 
             System.out.printf(
                     "%d - %s\n",
                     i++,
-                    account
+                    accountIdentity
             );
         }
 
@@ -53,20 +53,20 @@ public class AccountMenu {
                 c -> c > 0 && c <= accounts.size()
         );
 
-        AccountIdentity account =
+        AccountIdentity accountIdentity =
                 accounts.get(choice - 1);
 
         menuLoop(
                 scanner,
                 applicationService,
-                account
+                accountIdentity
         );
     }
 
     private static void menuLoop(
             Scanner scanner,
             ApplicationService applicationService,
-            AccountIdentity account
+            AccountIdentity accountIdentity
     ) {
 
         while (true) {
@@ -94,29 +94,29 @@ public class AccountMenu {
                 case 1 -> deposit(
                         scanner,
                         applicationService,
-                        account
+                        accountIdentity
                 );
 
                 case 2 -> withdraw(
                         scanner,
                         applicationService,
-                        account
+                        accountIdentity
                 );
 
                 case 3 -> showBalance(
                         applicationService,
-                        account
+                        accountIdentity
                 );
 
                 case 4 -> transfer(
                         scanner,
                         applicationService,
-                        account
+                        accountIdentity
                 );
 
                 case 5 -> statement(
                         applicationService,
-                        account
+                        accountIdentity
                 );
 
                 case 0 -> {
@@ -129,7 +129,7 @@ public class AccountMenu {
     private static void deposit(
             Scanner scanner,
             ApplicationService applicationService,
-            AccountIdentity account
+            AccountIdentity accountIdentity
     ) {
 
         try {
@@ -141,7 +141,7 @@ public class AccountMenu {
                     );
 
             applicationService.deposit(
-                    account,
+                    accountIdentity,
                     value
             );
 
@@ -157,7 +157,7 @@ public class AccountMenu {
     private static void withdraw(
             Scanner scanner,
             ApplicationService applicationService,
-            AccountIdentity account
+            AccountIdentity accountIdentity
     ) {
 
         try {
@@ -169,7 +169,7 @@ public class AccountMenu {
                     );
 
             applicationService.withdraw(
-                    account,
+                    accountIdentity,
                     value
             );
 
@@ -186,7 +186,7 @@ public class AccountMenu {
 
     private static void showBalance(
             ApplicationService applicationService,
-            AccountIdentity account
+            AccountIdentity accountIdentity
     ) {
 
         try {
@@ -194,7 +194,7 @@ public class AccountMenu {
             System.out.println(
                     "Saldo: "
                             + applicationService
-                            .getAccountBalance(account)
+                            .getAccountBalance(accountIdentity)
             );
 
         } catch (DomainException e) {
@@ -253,7 +253,7 @@ public class AccountMenu {
 
     private static void statement(
             ApplicationService applicationService,
-            AccountIdentity account
+            AccountIdentity accountIdentity
     ) {
 
         try {
@@ -261,7 +261,7 @@ public class AccountMenu {
             List<StatementData> transactions =
                     applicationService
                             .getAccountTransactions(
-                                    account
+                                    accountIdentity
                             );
 
             if (transactions.isEmpty()) {

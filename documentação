@@ -2,9 +2,55 @@ TransactionRepository
 extrato depende da ordem
 List<Transaction> preserva ordem de inserção.
 
+<<------------------------------->>
+
 rollback de transferencia nao implementedo, já que persistencia é feita em memoria
+
+<<------------------------------->>
 
 id_transaction e operationtransaction
 um id próprio do registro e um id da operação
 
 resolve o problema de ligação entre origem e destino de uma transferencia
+
+operationID não é identidade.
+
+Serve para:
+rastreamento
+agrupamento
+correlação
+auditoria
+reconstrução de operação
+
+<<------------------------------->>
+
+email e cpf(CPF é regra de negócio) identificador externo
+ID identificar interno
+
+<<------------------------------->>
+
+Refatorado AccountRepository para utilizar indexação por clientId.
+
+Inicialmente AccountRepository utilizava stream global para localizar contas por cliente.
+Posteriormente foi adicionado índice  Map accountIdByClientId para evitar varredura completa do sistema.
+
+Benefícios:
+- busca mais eficiente das contas de um cliente
+- remoção mais simples de contas vinculadas
+- menor acoplamento com streams globais
+- modelagem mais próxima de uma estrutura de persistência real
+
+O AccountService agora trabalha sobre listas já filtradas pelo repository.
+
+<<------------------------------->>
+
+APLICAÇÃO DE JUROS EM SAVINGSACCOUNT
+
+Lazy interest application
+juros acumulados retroativos
+atualização automática ao acessar conta
+
+<<-------------------------------->>
+
+MONEY
+“Foi escolhido HALF_EVEN por ser o arredondamento mais utilizado em sistemas financeiros profissionais, reduzindo viés acumulado em operações repetidas.”

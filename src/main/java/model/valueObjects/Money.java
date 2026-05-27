@@ -8,14 +8,14 @@ import java.util.Locale;
 import java.util.Objects;
 
 public record Money(BigDecimal value) implements Comparable<Money>{
-    public static final Money ZERO = new Money(BigDecimal.ZERO);
+    public static final Money ZERO = Money.of("0");
 
     public Money {
         if (value == null) {
             throw new InvalidAmountException("Valor não pode ser null");
         }
 
-        value = value.setScale(2, RoundingMode.HALF_UP);
+        value = value.setScale(2, RoundingMode.HALF_EVEN);
     }
 
     public boolean isZero(){
@@ -65,9 +65,9 @@ public record Money(BigDecimal value) implements Comparable<Money>{
                 .format(value);
     }
 
-    public Money multiply(BigDecimal interestRate) {
-        Objects.requireNonNull(interestRate);
-        BigDecimal multiply = value.multiply(interestRate);
+    public Money multiplyByRate(BigDecimal rate) {
+        Objects.requireNonNull(rate);
+        BigDecimal multiply = value.multiply(rate);
         return new Money(multiply);
     }
 

@@ -116,7 +116,7 @@ class MoneyTest {
                 Money.of("10");
 
         Money result =
-                money.multiply(
+                money.multiplyByRate(
                         new BigDecimal("2.5")
                 );
 

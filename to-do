@@ -2,19 +2,7 @@ ClientApplicationService
 AccountApplicationService
 TransactionApplicationService
 
-CreateClientUseCase
-TransferUseCase
-WithdrawUseCase
-
-Criar interface para repositories
-
-equals/hashcode em client, account, transaction
-
 Juros acumulados atrasados
-
-canBeRemoved() talvez pertença ao service
-
-AccountRepository: alterar persistencia para <clientUUID, List/Set <accountUUID/ AccountIdentity>>
 
 talvez transformar money em public final class Money, para retirar acesso direto ao BigDecimal
 

@@ -32,6 +32,8 @@ public class TransactionService {
 
         Account account = accountService.getAccountByAccountIdentity(id);
 
+        accountService.updateSavingsInterest(account);
+
         account.deposit(value);
 
         transactionRepository.save(
@@ -48,6 +50,8 @@ public class TransactionService {
                          Money value) {
 
         Account account = accountService.getAccountByAccountIdentity(id);
+
+        accountService.updateSavingsInterest(account);
 
         account.withdraw(value);
 
@@ -69,9 +73,12 @@ public class TransactionService {
         Account from = accountService.getAccountByAccountIdentity(fromId);
         Account to = accountService.getAccountByAccountIdentity(toId);
 
-        if (from.getId().equals(to.getId())) {
+        if (from.equals(to)) {
             throw new InvalidTransferException("Não é possível transferir para a mesma conta");
         }
+
+        accountService.updateSavingsInterest(from);
+        accountService.updateSavingsInterest(to);
 
         from.withdraw(value);
 

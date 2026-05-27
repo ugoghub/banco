@@ -140,4 +140,16 @@ public class Transaction {
                                                Clock clock) {
         return new Transaction(operationId, TransactionType.TRANSFER_RECEIVED, amount, from, to, clock);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Transaction that = (Transaction) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
 }

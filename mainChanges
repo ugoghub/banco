@@ -1,11 +1,10 @@
-ID de operação em transferencias
+Refatorado AccountRepository para utilizar indexação por clientId.
 
-Usuario agora pode logar usando CPF ou email
+equals/hashcode
 
-Melhoria em ao uso de email, cpf e id no sistema
+problema de juros de savingsAccount resolvido com
+Lazy interest application
+juros acumulados retroativos
+atualização automática ao acessar conta
 
-email serve para login
-cpf identificador na UI
-ID identificar interno
-
-nesse commit aumentei o uso do ID como identificar interno, removendo cpf que antes tambem exercia essa função.
+money de half_up para half_even

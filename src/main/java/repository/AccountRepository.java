@@ -2,38 +2,38 @@ package repository;
 
 import model.Account;
 import model.valueObjects.AccountIdentity;
-
 import java.util.*;
 
 public class AccountRepository {
-    private final Map<UUID, Account> accounts;
+    private final Map<UUID, Account> accountByAccountId;
     private final Map<AccountIdentity, UUID> accountIndex;
+    private final Map<UUID, List<UUID>> accountIdByClientId;
 
     public AccountRepository(){
-        this.accounts = new HashMap<>();
+        this.accountByAccountId = new HashMap<>();
         this.accountIndex = new HashMap<>();
+        this.accountIdByClientId = new HashMap<>();
     }
 
-    public boolean existsByAccountIdentity(AccountIdentity accountIdentity) {
-        return accountIndex.containsKey(accountIdentity);
-    }
+    public void save(UUID clientId, Account account){
 
-    public void save(Account account){
-        accountIndex.put(account.getAccountIdentity(), account.getId());
-        accounts.put(account.getId(), account);
-    }
+        accountIdByClientId
+                .computeIfAbsent(clientId, k -> new ArrayList<>())
+                .add(account.getId());
 
-    public List<AccountIdentity> getAccountsByClient(UUID clientId) {
+        accountIndex.put(
+                account.getAccountIdentity(),
+                account.getId()
+        );
 
-        return accounts.values()
-                .stream()
-                .filter(a -> a.getClientId().equals(clientId))
-                .map(Account::getAccountIdentity)
-                .toList();
+        accountByAccountId.put(
+                account.getId(),
+                account
+        );
     }
 
     public Optional<Account> findById(UUID accountId){
-        return Optional.ofNullable(accounts.get(accountId));
+        return Optional.ofNullable(accountByAccountId.get(accountId));
     }
 
     public Optional<Account> findByAccountIdentity(AccountIdentity accountIdentity){
@@ -46,21 +46,69 @@ public class AccountRepository {
         return findById(accountId);
     }
 
+    public boolean existsByAccountIdentity(AccountIdentity accountIdentity) {
+        return accountIndex.containsKey(accountIdentity);
+    }
+
+    public List<Account> getAccountsByClient(UUID clientId) {
+
+        List<UUID> accountIds =
+                accountIdByClientId.getOrDefault(clientId, List.of());
+
+        return accountIds.stream()
+                .map(accountByAccountId::get)
+                .toList();
+    }
+
     public void removeAccount(UUID accountId){
-        Account removed = accounts.remove(accountId);
-        if(removed != null) accountIndex.remove(removed.getAccountIdentity());
+
+        Account removed =
+                accountByAccountId.remove(accountId);
+
+        if (removed == null) {
+            return;
+        }
+
+        accountIndex.remove(
+                removed.getAccountIdentity()
+        );
+
+        List<UUID> clientAccounts =
+                accountIdByClientId.get(
+                        removed.getClientId()
+                );
+
+        if (clientAccounts != null) {
+
+            clientAccounts.remove(accountId);
+
+            if (clientAccounts.isEmpty()) {
+                accountIdByClientId.remove(
+                        removed.getClientId()
+                );
+            }
+        }
     }
 
     public void removeClientAccounts(UUID clientId) {
-        List<Account> accountsToRemove =
-                accounts.values()
-                        .stream()
-                        .filter(a -> a.getClientId().equals(clientId))
-                        .toList();
 
-        accountsToRemove.forEach(account -> {
-            accounts.remove(account.getId());
-            accountIndex.remove(account.getAccountIdentity());
-        });
+        List<UUID> accountIds =
+                accountIdByClientId.remove(clientId);
+
+        if (accountIds == null) {
+            return;
+        }
+
+        for (UUID accountId : accountIds) {
+
+            Account removed =
+                    accountByAccountId.remove(accountId);
+
+            if (removed != null) {
+                accountIndex.remove(
+                        removed.getAccountIdentity()
+                );
+            }
+        }
     }
 }

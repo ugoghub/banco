@@ -12,21 +12,21 @@ import java.util.UUID;
 public class ClientRepository {
 
     private final Map<UUID, Client> clientsById;
-    private final Map<Cpf, UUID> clientsByCpf;
-    private final Map<Email, UUID> clientsByEmail;
+    private final Map<Cpf, UUID> clientIdByCpf;
+    private final Map<Email, UUID> clientIdByEmail;
 
     public ClientRepository() {
 
-        this.clientsByCpf = new HashMap<>();
+        this.clientIdByCpf = new HashMap<>();
         this.clientsById = new HashMap<>();
-        this.clientsByEmail = new HashMap<>();
+        this.clientIdByEmail = new HashMap<>();
     }
 
     public void save(Client client) {
 
         clientsById.put(client.getId(), client);
-        clientsByCpf.put(client.getCpf(), client.getId());
-        clientsByEmail.put(client.getEmail(), client.getId());
+        clientIdByCpf.put(client.getCpf(), client.getId());
+        clientIdByEmail.put(client.getEmail(), client.getId());
     }
 
     public void delete(UUID clientId) {
@@ -34,22 +34,22 @@ public class ClientRepository {
         Client client = clientsById.remove(clientId);
 
         if (client != null) {
-            clientsByEmail.remove(client.getEmail());
-            clientsByCpf.remove(client.getCpf());
+            clientIdByEmail.remove(client.getEmail());
+            clientIdByCpf.remove(client.getCpf());
         }
     }
 
     public boolean existsByCpf(Cpf cpf) {
-        return clientsByCpf.containsKey(cpf);
+        return clientIdByCpf.containsKey(cpf);
     }
 
     public boolean existsByEmail(Email email) {
-        return clientsByEmail.containsKey(email);
+        return clientIdByEmail.containsKey(email);
     }
 
     public Optional<Client> findByCpf(Cpf cpf) {
 
-        UUID clientId = clientsByCpf.get(cpf);
+        UUID clientId = clientIdByCpf.get(cpf);
 
         return findByIndexedId(clientId);
     }
@@ -60,7 +60,7 @@ public class ClientRepository {
 
     public Optional<Client> findByEmail(Email email) {
 
-        UUID clientId = clientsByEmail.get(email);
+        UUID clientId = clientIdByEmail.get(email);
 
         return findByIndexedId(clientId);
     }
@@ -70,8 +70,8 @@ public class ClientRepository {
             Client client
     ) {
 
-        clientsByEmail.remove(oldEmail);
-        clientsByEmail.put(client.getEmail(), client.getId());
+        clientIdByEmail.remove(oldEmail);
+        clientIdByEmail.put(client.getEmail(), client.getId());
     }
 
     private Optional<Client> findByIndexedId(UUID id) {

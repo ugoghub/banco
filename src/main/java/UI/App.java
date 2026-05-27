@@ -222,54 +222,68 @@ public class App {
 
     private void changeData() {
 
-        System.out.println(
-                "Escolha o campo que você deseja alterar: "
-        );
+        try {
 
-        System.out.println(
-                "1 - Nome\n2 - Email"
-        );
+            System.out.println(
+                    "Escolha o campo que você deseja alterar: "
+            );
 
-        int option = InputReader.readOption(
-                scanner,
-                o -> o >= 1 && o <= 2
-        );
+            System.out.println(
+                    "1 - Nome\n2 - Email"
+            );
 
-        switch (option) {
+            int option = InputReader.readOption(
+                    scanner,
+                    o -> o >= 1 && o <= 2
+            );
 
-            case 1 -> {
+            switch (option) {
 
-                PersonName personName =
-                        InputReader.readValidated(
-                                scanner,
-                                "Digite o novo nome: ",
-                                PersonName::new
-                        );
+                case 1 -> {
 
-                PersonName newName = applicationService.changeName(
-                        loggedCpf,
-                        personName
-                );
+                    PersonName personName =
+                            InputReader.readValidated(
+                                    scanner,
+                                    "Digite o novo nome: ",
+                                    PersonName::new
+                            );
 
-                System.out.printf("Nome alterado para %s com sucesso", newName);
+                    PersonName newName =
+                            applicationService.changeName(
+                                    loggedCpf,
+                                    personName
+                            );
+
+                    System.out.printf(
+                            "Nome alterado para %s com sucesso\n",
+                            newName
+                    );
+                }
+
+                case 2 -> {
+
+                    Email email =
+                            InputReader.readValidated(
+                                    scanner,
+                                    "Digite o novo email: ",
+                                    Email::new
+                            );
+
+                    Email newEmail =
+                            applicationService.changeEmail(
+                                    loggedCpf,
+                                    email
+                            );
+
+                    System.out.printf(
+                            "Email alterado para %s com sucesso\n",
+                            newEmail
+                    );
+                }
             }
 
-            case 2 -> {
-
-                Email email =
-                        InputReader.readValidated(
-                                scanner,
-                                "Digite o novo email: ",
-                                Email::new
-                        );
-
-                Email newEmail = applicationService.changeEmail(
-                        loggedCpf,
-                        email
-                );
-
-                System.out.printf("Email alterado para %s com sucesso", newEmail);
-            }
+        } catch (DomainException e) {
+            ErrorHandler.printError(e);
         }
     }
 

@@ -4,6 +4,7 @@ import model.valueObjects.Cpf;
 import model.valueObjects.Email;
 import model.valueObjects.PersonName;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class Client {
@@ -44,5 +45,17 @@ public class Client {
 
     public void changeEmail(Email newEmail) {
         this.email = newEmail;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Client client = (Client) o;
+        return Objects.equals(id, client.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }
