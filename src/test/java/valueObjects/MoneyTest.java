@@ -13,14 +13,14 @@ class MoneyTest {
     @Test
     void shouldAddValuesCorrectly() {
 
-        Money a = new Money(new BigDecimal("10"));
-        Money b = new Money(new BigDecimal("5"));
+        Money a = Money.of("10");
+        Money b = Money.of("5");
 
         Money result = a.add(b);
 
         assertEquals(
-                new BigDecimal("15.00"),
-                result.value()
+                Money.of("15"),
+                result
         );
     }
 
@@ -33,14 +33,14 @@ class MoneyTest {
     @Test
     void shouldSubtractValuesCorrectly() {
 
-        Money a = new Money(new BigDecimal("20"));
-        Money b = new Money(new BigDecimal("5"));
+        Money a = Money.of("20");
+        Money b = Money.of("5");
 
         Money result = a.subtract(b);
 
         assertEquals(
-                new BigDecimal("15.00"),
-                result.value()
+                Money.of("15"),
+                result
         );
     }
 
@@ -48,13 +48,11 @@ class MoneyTest {
     void shouldRoundToTwoDecimalPlaces() {
 
         Money money =
-                new Money(
-                        new BigDecimal("10.999")
-                );
+                Money.of("10.999");
 
         assertEquals(
-                new BigDecimal("11.00"),
-                money.value()
+                Money.of("11.00"),
+                money
         );
     }
 
@@ -62,9 +60,7 @@ class MoneyTest {
     void shouldIdentifyNegativeValues() {
 
         Money money =
-                new Money(
-                        new BigDecimal("-10")
-                );
+                Money.of("-10");
 
         assertTrue(
                 money.isNegativeOrZero()
@@ -75,13 +71,13 @@ class MoneyTest {
     void shouldNegateValue() {
 
         Money money =
-                new Money(new BigDecimal("100"));
+                Money.of("100");
 
         Money result = money.negate();
 
         assertEquals(
-                new BigDecimal("-100.00"),
-                result.value()
+                Money.of("-100"),
+                result
         );
     }
 
@@ -89,10 +85,10 @@ class MoneyTest {
     void shouldCompareValuesCorrectly() {
 
         Money a =
-                new Money(new BigDecimal("10"));
+                Money.of("10");
 
         Money b =
-                new Money(new BigDecimal("20"));
+                Money.of("20");
 
         assertTrue(b.isGreaterThan(a));
     }
@@ -101,10 +97,10 @@ class MoneyTest {
     void shouldIdentifyEqualValues() {
 
         Money a =
-                new Money(new BigDecimal("10"));
+                Money.of("10");
 
         Money b =
-                new Money(new BigDecimal("10.00"));
+                Money.of("10.00");
 
         assertTrue(a.isEqual(b));
     }
@@ -121,8 +117,8 @@ class MoneyTest {
                 );
 
         assertEquals(
-                new BigDecimal("25.00"),
-                result.value()
+                Money.of("25.00"),
+                result
         );
     }
 
@@ -181,8 +177,8 @@ class MoneyTest {
                 a.subtract(b);
 
         assertEquals(
-                new BigDecimal("-5.00"),
-                result.value()
+                Money.of("-5.00"),
+                result
         );
     }
 
@@ -191,6 +187,38 @@ class MoneyTest {
         assertThrows(
                 InvalidAmountException.class,
                 () -> Money.of("A%[]!()")
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenValueIsNull() {
+
+        assertThrows(
+                InvalidAmountException.class,
+                () -> Money.of((BigDecimal) null)
+        );
+    }
+
+    @Test
+    void shouldCompareValuesCorrectlyUsingCompareTo() {
+
+        Money smaller =
+                Money.of("10");
+
+        Money greater =
+                Money.of("20");
+
+        assertTrue(
+                smaller.compareTo(greater) < 0
+        );
+
+        assertTrue(
+                greater.compareTo(smaller) > 0
+        );
+
+        assertEquals(
+                0,
+                smaller.compareTo(Money.of("10.00"))
         );
     }
 }

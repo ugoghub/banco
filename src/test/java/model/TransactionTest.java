@@ -1,7 +1,6 @@
 package model;
 
-import model.Transaction;
-import model.TransactionType;
+import exception.InvalidTransactionException;
 import model.valueObjects.AccountIdentity;
 import model.valueObjects.Money;
 import org.junit.jupiter.api.Test;
@@ -180,6 +179,167 @@ public class TransactionTest {
                         0
                 ),
                 transaction.getDateTime()
+        );
+    }
+
+    @Test
+    void shouldKeepSameOperationIdForTransfer() {
+
+        UUID operationId = UUID.randomUUID();
+
+        Transaction sent =
+                Transaction.transferSent(
+                        operationId,
+                        new AccountIdentity("01", "123456-1"),
+                        new AccountIdentity("01", "999999-9"),
+                        Money.of("100"),
+                        Clock.systemUTC()
+                );
+
+        assertEquals(
+                operationId,
+                sent.getOperationId()
+        );
+    }
+
+    @Test
+    void shouldStoreTransactionAmount() {
+
+        Transaction transaction =
+                Transaction.deposit(
+                        new AccountIdentity("01", "123456-1"),
+                        Money.of("250.50"),
+                        Clock.systemUTC()
+                );
+
+        assertEquals(
+                Money.of("250.50"),
+                transaction.getAmount()
+        );
+    }
+
+    @Test
+    void shouldGenerateDifferentIdsForTransferPair() {
+
+        UUID operationId = UUID.randomUUID();
+
+        Transaction sent =
+                Transaction.transferSent(
+                        operationId,
+                        new AccountIdentity("01", "123456-1"),
+                        new AccountIdentity("01", "999999-9"),
+                        Money.of("100"),
+                        Clock.systemUTC()
+                );
+
+        Transaction received =
+                Transaction.transferReceived(
+                        operationId,
+                        new AccountIdentity("01", "123456-1"),
+                        new AccountIdentity("01", "999999-9"),
+                        Money.of("100"),
+                        Clock.systemUTC()
+                );
+
+        assertNotEquals(
+                sent.getId(),
+                received.getId()
+        );
+
+        assertEquals(
+                sent.getOperationId(),
+                received.getOperationId()
+        );
+    }
+
+    @Test
+    void depositShouldNotAllowDestinationAccountNull() {
+
+        assertThrows(
+                InvalidTransactionException.class,
+                () -> Transaction.deposit(
+                        null,
+                        Money.of("100"),
+                        Clock.systemUTC()
+                )
+        );
+    }
+
+    @Test
+    void withdrawShouldNotAllowSourceAccountNull() {
+
+        assertThrows(
+                InvalidTransactionException.class,
+                () -> Transaction.withdraw(
+                        null,
+                        Money.of("100"),
+                        Clock.systemUTC()
+                )
+        );
+    }
+
+    @Test
+    void transferSentShouldNotAllowNullAccounts() {
+
+        assertThrows(
+                InvalidTransactionException.class,
+                () -> Transaction.transferSent(
+                        UUID.randomUUID(),
+                        null,
+                        new AccountIdentity("01", "123456-1"),
+                        Money.of("100"),
+                        Clock.systemUTC()
+                )
+        );
+
+        assertThrows(
+                InvalidTransactionException.class,
+                () -> Transaction.transferSent(
+                        UUID.randomUUID(),
+                        new AccountIdentity("01", "123456-1"),
+                        null,
+                        Money.of("100"),
+                        Clock.systemUTC()
+                )
+        );
+    }
+
+    @Test
+    void shouldNotAllowNegativeTransactionAmount() {
+
+        assertThrows(
+                InvalidTransactionException.class,
+                () -> Transaction.deposit(
+                        new AccountIdentity("01", "123456-1"),
+                        Money.of("-100"),
+                        Clock.systemUTC()
+                )
+        );
+    }
+
+    @Test
+    void shouldNotAllowZeroTransactionAmount() {
+
+        assertThrows(
+                InvalidTransactionException.class,
+                () -> Transaction.withdraw(
+                        new AccountIdentity("01", "123456-1"),
+                        Money.ZERO,
+                        Clock.systemUTC()
+                )
+        );
+    }
+
+    @Test
+    void shouldNotAllowNullAmount() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> Transaction.deposit(
+                        new AccountIdentity("01", "123456-1"),
+                        null,
+                        Clock.systemUTC()
+                )
         );
     }
 }

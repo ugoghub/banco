@@ -115,7 +115,8 @@ public class TransactionService {
                         t.getSourceIdentity(),
                         t.getDestinationIdentity(),
                         t.getAmount(),
-                        t.getId()
+                        t.getId(),
+                        t.getOperationId()
                 )).toList();
     }
 }

@@ -82,4 +82,44 @@ class PersonNameTest {
                 name.value()
         );
     }
+
+    @Test
+    void shouldBeEqualAfterNormalization() {
+
+        PersonName first =
+                new PersonName(" Hugo   Silva ");
+
+        PersonName second =
+                new PersonName("Hugo Silva");
+
+        assertEquals(first, second);
+    }
+
+    @Test
+    void shouldAllowCompoundNames() {
+
+        PersonName name =
+                new PersonName(
+                        "Maria Clara Souza"
+                );
+
+        assertEquals(
+                "Maria Clara Souza",
+                name.value()
+        );
+    }
+
+    @Test
+    void shouldAllowAccentedCharacters() {
+
+        PersonName name =
+                new PersonName(
+                        "João da Silva"
+                );
+
+        assertEquals(
+                "João da Silva",
+                name.value()
+        );
+    }
 }

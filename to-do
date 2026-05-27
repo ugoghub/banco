@@ -2,14 +2,6 @@ ClientApplicationService
 AccountApplicationService
 TransactionApplicationService
 
-Juros acumulados atrasados
-
-talvez transformar money em public final class Money, para retirar acesso direto ao BigDecimal
-
-testes em novo regex de email
-
-testes no geral
-
 talvez: abstract class Transaction com subclasses
 DepositTransaction
 WithdrawTransaction

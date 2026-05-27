@@ -139,7 +139,7 @@ public class SavingsAccountTest {
         int appliedPeriods =
                 account.applyPendingInterests(february);
 
-        assertEquals(1, appliedPeriods);
+        assertEquals(0, appliedPeriods);
 
         assertEquals(
                 Money.ZERO,
@@ -209,6 +209,147 @@ public class SavingsAccountTest {
 
         assertEquals(
                 Money.of("1030.38"),
+                account.getBalance()
+        );
+    }
+
+    @Test
+    void shouldApplyInterestOnlyAfterAccountAnniversaryDay() {
+
+        Clock january15 =
+                Clock.fixed(
+                        Instant.parse("2026-01-15T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        SavingsAccount account =
+                createSavingsAccount(january15);
+
+        account.deposit(Money.of("1000"));
+
+        Clock february14 =
+                Clock.fixed(
+                        Instant.parse("2026-02-14T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        int before =
+                account.applyPendingInterests(february14);
+
+        assertEquals(0, before);
+
+        Clock february15 =
+                Clock.fixed(
+                        Instant.parse("2026-02-15T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        int after =
+                account.applyPendingInterests(february15);
+
+        assertEquals(1, after);
+    }
+
+    @Test
+    void shouldNotAccumulateRetroactiveInterestWhileBalanceWasZero() {
+
+        Clock january =
+                Clock.fixed(
+                        Instant.parse("2026-01-01T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        SavingsAccount account =
+                createSavingsAccount(january);
+
+        Clock april =
+                Clock.fixed(
+                        Instant.parse("2026-04-02T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        account.applyPendingInterests(april);
+
+        account.deposit(Money.of("1000"));
+
+        int applied =
+                account.applyPendingInterests(april);
+
+        assertEquals(0, applied);
+
+        assertEquals(
+                Money.of("1000"),
+                account.getBalance()
+        );
+    }
+
+    @Test
+    void shouldApplyInterestAgainInFutureMonths() {
+
+        Clock january =
+                Clock.fixed(
+                        Instant.parse("2026-01-01T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        SavingsAccount account =
+                createSavingsAccount(january);
+
+        account.deposit(Money.of("1000"));
+
+        Clock february =
+                Clock.fixed(
+                        Instant.parse("2026-02-02T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        int applied = account.applyPendingInterests(february);
+
+        assertEquals(1, applied);
+
+        Clock march =
+                Clock.fixed(
+                        Instant.parse("2026-03-02T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        applied =
+                account.applyPendingInterests(march);
+
+        assertEquals(1, applied);
+
+        assertEquals(
+                Money.of("1010.02"),
+                account.getBalance()
+        );
+    }
+
+    @Test
+    void shouldApplyInterestToSmallAmounts() {
+
+        Clock january =
+                Clock.fixed(
+                        Instant.parse("2026-01-01T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        SavingsAccount account =
+                createSavingsAccount(january);
+
+        account.deposit(Money.of("0.01"));
+
+        Clock february =
+                Clock.fixed(
+                        Instant.parse("2026-02-02T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        int applied = account.applyPendingInterests(february);
+
+        assertEquals(1, applied);
+
+        assertEquals(
+                Money.of("0.01"),
                 account.getBalance()
         );
     }

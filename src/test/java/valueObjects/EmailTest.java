@@ -78,5 +78,42 @@ class EmailTest {
         );
     }
 
+    @Test
+    void shouldThrowExceptionWhenEmailHasMultipleAtSymbols() {
 
+        assertThrows(
+                InvalidEmailException.class,
+                () -> new Email("teste@@gmail.com")
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenEmailDomainIsInvalid() {
+
+        assertThrows(
+                InvalidEmailException.class,
+                () -> new Email("teste@gmail")
+        );
+    }
+
+    @Test
+    void shouldBeEqualAfterNormalization() {
+
+        Email first =
+                new Email("TESTE@GMAIL.COM");
+
+        Email second =
+                new Email("teste@gmail.com");
+
+        assertEquals(first, second);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenEmailContainsInternalSpaces() {
+
+        assertThrows(
+                InvalidEmailException.class,
+                () -> new Email("tes te@gmail.com")
+        );
+    }
 }

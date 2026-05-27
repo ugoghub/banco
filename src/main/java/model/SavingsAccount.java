@@ -54,12 +54,12 @@ public class SavingsAccount extends Account {
                         getBalance().multiplyByRate(INTEREST_RATE);
 
                 increaseBalance(interest);
+
+                appliedPeriods++;
             }
 
             lastInterestAppliedAt =
                     lastInterestAppliedAt.plusMonths(1);
-
-            appliedPeriods++;
         }
 
         return appliedPeriods;

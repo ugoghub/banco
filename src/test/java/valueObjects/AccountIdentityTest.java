@@ -134,4 +134,60 @@ class AccountIdentityTest {
                 )
         );
     }
+
+    @Test
+    void shouldAllowLeadingZeros() {
+
+        AccountIdentity identity =
+                new AccountIdentity(
+                        "00",
+                        "000001-0"
+                );
+
+        assertEquals("00", identity.branch());
+
+        assertEquals(
+                "000001-0",
+                identity.accountNumber()
+        );
+    }
+
+    @Test
+    void shouldBeEqualWhenValuesAreEqual() {
+
+        AccountIdentity first =
+                new AccountIdentity(
+                        "01",
+                        "123456-1"
+                );
+
+        AccountIdentity second =
+                new AccountIdentity(
+                        "01",
+                        "123456-1"
+                );
+
+        assertEquals(first, second);
+    }
+
+    @Test
+    void shouldHaveSameHashCodeWhenValuesAreEqual() {
+
+        AccountIdentity first =
+                new AccountIdentity(
+                        "01",
+                        "123456-1"
+                );
+
+        AccountIdentity second =
+                new AccountIdentity(
+                        "01",
+                        "123456-1"
+                );
+
+        assertEquals(
+                first.hashCode(),
+                second.hashCode()
+        );
+    }
 }

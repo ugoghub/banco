@@ -2,7 +2,6 @@ package model;
 
 import exception.InsufficientBalanceException;
 import exception.InvalidAmountException;
-import model.CheckingAccount;
 import model.valueObjects.AccountIdentity;
 import model.valueObjects.Money;
 import org.junit.jupiter.api.Test;
@@ -13,8 +12,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CheckingAccountTest {
 
@@ -185,6 +183,84 @@ class CheckingAccountTest {
                         Money.ZERO
                 )
         );
+    }
+
+    @Test
+    void shouldNotExceedOverdraftLimitAfterMultipleWithdraws() {
+
+        CheckingAccount account =
+                createCheckingAccount(clock);
+
+        account.withdraw(Money.of("600"));
+
+        assertThrows(
+                InsufficientBalanceException.class,
+                () -> account.withdraw(
+                        Money.of("500")
+                )
+        );
+    }
+
+    @Test
+    void shouldRecoverFromNegativeBalance() {
+
+        CheckingAccount account =
+                createCheckingAccount(clock);
+
+        account.withdraw(Money.of("500"));
+
+        account.deposit(Money.of("700"));
+
+        assertEquals(
+                Money.of("200"),
+                account.getBalance()
+        );
+    }
+
+    @Test
+    void shouldNotAllowZeroDeposit() {
+
+        CheckingAccount account =
+                createCheckingAccount(clock);
+
+        assertThrows(
+                InvalidAmountException.class,
+                () -> account.deposit(Money.ZERO)
+        );
+    }
+
+    @Test
+    void shouldNotAllowNegativeWithdraw() {
+
+        CheckingAccount account =
+                createCheckingAccount(clock);
+
+        assertThrows(
+                InvalidAmountException.class,
+                () -> account.withdraw(
+                        Money.of("-1")
+                )
+        );
+    }
+
+    @Test
+    void shouldAllowRemovalWhenBalanceIsZero() {
+
+        CheckingAccount account =
+                createCheckingAccount(clock);
+
+        assertTrue(account.canBeRemoved());
+    }
+
+    @Test
+    void shouldNotAllowRemovalWhenBalanceIsNotZero() {
+
+        CheckingAccount account =
+                createCheckingAccount(clock);
+
+        account.deposit(Money.of("1"));
+
+        assertFalse(account.canBeRemoved());
     }
 
     private CheckingAccount createCheckingAccount(Clock clock) {

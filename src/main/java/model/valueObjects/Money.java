@@ -7,27 +7,51 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Objects;
 
-public record Money(BigDecimal value) implements Comparable<Money>{
+public final class Money implements Comparable<Money>{
     public static final Money ZERO = Money.of("0");
 
-    public Money {
+    private final BigDecimal value;
+
+    private Money(BigDecimal value) {
         if (value == null) {
             throw new InvalidAmountException("Valor não pode ser null");
         }
 
-        value = value.setScale(2, RoundingMode.HALF_EVEN);
+        this.value = value.setScale(2, RoundingMode.HALF_EVEN);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) return true;
+
+        if (!(o instanceof Money money)) return false;
+
+        return value.compareTo(money.value) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return value.stripTrailingZeros().hashCode();
     }
 
     public boolean isZero(){
         return value.compareTo(BigDecimal.ZERO) == 0;
     }
 
-    public static Money of(String amount){
+    public static Money of(String amount) {
+
         try {
             return new Money(new BigDecimal(amount));
-        } catch (NumberFormatException e) {
+
+        } catch (NumberFormatException | NullPointerException e) {
+
             throw new InvalidAmountException("Valor inválido");
         }
+    }
+
+    public static Money of(BigDecimal value) {
+        return new Money(value);
     }
 
     public boolean isNegativeOrZero(){

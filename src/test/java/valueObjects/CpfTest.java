@@ -59,4 +59,37 @@ class CpfTest {
                 () -> new Cpf("11111111111")
         );
     }
+
+    @Test
+    void shouldThrowExceptionWhenCpfCheckDigitsAreInvalid() {
+
+        assertThrows(
+                InvalidCpfException.class,
+                () -> new Cpf("52998224724")
+        );
+    }
+
+    @Test
+    void shouldTrimCpfBeforeValidation() {
+
+        Cpf cpf =
+                new Cpf(" 529.982.247-25 ");
+
+        assertEquals(
+                "52998224725",
+                cpf.value()
+        );
+    }
+
+    @Test
+    void shouldBeEqualWhenCpfValuesAreEqual() {
+
+        Cpf first =
+                new Cpf("52998224725");
+
+        Cpf second =
+                new Cpf("529.982.247-25");
+
+        assertEquals(first, second);
+    }
 }

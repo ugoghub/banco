@@ -14,7 +14,9 @@ public record StatementData(
         AccountIdentity source,
         AccountIdentity destination,
         Money amount,
-        UUID id)
+        UUID id,
+        UUID operationId
+        )
 {
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");

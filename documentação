@@ -53,4 +53,356 @@ atualização automática ao acessar conta
 <<-------------------------------->>
 
 MONEY
-“Foi escolhido HALF_EVEN por ser o arredondamento mais utilizado em sistemas financeiros profissionais, reduzindo viés acumulado em operações repetidas.”
+“Foi escolhido HALF_EVEN por ser o arredondamento mais utilizado em sistemas financeiros profissionais,
+ reduzindo viés acumulado em operações repetidas.”
+
+ <<--------------------->>
+
+ # Regras de uso de exceções no projeto
+
+ ## 1. Objetivo principal
+
+ O projeto separa exceções em dois grupos:
+
+ * Exceções de domínio (business/domain exceptions)
+ * Exceções técnicas/genéricas
+
+ A ideia é diferenciar:
+
+ * erros esperados do negócio;
+ * erros de programação/contrato técnico quebrado.
+
+ ---
+
+ # 2. Exceções de domínio
+
+ São usadas quando:
+
+ * a operação é inválida segundo as regras do sistema;
+ * o usuário pode causar legitimamente esse cenário;
+ * o erro faz parte do fluxo normal da aplicação;
+ * a camada superior pode tratar e mostrar mensagem amigável.
+
+ Essas exceções representam:
+
+ > "A ação é tecnicamente válida, mas proibida pelas regras do domínio."
+
+ ---
+
+ ## Exemplos do projeto
+
+ ### Conta
+
+ * `InsufficientBalanceException`
+ * `AccountDeletionNotAllowedException`
+ * `InvalidTransferException`
+ * `InvalidAccountTypeException`
+
+ Exemplos:
+
+ * sacar sem saldo;
+ * transferir para a mesma conta;
+ * remover conta com saldo;
+ * tipo de conta inválido.
+
+ ---
+
+ ### Cliente
+
+ * `CpfAlreadyExistsException`
+ * `EmailAlreadyExistsException`
+ * `InvalidClientChangeException`
+ * `ClientNotFoundException`
+
+ Exemplos:
+
+ * CPF duplicado;
+ * email já cadastrado;
+ * tentar alterar para o mesmo nome/email;
+ * cliente inexistente.
+
+ ---
+
+ ### Value Objects
+
+ * `InvalidCpfException`
+ * `InvalidEmailException`
+ * `InvalidPersonNameException`
+ * `InvalidAmountException`
+
+ Essas exceções protegem invariantes do domínio.
+
+ Exemplos:
+
+ * CPF inválido;
+ * email inválido;
+ * nome inválido;
+ * valor monetário inválido.
+
+ ---
+
+ ### Transaction
+
+ * `InvalidTransactionException`
+
+ Usada quando a transação entra em estado semanticamente inválido.
+
+ Exemplos:
+
+ * depósito sem conta destino;
+ * saque sem conta origem;
+ * transferência sem operationId;
+ * valor negativo;
+ * valor zero.
+
+ Nesse caso o problema não é técnico, mas sim:
+
+ > "A transação existe, porém viola regras do domínio."
+
+ ---
+
+ # 3. Exceções técnicas/genéricas
+
+ São usadas quando:
+
+ * o programador usou a API incorretamente;
+ * dependências obrigatórias vieram nulas;
+ * o sistema entrou em estado impossível;
+ * o contrato técnico foi quebrado;
+ * isso não deveria acontecer durante o uso normal do sistema.
+
+ Essas exceções representam:
+
+ > "Há erro técnico ou erro de programação."
+
+ ---
+
+ ## Exemplos usados no projeto
+
+ ### Objects.requireNonNull(...)
+
+ Usado em dependências obrigatórias:
+
+ ```java
+ Objects.requireNonNull(clock);
+ Objects.requireNonNull(type);
+ Objects.requireNonNull(amount);
+ ```
+
+ Nesses casos:
+
+ * `clock == null`
+ * `type == null`
+ * `amount == null`
+
+ não representam regra de negócio.
+
+ Representam uso incorreto da API.
+
+ Então lançar `NullPointerException` é aceitável.
+
+ ---
+
+ # 4. Regra prática usada no projeto
+
+ Pergunta principal:
+
+ > "Isso pode acontecer legitimamente durante o uso do sistema?"
+
+ ---
+
+ ## Se SIM
+
+ → usar exceção de domínio.
+
+ Exemplos:
+
+ * saldo insuficiente;
+ * CPF duplicado;
+ * email duplicado;
+ * transferência inválida;
+ * saque inválido;
+ * conta inexistente.
+
+ ---
+
+ ## Se NÃO
+
+ → usar exceção técnica/genérica.
+
+ Exemplos:
+
+ * parâmetro null obrigatório;
+ * dependência ausente;
+ * uso incorreto da API;
+ * estado impossível;
+ * contrato quebrado.
+
+ ---
+
+ # 5. Aplicação prática em Transaction
+
+ ## Casos técnicos
+
+ ```java
+ Objects.requireNonNull(amount);
+ Objects.requireNonNull(clock);
+ Objects.requireNonNull(type);
+ ```
+
+ Aqui:
+
+ * null = erro técnico;
+ * uso incorreto do construtor/factory.
+
+ Logo:
+
+ * `NullPointerException` faz sentido.
+
+ ---
+
+ ## Casos de domínio
+
+ ```java
+ if (amount.isNegativeOrZero())
+ ```
+
+ ou
+
+ ```java
+ if (destinationIdentity == null)
+ ```
+
+ Aqui:
+
+ * a transação foi criada;
+ * mas está semanticamente inválida.
+
+ Logo:
+
+ * `InvalidTransactionException` faz sentido.
+
+ ---
+
+ # 6. Resumo arquitetural
+
+ ## Exceções de domínio
+
+ Representam:
+
+ * regras de negócio;
+ * comportamento esperado;
+ * validações funcionais;
+ * invariantes do domínio.
+
+ São parte normal do sistema.
+
+ ---
+
+ ## Exceções técnicas
+
+ Representam:
+
+ * erro de programação;
+ * quebra de contrato;
+ * dependência inválida;
+ * estado impossível.
+
+ Não fazem parte do fluxo normal do negócio.
+
+ ---
+
+ # 7. Resultado dessa separação
+
+ Essa abordagem traz:
+
+ * domínio mais expressivo;
+ * tratamento de erros mais claro;
+ * melhor manutenção;
+ * melhor modelagem DDD;
+ * testes mais coerentes;
+ * separação correta entre negócio e infraestrutura.
+
+ Além disso:
+
+ * services ficam responsáveis por orquestração;
+ * entidades/value objects protegem invariantes;
+ * exceções comunicam intenção corretamente.
+
+<<-------------------------------------->>
+
+A classe `Money` foi refatorada para reforçar encapsulamento, imutabilidade e consistência monetária no domínio.
+
+Principais mudanças:
+
+* `Money` agora é `final`
+
+  * Impede herança e evita alterações inesperadas no comportamento de valores monetários.
+  * Faz sentido porque dinheiro é um Value Object puro.
+
+* O campo `value` continua `final`
+
+  * Garante imutabilidade.
+  * Toda operação (`add`, `subtract`, `negate`, etc.) retorna uma nova instância.
+
+* Padronização de escala no construtor
+
+  * Todo valor é normalizado com:
+    `setScale(2, RoundingMode.HALF_EVEN)`
+  * Isso garante consistência financeira e evita diferenças de escala entre valores equivalentes.
+
+* `equals` e `hashCode` foram ajustados
+
+  * Antes:
+    `BigDecimal("10.0")` e `BigDecimal("10.00")` poderiam ser considerados diferentes.
+  * Agora:
+    ambos são normalizados para `10.00` no construtor.
+  * Resultado:
+    `Money.of("10")`, `Money.of("10.0")` e `Money.of("10.00")` passam a ser semanticamente iguais.
+
+* Adição de `Comparable<Money>`
+
+  * Permite ordenação natural e comparações padronizadas usando `compareTo`.
+
+* Criação do método `of(BigDecimal)`
+
+  * Evita precisar converter `BigDecimal` para `String` apenas para criar um `Money`.
+  * Facilita integrações internas e operações matemáticas:
+    `Money.of(bigDecimal)`.
+
+* Mantido `Money.of(String)`
+
+  * Continua sendo a forma principal de criação usada no projeto.
+  * Mais prática para testes e código de domínio.
+
+* `Objects.requireNonNull`
+
+  * Foi mantido para erros de programação internos.
+  * Exemplo:
+    passar `null` para `add`, `subtract`, `compareTo`.
+  * Isso segue a regra arquitetural do projeto:
+
+    * exceções de domínio → regras de negócio inválidas;
+    * exceções genéricas → erro de programação/API incorreta.
+
+* `InvalidAmountException`
+
+  * Continua sendo usada para entrada inválida vinda do domínio/usuário.
+  * Exemplo:
+    `Money.of("abc")`
+    `new Money(null)`
+
+Observação importante:
+Após adicionar `of(BigDecimal)`, chamadas como:
+
+`Money.of(null)`
+
+ficaram ambíguas para o compilador (`String` ou `BigDecimal`).
+
+Por isso, testes de null devem usar explicitamente:
+
+`Money.of((String) null)`
+
+ou
+
+`Money.of((BigDecimal) null)`.

@@ -3,6 +3,7 @@ package service;
 import exception.ClientNotFoundException;
 import exception.CpfAlreadyExistsException;
 import exception.EmailAlreadyExistsException;
+import exception.InvalidClientChangeException;
 import model.Client;
 import model.valueObjects.Cpf;
 import model.valueObjects.Email;
@@ -180,25 +181,122 @@ public class ClientServiceTest {
     }
 
     @Test
-    void shouldReindexEmailAfterEmailChange() {
+    void shouldNotFindClientByOldEmailAfterEmailChange() {
 
         Client client = createClient();
-        clientService.createClient(client.getName(), client.getCpf(), client.getEmail());
+
+        clientService.createClient(
+                client.getName(),
+                client.getCpf(),
+                client.getEmail()
+        );
 
         clientService.changeEmail(
                 client.getCpf(),
                 new Email("new@gmail.com")
         );
 
-        assertFalse(
-                clientRepository.existsByEmail(
+        assertThrows(
+                ClientNotFoundException.class,
+                () -> clientService.getClientByEmail(
                         new Email("old@gmail.com")
                 )
         );
+    }
 
-        assertTrue(
-                clientRepository.existsByEmail(
-                        new Email("new@gmail.com")
+    @Test
+    void shouldNotFindDeletedClientByEmail() {
+
+        Client client = createClient();
+
+        clientService.createClient(
+                client.getName(),
+                client.getCpf(),
+                client.getEmail()
+        );
+
+        Client saved =
+                clientService.getClientByCpf(client.getCpf());
+
+        clientService.delete(saved.getId());
+
+        assertThrows(
+                ClientNotFoundException.class,
+                () -> clientService.getClientByEmail(
+                        client.getEmail()
+                )
+        );
+    }
+
+    @Test
+    void shouldReturnClientByEmail() {
+
+        Client client = createClient();
+
+        clientService.createClient(
+                client.getName(),
+                client.getCpf(),
+                client.getEmail()
+        );
+
+        Client found =
+                clientService.getClientByEmail(
+                        client.getEmail()
+                );
+
+        assertEquals(
+                client.getCpf(),
+                found.getCpf()
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenEmailDoesNotExist() {
+
+        assertThrows(
+                ClientNotFoundException.class,
+                () -> clientService.getClientByEmail(
+                        new Email("missing@gmail.com")
+                )
+        );
+    }
+
+    @Test
+    void shouldNotAllowChangingNameToSameName() {
+
+        Client client = createClient();
+
+        clientService.createClient(
+                client.getName(),
+                client.getCpf(),
+                client.getEmail()
+        );
+
+        assertThrows(
+                InvalidClientChangeException.class,
+                () -> clientService.changeName(
+                        client.getCpf(),
+                        client.getName()
+                )
+        );
+    }
+
+    @Test
+    void shouldNotAllowChangingEmailToSameEmail() {
+
+        Client client = createClient();
+
+        clientService.createClient(
+                client.getName(),
+                client.getCpf(),
+                client.getEmail()
+        );
+
+        assertThrows(
+                InvalidClientChangeException.class,
+                () -> clientService.changeEmail(
+                        client.getCpf(),
+                        client.getEmail()
                 )
         );
     }

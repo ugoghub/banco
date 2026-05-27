@@ -26,7 +26,7 @@ public class Transaction {
 
         Objects.requireNonNull(type);
         Objects.requireNonNull(amount);
-        Objects.requireNonNull(clock); //ver questão de NullException
+        Objects.requireNonNull(clock);
 
         this.id = UUID.randomUUID();
         this.operationId = operationId;
@@ -37,6 +37,7 @@ public class Transaction {
         this.destinationIdentity = destinationIdentity;
 
         validateState();
+        validateAmount(amount);
     }
 
     private void validateState() {
@@ -49,6 +50,15 @@ public class Transaction {
             case WITHDRAW -> validateWithdraw();
 
             case TRANSFER_SENT, TRANSFER_RECEIVED -> validateTransfer();
+        }
+    }
+
+    private static void validateAmount(Money amount) {
+
+        if (amount.isNegativeOrZero()) {
+            throw new InvalidTransactionException(
+                    "Valor da transação deve ser positivo"
+            );
         }
     }
 
