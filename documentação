@@ -406,3 +406,35 @@ Por isso, testes de null devem usar explicitamente:
 ou
 
 `Money.of((BigDecimal) null)`.
+
+<<-------------------------------------->>>
+
+A implementação de juros da `SavingsAccount` foi refatorada para também gerar transações de rendimento no extrato da conta.
+
+Antes da refatoração:
+
+* `applyPendingInterests()` apenas alterava o saldo internamente;
+* nenhuma `Transaction` era criada;
+* os rendimentos não apareciam no histórico da conta.
+
+Após a refatoração:
+
+* `SavingsAccount` continua responsável apenas pela regra de negócio do rendimento;
+* o método `applyPendingInterests()` passou a retornar os valores de juros aplicados (`List<Money>`);
+* a criação das transações ficou centralizada no `TransactionService`, mantendo a responsabilidade de persistência e histórico no service layer;
+* foi criado o método `Transaction.interest(...)` para representar rendimentos no extrato;
+* o `TransactionService` passou a aplicar juros pendentes automaticamente antes de:
+
+  * depósitos;
+  * saques;
+  * transferências;
+  * consulta de saldo.
+
+Além disso, foi extraído o método privado `applyPendingInterest(Account account)` dentro do `TransactionService` para evitar duplicação de código.
+
+Com isso:
+
+* o domínio continua desacoplado de persistência;
+* `SavingsAccount` não conhece repositories nem services;
+* os rendimentos agora aparecem corretamente no histórico da conta;
+* o saldo permanece consistente mesmo após longos períodos sem movimentação.

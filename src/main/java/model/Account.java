@@ -25,6 +25,10 @@ public abstract class Account {
             Clock clock
     ) {
 
+        Objects.requireNonNull(clientId);
+        Objects.requireNonNull(accountIdentity);
+        Objects.requireNonNull(clock);
+
         this.id = UUID.randomUUID();
         this.clientId = clientId;
         this.accountIdentity = accountIdentity;

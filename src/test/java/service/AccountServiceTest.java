@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import repository.AccountRepository;
 import repository.ClientRepository;
+import repository.TransactionRepository;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -328,8 +329,15 @@ public class AccountServiceTest {
                         february
                 );
 
+        TransactionService transactionService
+                = new TransactionService(
+                accountService,
+                new TransactionRepository(),
+                february
+        );
+
         Money balance =
-                accountService.getAccountBalance(identity);
+                transactionService.getAccountBalance(identity);
 
         assertEquals(
                 Money.of("1005"),

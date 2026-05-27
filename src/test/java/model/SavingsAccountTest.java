@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,10 +37,15 @@ public class SavingsAccountTest {
                         ZoneId.systemDefault()
                 );
 
-        int appliedPeriods =
+        List<Money> appliedInterests =
                 account.applyPendingInterests(february);
 
-        assertEquals(1, appliedPeriods);
+        assertEquals(1, appliedInterests.size());
+
+        assertEquals(
+                Money.of("5.00"),
+                appliedInterests.getFirst()
+        );
 
         assertEquals(
                 Money.of("1005"),
@@ -65,10 +71,10 @@ public class SavingsAccountTest {
         SavingsAccount account =
                 createSavingsAccount(january);
 
-        int appliedPeriods =
+        List<Money> appliedInterests =
                 account.applyPendingInterests(stillJanuary);
 
-        assertEquals(0, appliedPeriods);
+        assertTrue(appliedInterests.isEmpty());
     }
 
     @Test
@@ -107,15 +113,15 @@ public class SavingsAccountTest {
                 Money.of("1000")
         );
 
-        int first =
+        List<Money> first =
                 account.applyPendingInterests(march);
 
-        int second =
+        List<Money> second =
                 account.applyPendingInterests(march);
 
-        assertEquals(1, first);
+        assertEquals(1, first.size());
 
-        assertEquals(0, second);
+        assertTrue(second.isEmpty());
     }
 
     @Test
@@ -136,10 +142,10 @@ public class SavingsAccountTest {
         SavingsAccount account =
                 createSavingsAccount(january);
 
-        int appliedPeriods =
+        List<Money> appliedInterests =
                 account.applyPendingInterests(february);
 
-        assertEquals(0, appliedPeriods);
+        assertTrue(appliedInterests.isEmpty());
 
         assertEquals(
                 Money.ZERO,
@@ -169,10 +175,10 @@ public class SavingsAccountTest {
                         ZoneId.systemDefault()
                 );
 
-        int appliedPeriods =
+        List<Money> appliedInterests =
                 account.applyPendingInterests(april);
 
-        assertEquals(3, appliedPeriods);
+        assertEquals(3, appliedInterests.size());
 
         assertEquals(
                 Money.of("1015.07"),
@@ -202,10 +208,10 @@ public class SavingsAccountTest {
                 Money.of("1000")
         );
 
-        int appliedPeriods =
+        List<Money> appliedInterests =
                 account.applyPendingInterests(july);
 
-        assertEquals(6, appliedPeriods);
+        assertEquals(6, appliedInterests.size());
 
         assertEquals(
                 Money.of("1030.38"),
@@ -233,10 +239,10 @@ public class SavingsAccountTest {
                         ZoneId.systemDefault()
                 );
 
-        int before =
+        List<Money> before =
                 account.applyPendingInterests(february14);
 
-        assertEquals(0, before);
+        assertTrue(before.isEmpty());
 
         Clock february15 =
                 Clock.fixed(
@@ -244,10 +250,10 @@ public class SavingsAccountTest {
                         ZoneId.systemDefault()
                 );
 
-        int after =
+        List<Money> after =
                 account.applyPendingInterests(february15);
 
-        assertEquals(1, after);
+        assertEquals(1, after.size());
     }
 
     @Test
@@ -272,10 +278,10 @@ public class SavingsAccountTest {
 
         account.deposit(Money.of("1000"));
 
-        int applied =
+        List<Money> applied =
                 account.applyPendingInterests(april);
 
-        assertEquals(0, applied);
+        assertTrue(applied.isEmpty());
 
         assertEquals(
                 Money.of("1000"),
@@ -303,9 +309,10 @@ public class SavingsAccountTest {
                         ZoneId.systemDefault()
                 );
 
-        int applied = account.applyPendingInterests(february);
+        List<Money> applied =
+                account.applyPendingInterests(february);
 
-        assertEquals(1, applied);
+        assertEquals(1, applied.size());
 
         Clock march =
                 Clock.fixed(
@@ -316,7 +323,7 @@ public class SavingsAccountTest {
         applied =
                 account.applyPendingInterests(march);
 
-        assertEquals(1, applied);
+        assertEquals(1, applied.size());
 
         assertEquals(
                 Money.of("1010.02"),
@@ -344,9 +351,15 @@ public class SavingsAccountTest {
                         ZoneId.systemDefault()
                 );
 
-        int applied = account.applyPendingInterests(february);
+        List<Money> applied =
+                account.applyPendingInterests(february);
 
-        assertEquals(1, applied);
+        assertEquals(1, applied.size());
+
+        assertEquals(
+                Money.of("0.00"),
+                applied.getFirst()
+        );
 
         assertEquals(
                 Money.of("0.01"),

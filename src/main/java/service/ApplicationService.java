@@ -85,7 +85,7 @@ public class ApplicationService {
     public Money getAccountBalance(AccountIdentity identity)
     {
 
-        return accountService.getAccountBalance(identity);
+        return transactionService.getAccountBalance(identity);
     }
 
     public List<StatementData> getAccountTransactions(AccountIdentity accountIdentity){

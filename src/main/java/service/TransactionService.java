@@ -2,6 +2,7 @@ package service;
 
 import exception.InvalidTransferException;
 import model.Account;
+import model.SavingsAccount;
 import model.Transaction;
 import model.valueObjects.AccountIdentity;
 import model.valueObjects.Money;
@@ -32,7 +33,7 @@ public class TransactionService {
 
         Account account = accountService.getAccountByAccountIdentity(id);
 
-        accountService.updateSavingsInterest(account);
+        applyPendingInterest(account);
 
         account.deposit(value);
 
@@ -51,7 +52,7 @@ public class TransactionService {
 
         Account account = accountService.getAccountByAccountIdentity(id);
 
-        accountService.updateSavingsInterest(account);
+        applyPendingInterest(account);
 
         account.withdraw(value);
 
@@ -77,8 +78,8 @@ public class TransactionService {
             throw new InvalidTransferException("Não é possível transferir para a mesma conta");
         }
 
-        accountService.updateSavingsInterest(from);
-        accountService.updateSavingsInterest(to);
+        applyPendingInterest(from);
+        applyPendingInterest(to);
 
         from.withdraw(value);
 
@@ -105,6 +106,16 @@ public class TransactionService {
         );
     }
 
+    public Money getAccountBalance(AccountIdentity identity) {
+
+        Account account =
+                accountService.getAccountByAccountIdentity(identity);
+
+        applyPendingInterest(account);
+
+        return account.getBalance();
+    }
+
     public List<StatementData> getTransactionHistory(UUID accountId) {
         List<Transaction> transactionsByAccountId = transactionRepository.getTransactionsByAccountId(accountId);
 
@@ -118,5 +129,35 @@ public class TransactionService {
                         t.getId(),
                         t.getOperationId()
                 )).toList();
+    }
+
+    private List<Transaction> applyInterestAndGenerateTransactions(Account account) {
+
+        if (!(account instanceof SavingsAccount savings)) {
+            return List.of();
+        }
+
+        List<Money> interests =
+                savings.applyPendingInterests(clock);
+
+        return interests.stream()
+                .map(interest ->
+                        Transaction.interest(
+                                account.getAccountIdentity(),
+                                interest,
+                                clock
+                        )
+                )
+                .toList();
+    }
+
+    private void applyPendingInterest(Account account) {
+
+        List<Transaction> transactions =
+                applyInterestAndGenerateTransactions(account);
+
+        transactions.forEach(t ->
+                transactionRepository.save(account.getId(), t)
+        );
     }
 }

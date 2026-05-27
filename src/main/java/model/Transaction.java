@@ -40,6 +40,10 @@ public class Transaction {
         validateAmount(amount);
     }
 
+    // =========================
+    // Helpers
+    // =========================
+
     private void validateState() {
         //validação defensiva
 
@@ -50,6 +54,8 @@ public class Transaction {
             case WITHDRAW -> validateWithdraw();
 
             case TRANSFER_SENT, TRANSFER_RECEIVED -> validateTransfer();
+
+            case INTEREST -> validateInterest();
         }
     }
 
@@ -58,6 +64,36 @@ public class Transaction {
         if (amount.isNegativeOrZero()) {
             throw new InvalidTransactionException(
                     "Valor da transação deve ser positivo"
+            );
+        }
+    }
+
+    private void validateDeposit() {
+        if (sourceIdentity != null || destinationIdentity == null) {
+            throw new InvalidTransactionException("DEPÓSITO não deve possuir conta de origem");
+        }
+    }
+
+    private void validateWithdraw() {
+        if (sourceIdentity == null || destinationIdentity != null) {
+            throw new InvalidTransactionException("SAQUE não deve possuir conta de destino");
+        }
+    }
+
+    private void validateTransfer() {
+        if (operationId == null){
+            throw new InvalidTransactionException("Toda transferência deve possuir um ID de operação");
+        }
+        if (sourceIdentity == null || destinationIdentity == null) {
+            throw new InvalidTransactionException("Transferência não deve possuir origem e/ou destino nulls");
+        }
+    }
+
+    private void validateInterest() {
+
+        if (sourceIdentity != null || destinationIdentity == null) {
+            throw new InvalidTransactionException(
+                    "RENDIMENTO deve possuir apenas conta destino"
             );
         }
     }
@@ -94,30 +130,6 @@ public class Transaction {
         return destinationIdentity;
     }
 
-    // =========================
-    // Helpers
-    // =========================
-
-    private void validateDeposit() {
-        if (sourceIdentity != null || destinationIdentity == null) {
-            throw new InvalidTransactionException("DEPÓSITO não deve possuir conta de origem");
-        }
-    }
-
-    private void validateWithdraw() {
-        if (sourceIdentity == null || destinationIdentity != null) {
-            throw new InvalidTransactionException("SAQUE não deve possuir conta de destino");
-        }
-    }
-
-    private void validateTransfer() {
-        if (operationId == null){
-            throw new InvalidTransactionException("Toda transferência deve possuir um ID de operação");
-        }
-        if (sourceIdentity == null || destinationIdentity == null) {
-            throw new InvalidTransactionException("Transferência não deve possuir origem e/ou destino nulls");
-        }
-    }
 
     // =========================
     // Factory Methods
@@ -149,6 +161,10 @@ public class Transaction {
                                                Money amount,
                                                Clock clock) {
         return new Transaction(operationId, TransactionType.TRANSFER_RECEIVED, amount, from, to, clock);
+    }
+
+    public static Transaction interest(AccountIdentity accountIdentity, Money amount, Clock clock) {
+        return new Transaction(null, TransactionType.INTEREST, amount, null, accountIdentity, clock);
     }
 
     @Override

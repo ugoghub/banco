@@ -803,7 +803,7 @@ class TransactionServiceTest {
 
         assertEquals(
                 Money.of("1000"),
-                accountService.getAccountBalance(account)
+                transactionService.getAccountBalance(account)
         );
     }
 
@@ -905,12 +905,12 @@ class TransactionServiceTest {
 
         assertEquals(
                 Money.of("905"),
-                accountService.getAccountBalance(from)
+                transactionService.getAccountBalance(from)
         );
 
         assertEquals(
                 Money.of("100"),
-                accountService.getAccountBalance(to)
+                transactionService.getAccountBalance(to)
         );
     }
 
@@ -1013,7 +1013,7 @@ class TransactionServiceTest {
 
     private Money balance(AccountIdentity account) {
 
-        return accountService
+        return transactionService
                 .getAccountBalance(account);
     }
 

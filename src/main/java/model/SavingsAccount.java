@@ -6,6 +6,8 @@ import model.valueObjects.Money;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class SavingsAccount extends Account {
@@ -42,9 +44,9 @@ public class SavingsAccount extends Account {
                 .isAfter(LocalDateTime.now(clock));
     }
 
-    public int applyPendingInterests(Clock clock) {
+    public List<Money> applyPendingInterests(Clock clock) {
 
-        int appliedPeriods = 0;
+        List<Money> appliedInterests = new ArrayList<>();
 
         while (isTimeToApplyInterest(clock)) {
 
@@ -55,13 +57,13 @@ public class SavingsAccount extends Account {
 
                 increaseBalance(interest);
 
-                appliedPeriods++;
+                appliedInterests.add(interest);
             }
 
             lastInterestAppliedAt =
                     lastInterestAppliedAt.plusMonths(1);
         }
 
-        return appliedPeriods;
+        return appliedInterests;
     }
 }

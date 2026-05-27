@@ -7,7 +7,6 @@ import generator.AccountIdentityGenerator;
 import model.*;
 import model.valueObjects.AccountIdentity;
 import model.valueObjects.Cpf;
-import model.valueObjects.Money;
 import repository.AccountRepository;
 
 import java.time.Clock;
@@ -87,16 +86,6 @@ public class AccountService {
                 .orElseThrow(() -> new AccountNotFoundException("Conta não encontrada"));
     }
 
-
-    public Money getAccountBalance(AccountIdentity identity) {
-
-        Account account = getAccountByAccountIdentity(identity);
-
-        updateSavingsInterest(account);
-
-        return account.getBalance();
-    }
-
     public void validateIfAccountCanBeRemoved(UUID clientId) {
 
         boolean hasNonZeroBalance =
@@ -109,13 +98,6 @@ public class AccountService {
             throw new AccountDeletionNotAllowedException(
                     "Cliente possui conta com pendência de saldo"
             );
-        }
-    }
-
-    public void updateSavingsInterest(Account account) {
-
-        if (account instanceof SavingsAccount savings) {
-            savings.applyPendingInterests(clock);
         }
     }
 }
