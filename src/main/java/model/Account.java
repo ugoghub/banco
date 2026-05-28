@@ -71,7 +71,7 @@ public abstract class Account {
 
     private void validatePositiveAmount(Money amount) {
 
-        Objects.requireNonNull(amount, "Valor não pode ser nulo");
+        Objects.requireNonNull(amount);
 
         if (amount.isNegativeOrZero()) {
             throw new InvalidAmountException(

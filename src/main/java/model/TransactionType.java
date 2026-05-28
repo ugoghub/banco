@@ -13,7 +13,9 @@ public enum TransactionType {
         this.description = description;
     }
 
-    public String getDescription() {
+    @Override
+    public String toString() {
         return description;
+
     }
 }

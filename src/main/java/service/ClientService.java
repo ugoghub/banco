@@ -71,11 +71,9 @@ public class ClientService {
             PersonName newName
     ) {
 
-        if(newName == null) throw new InvalidPersonNameException("Nome não pode ser null");
-
         Client client = getClientByCpf(cpf);
 
-        if(client.getName().equals(newName)) throw new InvalidClientChangeException("Novo nome é igual ao nome atual");
+        if(client.hasName(newName)) throw new InvalidClientChangeException("Novo nome é igual ao nome atual");
 
         client.changeName(newName);
 
@@ -86,11 +84,10 @@ public class ClientService {
             Cpf cpf,
             Email newEmail
     ) {
-        if(newEmail == null) throw new InvalidEmailException("Email não pode ser null");
 
         Client client = getClientByCpf(cpf);
 
-        if(client.getEmail().equals(newEmail)) throw new InvalidClientChangeException("Novo email é igual ao email atual");
+        if(client.hasEmail(newEmail)) throw new InvalidClientChangeException("Novo email é igual ao email atual");
 
         validateEmailUniqueness(newEmail);
 

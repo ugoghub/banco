@@ -44,7 +44,7 @@ public final class Money implements Comparable<Money>{
         try {
             return new Money(new BigDecimal(amount));
 
-        } catch (NumberFormatException | NullPointerException e) {
+        } catch (NumberFormatException e) {
 
             throw new InvalidAmountException("Valor inválido");
         }

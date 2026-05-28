@@ -92,7 +92,7 @@ public class TransactionTest {
         AccountIdentity to =
                 new AccountIdentity(
                         "01",
-                        "999999-9"
+                        "000001-1"
                 );
 
         UUID operationId = UUID.randomUUID();
@@ -191,7 +191,7 @@ public class TransactionTest {
                 Transaction.transferSent(
                         operationId,
                         new AccountIdentity("01", "123456-1"),
-                        new AccountIdentity("01", "999999-9"),
+                        new AccountIdentity("01", "000001-1"),
                         Money.of("100"),
                         Clock.systemUTC()
                 );
@@ -227,7 +227,7 @@ public class TransactionTest {
                 Transaction.transferSent(
                         operationId,
                         new AccountIdentity("01", "123456-1"),
-                        new AccountIdentity("01", "999999-9"),
+                        new AccountIdentity("01", "000001-1"),
                         Money.of("100"),
                         Clock.systemUTC()
                 );
@@ -236,7 +236,7 @@ public class TransactionTest {
                 Transaction.transferReceived(
                         operationId,
                         new AccountIdentity("01", "123456-1"),
-                        new AccountIdentity("01", "999999-9"),
+                        new AccountIdentity("01", "000001-1"),
                         Money.of("100"),
                         Clock.systemUTC()
                 );

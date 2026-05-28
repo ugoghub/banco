@@ -14,7 +14,7 @@ public record PersonName(String value) {
                 .trim()
                 .replaceAll("\\s+", " ");
 
-        if (!value.matches("^[A-Za-zÀ-ÿ' -]{2,}$")) {
+        if (!value.matches("^[\\p{L}' -]{2,}$")) {
             throw new InvalidPersonNameException(
                     "Nome inválido"
             );

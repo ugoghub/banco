@@ -235,7 +235,7 @@ public class AccountServiceTest {
         AccountIdentity identity =
                 new AccountIdentity(
                         "01",
-                        "999999-9"
+                        "000001-1"
                 );
 
         assertThrows(
@@ -250,7 +250,7 @@ public class AccountServiceTest {
         AccountIdentity identity =
                 new AccountIdentity(
                         "01",
-                        "999999-9"
+                        "000001-1"
                 );
 
         assertThrows(

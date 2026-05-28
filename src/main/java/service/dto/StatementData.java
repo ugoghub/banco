@@ -31,7 +31,7 @@ public record StatementData(
                 Destino: %s
                 Id: %s
                 """.formatted(
-                type.getDescription(),
+                type,
                 dateTime.format(FORMATTER),
                 amount,
                 formatIdentity(source),

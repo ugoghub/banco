@@ -22,9 +22,23 @@ public record AccountIdentity(String branch, String accountNumber) {
             throw new InvalidBranchException("Agência inválida");
         }
 
-        if (!accountNumber.matches("\\d{6}-\\d")) {
+        if (!accountNumber.matches("\\d{6}-\\d")  || !isValidDigit(accountNumber.replace("-", ""))) {
             throw new InvalidAccountNumberException("Número da conta inválido");
         }
+    }
+
+    private static boolean isValidDigit(String accountNumber){
+        int digit = accountNumber.charAt(accountNumber.length() - 1) - '0';
+
+        int sum = 0;
+
+        for(int i = 0; i < accountNumber.length()-1; i++){
+            sum += Character.getNumericValue(accountNumber.charAt(i));
+        }
+
+        sum = sum % 10;
+
+        return sum == digit;
     }
 
     @Override

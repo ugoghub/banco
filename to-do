@@ -1,9 +1,3 @@
 ClientApplicationService
 AccountApplicationService
 TransactionApplicationService
-
-talvez: abstract class Transaction com subclasses
-DepositTransaction
-WithdrawTransaction
-TransferSentTransaction
-TransferReceivedTransaction

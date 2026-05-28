@@ -39,6 +39,18 @@ class AccountIdentityTest {
     }
 
     @Test
+    void shouldThrowExceptionWhenDigitIsInvalid() {
+
+        assertThrows(
+                InvalidAccountNumberException.class,
+                () -> new AccountIdentity(
+                        "01",
+                        "123456-0"
+                )
+        );
+    }
+
+    @Test
     void shouldThrowExceptionWhenBranchContainsLetters() {
 
         assertThrows(
@@ -141,13 +153,13 @@ class AccountIdentityTest {
         AccountIdentity identity =
                 new AccountIdentity(
                         "00",
-                        "000001-0"
+                        "000001-1"
                 );
 
         assertEquals("00", identity.branch());
 
         assertEquals(
-                "000001-0",
+                "000001-1",
                 identity.accountNumber()
         );
     }

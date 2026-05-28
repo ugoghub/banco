@@ -31,7 +31,7 @@ class TransactionServiceTest {
     private static final AccountIdentity NONEXISTENT_ACCOUNT =
             new AccountIdentity(
                     "01",
-                    "999999-9"
+                    "000001-1"
             );
 
 
