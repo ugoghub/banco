@@ -36,9 +36,9 @@ public record AccountIdentity(String branch, String accountNumber) {
             sum += Character.getNumericValue(accountNumber.charAt(i));
         }
 
-        sum = sum % 10;
+        int expectedDigit = sum % 10;
 
-        return sum == digit;
+        return expectedDigit == digit;
     }
 
     @Override

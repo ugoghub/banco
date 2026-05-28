@@ -73,7 +73,7 @@ public class ClientService {
 
         Client client = getClientByCpf(cpf);
 
-        if(client.hasName(newName)) throw new InvalidClientChangeException("Novo nome é igual ao nome atual");
+        if(client.hasSameName(newName)) throw new InvalidClientChangeException("Novo nome é igual ao nome atual");
 
         client.changeName(newName);
 
@@ -87,7 +87,7 @@ public class ClientService {
 
         Client client = getClientByCpf(cpf);
 
-        if(client.hasEmail(newEmail)) throw new InvalidClientChangeException("Novo email é igual ao email atual");
+        if(client.hasSameEmail(newEmail)) throw new InvalidClientChangeException("Novo email é igual ao email atual");
 
         validateEmailUniqueness(newEmail);
 

@@ -47,11 +47,11 @@ public class Client {
         this.email = newEmail;
     }
 
-    public boolean hasName(PersonName newName) {
+    public boolean hasSameName(PersonName newName) {
         return this.name.equals(newName);
     }
 
-    public boolean hasEmail(Email newEmail) {
+    public boolean hasSameEmail(Email newEmail) {
         return this.email.equals(newEmail);
     }
 
