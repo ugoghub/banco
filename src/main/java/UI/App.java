@@ -64,7 +64,7 @@ public final class App {
                 case 2 -> loggedCpf = authController.register();
 
                 case 0 -> {
-                    System.out.println("Saindo...");
+                    ConsoleMessages.successLn("Saindo...");
                     scanner.close();
                     return;
                 }
@@ -77,8 +77,6 @@ public final class App {
     }
 
     private void enterClientMenu() {
-
-        ConsoleMessages.info("Bem Vindo!");
 
         while (loggedCpf != null) {
 
@@ -108,8 +106,8 @@ public final class App {
                 case 6 -> {
                     if (clientController.removeClient(loggedCpf)) {
                         logout();
+                        return;
                     }
-                    return;
                 }
 
                 case 0 -> {
@@ -124,8 +122,8 @@ public final class App {
 
         loggedCpf = null;
 
-        ConsoleMessages.info(
-                "\nLogout realizado!"
+        ConsoleMessages.successLn(
+                "Logout realizado!"
         );
     }
 }

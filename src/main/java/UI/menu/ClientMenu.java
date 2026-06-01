@@ -1,5 +1,6 @@
 package UI.menu;
 
+import UI.messages.ConsoleMessages;
 import service.dto.ClientData;
 
 public final class ClientMenu {
@@ -9,10 +10,10 @@ public final class ClientMenu {
 
     public static void show(ClientData client) {
 
-        System.out.printf("""
+        ConsoleMessages.info("""
 
                 ===== MENU CLIENTE =====
-                Cliente: %s
+                Bem vindo(a), %s
 
                 1 - Criar conta bancária
                 2 - Acessar conta
@@ -24,7 +25,5 @@ public final class ClientMenu {
                 """,
                 client.name().toUpperCase()
         );
-
-        System.out.print("Escolha: ");
     }
 }

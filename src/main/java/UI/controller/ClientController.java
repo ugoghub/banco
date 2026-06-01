@@ -22,20 +22,20 @@ public final class ClientController {
 
     public void showData(ClientData client) {
 
-        ConsoleMessages.info("== DADOS ==\n");
+        ConsoleMessages.info("%n== DADOS ==%n");
 
-        ConsoleMessages.info(
-                "Nome: %s\n",
+        ConsoleMessages.highlightLn(
+                "Nome: %s",
                 client.name()
         );
 
-        ConsoleMessages.info(
-                "Cpf: %s\n",
+        ConsoleMessages.highlightLn(
+                "Cpf: %s%n",
                 client.cpf()
         );
 
-        ConsoleMessages.info(
-                "Email: %s\n",
+        ConsoleMessages.highlightLn(
+                "Email: %s%n",
                 client.email()
         );
     }
@@ -44,12 +44,12 @@ public final class ClientController {
 
         try {
 
-            ConsoleMessages.info(
-                    "Escolha o campo que você deseja alterar: "
+            ConsoleMessages.infoLn(
+                    "Escolha o campo que você deseja alterar:"
             );
 
-            ConsoleMessages.info(
-                    "1 - Nome\n2 - Email"
+            ConsoleMessages.infoLn(
+                    "1 - Nome%n2 - Email"
             );
 
             int option = InputReader.readOption(
@@ -74,8 +74,8 @@ public final class ClientController {
                                     personName
                             );
 
-                    ConsoleMessages.success(
-                            "Nome alterado para %s com sucesso\n",
+                    ConsoleMessages.successLn(
+                            "Nome alterado para %s com sucesso",
                             newName
                     );
                 }
@@ -95,8 +95,8 @@ public final class ClientController {
                                     email
                             );
 
-                    ConsoleMessages.success(
-                            "Email alterado para %s com sucesso\n",
+                    ConsoleMessages.successLn(
+                            "Email alterado para %s com sucesso%n",
                             newEmail
                     );
                 }
@@ -115,14 +115,15 @@ public final class ClientController {
                     loggedCpf
             );
 
-            ConsoleMessages.success(
+            ConsoleMessages.successLn(
                     "Cliente removido com sucesso!"
             );
 
             return true;
+
         } catch (DomainException e) {
             ConsoleMessages.error(e);
+            return false;
         }
-        return false;
     }
 }

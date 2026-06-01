@@ -38,7 +38,7 @@ public final class AccountOperationsController {
                     value
             );
 
-            ConsoleMessages.success("Depósito Realizado!");
+            ConsoleMessages.successLn("Depósito Realizado!");
 
         } catch (DomainException e) {
             ConsoleMessages.error(e);
@@ -62,7 +62,7 @@ public final class AccountOperationsController {
                     value
             );
 
-            ConsoleMessages.success("Saque Realizado!");
+            ConsoleMessages.successLn("Saque Realizado!");
 
         } catch (
                 DomainException e
@@ -77,7 +77,7 @@ public final class AccountOperationsController {
 
         try {
 
-            System.out.println(
+            ConsoleMessages.highlightLn(
                     "Saldo: "
                             + applicationService
                             .getAccountBalance(accountIdentity)
@@ -126,7 +126,7 @@ public final class AccountOperationsController {
                     value
             );
 
-            ConsoleMessages.success("Transferência Realizada!");
+            ConsoleMessages.successLn("Transferência Realizada!");
 
         } catch (DomainException e) {
             ConsoleMessages.error(e);
@@ -147,7 +147,7 @@ public final class AccountOperationsController {
 
             if (transactions.isEmpty()) {
 
-                ConsoleMessages.info("Conta sem extrato!");
+                ConsoleMessages.highlightLn("Conta sem extrato!");
 
                 return;
             }
@@ -155,7 +155,7 @@ public final class AccountOperationsController {
             for (StatementData transaction
                     : transactions) {
 
-                System.out.println(transaction);
+                ConsoleMessages.highlightLn(transaction.toString());
             }
 
         } catch (DomainException e) {

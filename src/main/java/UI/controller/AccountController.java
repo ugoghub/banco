@@ -82,14 +82,12 @@ public final class AccountController {
 
         try {
 
-            ConsoleMessages.info("""
+            ConsoleMessages.infoLn("""
                     
                     ===== CRIAR CONTA =====
                     1 - Conta Corrente
                     2 - Conta Poupança
                     """);
-
-            ConsoleMessages.info("Escolha: ");
 
             int option = InputReader.readOption(
                     scanner,
@@ -106,11 +104,11 @@ public final class AccountController {
                     type
             );
 
-            ConsoleMessages.success(
-                    "\nConta criada com sucesso!"
+            ConsoleMessages.infoLn(account.toString());
+            ConsoleMessages.successLn(
+                    "Conta criada com sucesso!"
             );
 
-            ConsoleMessages.info(account.toString());
 
         } catch (DomainException e) {
             ConsoleMessages.error(e);
@@ -132,7 +130,7 @@ public final class AccountController {
                     accountIdentity
             );
 
-            ConsoleMessages.success(
+            ConsoleMessages.successLn(
                     "Conta removida com sucesso!"
             );
 

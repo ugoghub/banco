@@ -1,5 +1,6 @@
 package UI;
 
+import UI.messages.ConsoleMessages;
 import exception.ValidationException;
 import model.valueObjects.Money;
 
@@ -14,32 +15,36 @@ public final class InputReader {
 
     public static Money readMoney(Scanner scanner, String message) {
         while (true) {
-            System.out.print(message);
+            ConsoleMessages.info(message);
             try {
                 String input = scanner.nextLine().trim().replace(",", ".");
                 return Money.of(input);
 
-            } catch (NumberFormatException | ValidationException e) {
-                System.out.print("Formato inválido. Tente novamente:\n");
+            }
+            catch (NumberFormatException e) {
+                ConsoleMessages.error("Número inválido.");
+            }
+            catch (ValidationException e) {
+                ConsoleMessages.error(e);
             }
         }
     }
 
     public static int readOption(Scanner scanner, Predicate<Integer> predicate) {
         while (true) {
+            ConsoleMessages.info("Escolha: ");
             try {
                 String input = scanner.nextLine().trim();
                 int value = Integer.parseInt(input);
 
                 if(!predicate.test(value)){
-                    System.out.println("Opção inválida, digite novamente: ");
+                    ConsoleMessages.error("Opção inválida, digite novamente: ");
                     continue;
                 }
 
                 return value;
             } catch (NumberFormatException e) {
-                System.out.println("Digite um número válido");
-                System.out.print("Escolha: ");
+                ConsoleMessages.error("Digite um número válido.");
             }
         }
     }
@@ -52,21 +57,21 @@ public final class InputReader {
 
         while (true) {
 
-            System.out.print(message);
+            ConsoleMessages.info(message);
 
             try {
 
                 String input = scanner.nextLine().trim();
 
                 if (input.isBlank()) {
-                    System.out.println("Entrada inválida.\n");
+                    ConsoleMessages.error("Entrada inválida.%n");
                     continue;
                 }
 
                 return parser.apply(input);
 
             } catch (ValidationException e) {
-                System.out.println(e.getMessage());
+                ConsoleMessages.error(e);
             }
         }
     }

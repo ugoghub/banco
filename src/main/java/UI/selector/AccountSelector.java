@@ -22,11 +22,11 @@ public final class AccountSelector {
             throw new AccountNotFoundException("Cliente não possui contas");
         }
 
-        ConsoleMessages.info("Qual conta você deseja acessar: ");
+        ConsoleMessages.infoLn("Qual conta você deseja acessar: ");
 
         for (int i = 0; i < accounts.size(); i++) {
-            System.out.printf(
-                    "%d - %s%n",
+            ConsoleMessages.highlightLn(
+                    "%d - %s",
                     i + 1,
                     accounts.get(i)
             );

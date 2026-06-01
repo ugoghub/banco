@@ -22,14 +22,12 @@ public final class AuthController {
 
     public Cpf login() {
 
-        System.out.println("""
+        ConsoleMessages.info("""
             
             ===== LOGIN =====
             1 - CPF
             2 - Email
             """);
-
-        System.out.print("Escolha: ");
 
         Cpf loggedCpf = null;
 
@@ -105,8 +103,8 @@ public final class AuthController {
                     email
             );
 
-            ConsoleMessages.success(
-                    "\nCliente cadastrado com sucesso!"
+            ConsoleMessages.successLn(
+                    "Cliente cadastrado com sucesso!"
             );
 
             return cpf;

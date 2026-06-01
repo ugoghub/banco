@@ -1,5 +1,7 @@
 package UI.menu;
 
+import UI.messages.ConsoleMessages;
+
 public final class InitialMenu {
 
     private InitialMenu() {
@@ -7,14 +9,12 @@ public final class InitialMenu {
 
     public static void show() {
 
-        System.out.println("""
+        ConsoleMessages.info("""
 
                 ===== BANKLITE =====
                 1 - Login
                 2 - Criar conta
                 0 - Sair
                 """);
-
-        System.out.print("Escolha: ");
     }
 }

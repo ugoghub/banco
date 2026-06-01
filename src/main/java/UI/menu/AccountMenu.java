@@ -22,7 +22,5 @@ public final class AccountMenu {
                 5 - Extrato
                 0 - Voltar
                 """, accountIdentity);
-
-        ConsoleMessages.info("Escolha: ");
     }
 }
