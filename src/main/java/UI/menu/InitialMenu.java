@@ -1,6 +1,10 @@
 package UI.menu;
 
-public class InitialMenu {
+public final class InitialMenu {
+
+    private InitialMenu() {
+    }
+
     public static void show() {
 
         System.out.println("""

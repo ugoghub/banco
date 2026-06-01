@@ -1,6 +1,5 @@
 package UI;
 
-import exception.InvalidOptionException;
 import exception.ValidationException;
 import model.valueObjects.Money;
 
@@ -8,7 +7,11 @@ import java.util.Scanner;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class InputReader {
+public final class InputReader {
+
+    private InputReader() {
+    }
+
     public static Money readMoney(Scanner scanner, String message) {
         while (true) {
             System.out.print(message);
@@ -29,11 +32,13 @@ public class InputReader {
                 int value = Integer.parseInt(input);
 
                 if(!predicate.test(value)){
-                    throw new InvalidOptionException("Opção Invalida, tente novamente\n");
+                    System.out.println("Opção inválida, digite novamente: ");
+                    continue;
                 }
+
                 return value;
-            } catch (NumberFormatException | ValidationException e) {
-                System.out.println("Opção inválida, digite novamente.");
+            } catch (NumberFormatException e) {
+                System.out.println("Digite um número válido");
                 System.out.print("Escolha: ");
             }
         }

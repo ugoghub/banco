@@ -2,7 +2,10 @@ package UI.menu;
 
 import service.dto.ClientData;
 
-public class ClientMenu {
+public final class ClientMenu {
+
+    private ClientMenu() {
+    }
 
     public static void show(ClientData client) {
 

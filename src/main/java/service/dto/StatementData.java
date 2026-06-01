@@ -30,13 +30,15 @@ public record StatementData(
                 Origem: %s
                 Destino: %s
                 Id: %s
+                Operação: %s
                 """.formatted(
                 type,
                 dateTime.format(FORMATTER),
                 amount,
                 formatIdentity(source),
                 formatIdentity(destination),
-                id.toString()
+                id.toString(),
+                formatOperationId(operationId)
         );
     }
 
@@ -45,4 +47,10 @@ public record StatementData(
 
         return identity.branch() + " / " + identity.accountNumber();
     }
+    private String formatOperationId(UUID operationId) {
+        if (operationId == null) return "-";
+
+        return operationId.toString();
+    }
+
 }

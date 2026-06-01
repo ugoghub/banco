@@ -1,0 +1,119 @@
+package UI.controller;
+
+import UI.InputReader;
+import UI.messages.ConsoleMessages;
+import exception.DomainException;
+import model.valueObjects.Cpf;
+import model.valueObjects.Email;
+import model.valueObjects.PersonName;
+import service.ApplicationService;
+
+import java.util.Scanner;
+
+public final class AuthController {
+
+    private final ApplicationService applicationService;
+    private final Scanner scanner;
+
+    public AuthController(Scanner scanner, ApplicationService applicationService) {
+        this.applicationService = applicationService;
+        this.scanner = scanner;
+    }
+
+    public Cpf login() {
+
+        System.out.println("""
+            
+            ===== LOGIN =====
+            1 - CPF
+            2 - Email
+            """);
+
+        System.out.print("Escolha: ");
+
+        Cpf loggedCpf = null;
+
+        int option = InputReader.readOption(
+                scanner,
+                o -> o >= 1 && o <= 2
+        );
+
+        try {
+
+            switch (option) {
+
+                case 1 -> {
+
+                    Cpf cpf = InputReader.readValidated(
+                            scanner,
+                            "CPF: ",
+                            Cpf::new
+                    );
+
+                    applicationService.getClientData(cpf);
+
+                    loggedCpf = cpf;
+                }
+
+                case 2 -> {
+
+                    Email email = InputReader.readValidated(
+                            scanner,
+                            "Email: ",
+                            Email::new
+                    );
+
+                    loggedCpf =
+                            applicationService
+                                    .getCpfByEmail(email);
+                }
+            }
+
+            return loggedCpf;
+
+        } catch (DomainException e) {
+            ConsoleMessages.error(e);
+            return null;
+        }
+    }
+
+    public Cpf register() {
+
+        PersonName name = InputReader.readValidated(
+                scanner,
+                "Nome completo: ",
+                PersonName::new
+        );
+
+        Cpf cpf = InputReader.readValidated(
+                scanner,
+                "CPF: ",
+                Cpf::new
+        );
+
+        Email email = InputReader.readValidated(
+                scanner,
+                "Email: ",
+                Email::new
+        );
+
+        try {
+
+            applicationService.createClient(
+                    name,
+                    cpf,
+                    email
+            );
+
+            ConsoleMessages.success(
+                    "\nCliente cadastrado com sucesso!"
+            );
+
+            return cpf;
+
+        } catch (DomainException e) {
+            ConsoleMessages.error(e);
+            return null;
+        }
+    }
+}
