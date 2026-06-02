@@ -1,7 +1,6 @@
 package model;
 
-import exception.InvalidAmountException;
-import exception.InsufficientBalanceException;
+import exception.*;
 import model.valueObjects.AccountIdentity;
 import model.valueObjects.Money;
 
@@ -25,9 +24,17 @@ public abstract class Account {
             Clock clock
     ) {
 
-        Objects.requireNonNull(clientId);
-        Objects.requireNonNull(accountIdentity);
-        Objects.requireNonNull(clock);
+        if(clientId == null){
+            throw new InvalidClientIdException("ID do cliente não pode ser null");
+        }
+        if(accountIdentity == null){
+            throw new InvalidAccountIdentityException(
+                    "Conta inválida"
+            );
+        }
+        if (clock == null) {
+            throw new InvalidClockException("Horário inválido");
+        }
 
         this.id = UUID.randomUUID();
         this.clientId = clientId;
@@ -67,18 +74,22 @@ public abstract class Account {
         balance = newBalance;
     }
 
-    protected abstract Money minimumAllowedBalance();
-
     private void validatePositiveAmount(Money amount) {
 
-        Objects.requireNonNull(amount);
+        if(amount == null){
+            throw new InvalidAmountException(
+                    "Valor não pode ser null"
+            );
+        }
 
         if (amount.isNegativeOrZero()) {
             throw new InvalidAmountException(
-                    "Valor inválido"
+                    "Valor deve ser maior que zero"
             );
         }
     }
+
+    protected abstract Money minimumAllowedBalance();
 
     public boolean canBeRemoved() {
         return balance.isZero();

@@ -1,6 +1,9 @@
 package model;
 
+import exception.InvalidAmountException;
+import exception.InvalidClockException;
 import exception.InvalidTransactionException;
+import exception.InvalidTypeException;
 import model.valueObjects.AccountIdentity;
 import model.valueObjects.Money;
 
@@ -22,65 +25,71 @@ public class Transaction {
                         TransactionType type,
                         Money amount,
                         AccountIdentity sourceIdentity,
-                        AccountIdentity destinationIdentity, Clock clock) {
+                        AccountIdentity destinationIdentity,
+                        Clock clock) {
 
-        Objects.requireNonNull(type);
-        Objects.requireNonNull(amount);
-        Objects.requireNonNull(clock);
+        validateState(operationId, type, sourceIdentity, destinationIdentity);
+
+        validateAmount(amount);
+
+        if(clock == null) {
+            throw new InvalidClockException("Horário inválido");
+        }
 
         this.id = UUID.randomUUID();
         this.operationId = operationId;
+        this.sourceIdentity = sourceIdentity;
+        this.destinationIdentity = destinationIdentity;
         this.type = type;
         this.amount = amount;
         this.dateTime = LocalDateTime.now(clock);
-        this.sourceIdentity = sourceIdentity;
-        this.destinationIdentity = destinationIdentity;
-
-        validateState();
-        validateAmount(amount);
     }
 
     // =========================
     // Helpers
     // =========================
 
-    private void validateState() {
+    private static void validateState(UUID operationId,
+                               TransactionType type,
+                               AccountIdentity sourceIdentity,
+                               AccountIdentity destinationIdentity) {
         //validação defensiva
+
+        if(type == null){
+            throw new InvalidTypeException(
+                    "Tipo de transação inválido"
+            );
+        }
 
         switch (type) {
 
-            case DEPOSIT -> validateDeposit();
+            case DEPOSIT -> validateDeposit(sourceIdentity, destinationIdentity);
 
-            case WITHDRAW -> validateWithdraw();
+            case WITHDRAW -> validateWithdraw(sourceIdentity, destinationIdentity);
 
-            case TRANSFER_SENT, TRANSFER_RECEIVED -> validateTransfer();
+            case TRANSFER_SENT, TRANSFER_RECEIVED -> validateTransfer(operationId, sourceIdentity, destinationIdentity);
 
-            case INTEREST -> validateInterest();
+            case INTEREST -> validateInterest(sourceIdentity, destinationIdentity);
         }
     }
 
-    private static void validateAmount(Money amount) {
-
-        if (amount.isNegativeOrZero()) {
-            throw new InvalidTransactionException(
-                    "Valor da transação deve ser positivo"
-            );
-        }
-    }
-
-    private void validateDeposit() {
+    private static void validateDeposit(AccountIdentity sourceIdentity,
+                                 AccountIdentity destinationIdentity) {
         if (sourceIdentity != null || destinationIdentity == null) {
             throw new InvalidTransactionException("DEPÓSITO não deve possuir conta de origem");
         }
     }
 
-    private void validateWithdraw() {
+    private static void validateWithdraw(AccountIdentity sourceIdentity,
+                                  AccountIdentity destinationIdentity) {
         if (sourceIdentity == null || destinationIdentity != null) {
             throw new InvalidTransactionException("SAQUE não deve possuir conta de destino");
         }
     }
 
-    private void validateTransfer() {
+    private static void validateTransfer(UUID operationId,
+                                  AccountIdentity sourceIdentity,
+                                  AccountIdentity destinationIdentity) {
         if (operationId == null){
             throw new InvalidTransactionException("Toda transferência deve possuir um ID de operação");
         }
@@ -89,11 +98,25 @@ public class Transaction {
         }
     }
 
-    private void validateInterest() {
+    private static void validateInterest(AccountIdentity sourceIdentity,
+                                  AccountIdentity destinationIdentity) {
 
         if (sourceIdentity != null || destinationIdentity == null) {
             throw new InvalidTransactionException(
                     "RENDIMENTO deve possuir apenas conta destino"
+            );
+        }
+    }
+
+    private static void validateAmount(Money amount) {
+
+        if(amount == null){
+            throw new InvalidAmountException("Valor não pode ser null");
+        }
+
+        if (amount.isNegativeOrZero()) {
+            throw new InvalidTransactionException(
+                    "Valor deve ser maior que zero"
             );
         }
     }

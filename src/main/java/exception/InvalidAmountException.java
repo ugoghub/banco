@@ -1,6 +1,6 @@
 package exception;
 
-public class InvalidAmountException extends DomainException {
+public class InvalidAmountException extends ValidationException {
     public InvalidAmountException(String message) {
         super(message);
     }

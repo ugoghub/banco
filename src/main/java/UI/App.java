@@ -6,6 +6,7 @@ import UI.controller.ClientController;
 import UI.menu.ClientMenu;
 import UI.menu.InitialMenu;
 import UI.messages.ConsoleMessages;
+import application.ApplicationContext;
 import model.valueObjects.Cpf;
 import service.ApplicationService;
 import service.dto.ClientData;
@@ -25,7 +26,15 @@ public final class App {
 
     public App() {
         this.scanner = new Scanner(System.in);
-        this.applicationService = new ApplicationService();
+        ApplicationContext context =
+                new ApplicationContext();
+
+        applicationService =
+                new ApplicationService(
+                        context.getClientService(),
+                        context.getAccountService(),
+                        context.getTransactionService()
+                );
 
         clientController =
                 new ClientController(

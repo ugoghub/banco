@@ -30,12 +30,12 @@ public final class ClientController {
         );
 
         ConsoleMessages.highlightLn(
-                "Cpf: %s%n",
+                "Cpf: %s",
                 client.cpf()
         );
 
         ConsoleMessages.highlightLn(
-                "Email: %s%n",
+                "Email: %s",
                 client.email()
         );
     }
@@ -49,7 +49,7 @@ public final class ClientController {
             );
 
             ConsoleMessages.infoLn(
-                    "1 - Nome%n2 - Email"
+                    "1 - Nome 2 - Email"
             );
 
             int option = InputReader.readOption(

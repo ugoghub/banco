@@ -2,8 +2,8 @@ package service;
 
 import exception.AccountDeletionNotAllowedException;
 import exception.AccountNotFoundException;
-import exception.InvalidAccountTypeException;
-import generator.AccountIdentityGenerator;
+import exception.InvalidTypeException;
+import model.valueObjects.AccountIdentityFactory;
 import model.*;
 import model.valueObjects.AccountIdentity;
 import model.valueObjects.Cpf;
@@ -38,14 +38,14 @@ public class AccountService {
 
         do {
 
-            accountIdentity = AccountIdentityGenerator.generate();
+            accountIdentity = AccountIdentityFactory.generate();
 
         } while (accountRepository.existsByAccountIdentity(accountIdentity));
 
         switch (type){
             case CHECKING -> account = new CheckingAccount(client.getId(), accountIdentity, clock);
             case SAVINGS -> account = new SavingsAccount(client.getId(), accountIdentity, clock);
-            default -> throw new InvalidAccountTypeException("Tipo de conta inválido");
+            default -> throw new InvalidTypeException("Tipo de conta inválido");
         }
 
         accountRepository.save(client.getId(), account);

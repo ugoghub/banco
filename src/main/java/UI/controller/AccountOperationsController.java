@@ -8,7 +8,9 @@ import model.valueObjects.Money;
 import service.ApplicationService;
 import service.dto.StatementData;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 public final class AccountOperationsController {
@@ -77,11 +79,18 @@ public final class AccountOperationsController {
 
         try {
 
+            String formatBalance = NumberFormat
+                    .getCurrencyInstance(
+                            Locale.of("pt", "BR")
+                    ).format(
+                            applicationService
+                                    .getAccountBalance(accountIdentity)
+                    );
+
             ConsoleMessages.highlightLn(
                     "Saldo: "
-                            + applicationService
-                            .getAccountBalance(accountIdentity)
-            );
+                            + formatBalance
+                    );
 
         } catch (DomainException e) {
             ConsoleMessages.error(e);

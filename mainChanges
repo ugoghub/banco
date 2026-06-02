@@ -1,1 +1,3 @@
-apenas uma grande refatoração na main
+aumentando a consistencia das exceções no codigo;
+
+introdução de ApplictionContext e reorganizaçao de applicationService e do construtor de App;

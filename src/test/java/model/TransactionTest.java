@@ -1,5 +1,6 @@
 package model;
 
+import exception.InvalidAmountException;
 import exception.InvalidTransactionException;
 import model.valueObjects.AccountIdentity;
 import model.valueObjects.Money;
@@ -334,7 +335,7 @@ public class TransactionTest {
     void shouldNotAllowNullAmount() {
 
         assertThrows(
-                NullPointerException.class,
+                InvalidAmountException.class,
                 () -> Transaction.deposit(
                         new AccountIdentity("01", "123456-1"),
                         null,

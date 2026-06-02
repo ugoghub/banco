@@ -47,6 +47,7 @@ public record StatementData(
 
         return identity.branch() + " / " + identity.accountNumber();
     }
+
     private String formatOperationId(UUID operationId) {
         if (operationId == null) return "-";
 

@@ -4,13 +4,9 @@ import model.Account;
 import model.AccountType;
 import model.Client;
 import model.valueObjects.*;
-import repository.AccountRepository;
-import repository.ClientRepository;
-import repository.TransactionRepository;
 import service.dto.ClientData;
 import service.dto.StatementData;
 
-import java.time.Clock;
 import java.util.List;
 
 public class ApplicationService {
@@ -18,16 +14,15 @@ public class ApplicationService {
     private final AccountService accountService;
     private final TransactionService transactionService;
 
-    public ApplicationService() {
-        Clock clock = Clock.systemDefaultZone();
+    public ApplicationService(
+            ClientService clientService,
+            AccountService accountService,
+            TransactionService transactionService
+    ) {
 
-        ClientRepository clientRepository = new ClientRepository();
-        AccountRepository accountRepository = new AccountRepository();
-        TransactionRepository transactionRepository = new TransactionRepository();
-
-        this.clientService = new ClientService(clientRepository);
-        this.accountService = new AccountService(accountRepository, clientService, clock);
-        this.transactionService = new TransactionService(accountService, transactionRepository, clock);
+        this.clientService = clientService;
+        this.accountService = accountService;
+        this.transactionService = transactionService;
     }
 
     public void createClient(PersonName name,

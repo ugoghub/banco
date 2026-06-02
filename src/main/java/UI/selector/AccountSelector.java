@@ -2,7 +2,7 @@ package UI.selector;
 
 import UI.InputReader;
 import UI.messages.ConsoleMessages;
-import exception.AccountNotFoundException;
+import exception.NoAccountsFoundException;
 import model.valueObjects.AccountIdentity;
 
 import java.util.List;
@@ -19,7 +19,7 @@ public final class AccountSelector {
     ) {
 
         if(accounts.isEmpty()){
-            throw new AccountNotFoundException("Cliente não possui contas");
+            throw new NoAccountsFoundException("Cliente não possui contas");
         }
 
         ConsoleMessages.infoLn("Qual conta você deseja acessar: ");

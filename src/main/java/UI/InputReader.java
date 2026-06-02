@@ -21,9 +21,6 @@ public final class InputReader {
                 return Money.of(input);
 
             }
-            catch (NumberFormatException e) {
-                ConsoleMessages.error("Número inválido.");
-            }
             catch (ValidationException e) {
                 ConsoleMessages.error(e);
             }
@@ -64,7 +61,7 @@ public final class InputReader {
                 String input = scanner.nextLine().trim();
 
                 if (input.isBlank()) {
-                    ConsoleMessages.error("Entrada inválida.%n");
+                    ConsoleMessages.error("Entrada inválida");
                     continue;
                 }
 
