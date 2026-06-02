@@ -1,7 +1,7 @@
 package repository;
 
 import model.Account;
-import model.valueObjects.AccountIdentity;
+import model.valueobject.AccountIdentity;
 import java.util.*;
 
 public class AccountRepository {

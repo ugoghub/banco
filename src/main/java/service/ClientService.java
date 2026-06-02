@@ -2,9 +2,9 @@ package service;
 
 import exception.*;
 import model.Client;
-import model.valueObjects.Cpf;
-import model.valueObjects.Email;
-import model.valueObjects.PersonName;
+import model.valueobject.Cpf;
+import model.valueobject.Email;
+import model.valueobject.PersonName;
 import repository.ClientRepository;
 
 import java.util.UUID;

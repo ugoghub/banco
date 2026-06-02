@@ -1,7 +1,7 @@
-package UI.menu;
+package ui.menu;
 
-import UI.messages.ConsoleMessages;
-import model.valueObjects.AccountIdentity;
+import ui.messages.ConsoleMessages;
+import model.valueobject.AccountIdentity;
 
 public final class AccountMenu {
 

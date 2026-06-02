@@ -1,14 +1,14 @@
-package UI.controller;
+package ui.controller;
 
-import UI.InputReader;
-import UI.menu.AccountMenu;
-import UI.messages.ConsoleMessages;
-import UI.selector.AccountSelector;
+import ui.InputReader;
+import ui.menu.AccountMenu;
+import ui.messages.ConsoleMessages;
+import ui.selector.AccountSelector;
 import exception.DomainException;
 import model.AccountType;
-import model.valueObjects.AccountIdentity;
-import model.valueObjects.Cpf;
-import service.ApplicationService;
+import model.valueobject.AccountIdentity;
+import model.valueobject.Cpf;
+import application.ApplicationService;
 
 import java.util.List;
 import java.util.Scanner;

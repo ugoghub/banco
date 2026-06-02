@@ -4,8 +4,8 @@ import exception.InvalidTransferException;
 import model.Account;
 import model.SavingsAccount;
 import model.Transaction;
-import model.valueObjects.AccountIdentity;
-import model.valueObjects.Money;
+import model.valueobject.AccountIdentity;
+import model.valueobject.Money;
 import repository.TransactionRepository;
 import service.dto.StatementData;
 

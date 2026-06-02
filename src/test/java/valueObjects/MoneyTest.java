@@ -1,7 +1,7 @@
 package valueObjects;
 
 import exception.InvalidAmountException;
-import model.valueObjects.Money;
+import model.valueobject.Money;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

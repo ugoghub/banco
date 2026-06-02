@@ -1,4 +1,4 @@
-package UI.messages;
+package ui.messages;
 
 import exception.DomainException;
 

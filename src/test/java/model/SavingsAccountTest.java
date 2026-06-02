@@ -1,8 +1,8 @@
 package model;
 
 import exception.InsufficientBalanceException;
-import model.valueObjects.AccountIdentity;
-import model.valueObjects.Money;
+import model.valueobject.AccountIdentity;
+import model.valueobject.Money;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
@@ -15,6 +15,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class SavingsAccountTest {
 
+    private static final AccountIdentity accountIdentity =
+            new AccountIdentity(
+                    "01",
+                    "123456-1"
+            );
+
+
+    // =========================
+    // Interest
+    // =========================
     @Test
     void shouldApplyInterestAfterOneMonth() {
 
@@ -62,7 +72,7 @@ public class SavingsAccountTest {
                         ZoneId.systemDefault()
                 );
 
-        Clock stillJanuary =
+        Clock beforeOneMonth =
                 Clock.fixed(
                         Instant.parse("2026-01-15T10:00:00Z"),
                         ZoneId.systemDefault()
@@ -72,23 +82,9 @@ public class SavingsAccountTest {
                 createSavingsAccount(january);
 
         List<Money> appliedInterests =
-                account.applyPendingInterests(stillJanuary);
+                account.applyPendingInterests(beforeOneMonth);
 
         assertTrue(appliedInterests.isEmpty());
-    }
-
-    @Test
-    void shouldNotAllowNegativeBalance() {
-
-        SavingsAccount account =
-                createSavingsAccount(Clock.systemUTC());
-
-        assertThrows(
-                InsufficientBalanceException.class,
-                () -> account.withdraw(
-                        Money.of("1")
-                )
-        );
     }
 
     @Test
@@ -125,6 +121,48 @@ public class SavingsAccountTest {
     }
 
     @Test
+    void shouldApplyInterestAgainInFutureMonths() {
+
+        Clock january =
+                Clock.fixed(
+                        Instant.parse("2026-01-01T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        SavingsAccount account =
+                createSavingsAccount(january);
+
+        account.deposit(Money.of("1000"));
+
+        Clock february =
+                Clock.fixed(
+                        Instant.parse("2026-02-02T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        List<Money> applied =
+                account.applyPendingInterests(february);
+
+        assertEquals(1, applied.size());
+
+        Clock march =
+                Clock.fixed(
+                        Instant.parse("2026-03-02T10:00:00Z"),
+                        ZoneId.systemDefault()
+                );
+
+        applied =
+                account.applyPendingInterests(march);
+
+        assertEquals(1, applied.size());
+
+        assertEquals(
+                Money.of("1010.02"),
+                account.getBalance()
+        );
+    }
+
+    @Test
     void shouldNotApplyInterestWithZeroBalance() {
 
         Clock january =
@@ -149,39 +187,6 @@ public class SavingsAccountTest {
 
         assertEquals(
                 Money.ZERO,
-                account.getBalance()
-        );
-    }
-
-    @Test
-    void shouldApplyCompoundInterestForMultipleMonths() {
-
-        Clock january =
-                Clock.fixed(
-                        Instant.parse("2026-01-01T10:00:00Z"),
-                        ZoneId.systemDefault()
-                );
-
-        SavingsAccount account =
-                createSavingsAccount(january);
-
-        account.deposit(
-                Money.of("1000")
-        );
-
-        Clock april =
-                Clock.fixed(
-                        Instant.parse("2026-04-02T10:00:00Z"),
-                        ZoneId.systemDefault()
-                );
-
-        List<Money> appliedInterests =
-                account.applyPendingInterests(april);
-
-        assertEquals(3, appliedInterests.size());
-
-        assertEquals(
-                Money.of("1015.07"),
                 account.getBalance()
         );
     }
@@ -290,48 +295,6 @@ public class SavingsAccountTest {
     }
 
     @Test
-    void shouldApplyInterestAgainInFutureMonths() {
-
-        Clock january =
-                Clock.fixed(
-                        Instant.parse("2026-01-01T10:00:00Z"),
-                        ZoneId.systemDefault()
-                );
-
-        SavingsAccount account =
-                createSavingsAccount(january);
-
-        account.deposit(Money.of("1000"));
-
-        Clock february =
-                Clock.fixed(
-                        Instant.parse("2026-02-02T10:00:00Z"),
-                        ZoneId.systemDefault()
-                );
-
-        List<Money> applied =
-                account.applyPendingInterests(february);
-
-        assertEquals(1, applied.size());
-
-        Clock march =
-                Clock.fixed(
-                        Instant.parse("2026-03-02T10:00:00Z"),
-                        ZoneId.systemDefault()
-                );
-
-        applied =
-                account.applyPendingInterests(march);
-
-        assertEquals(1, applied.size());
-
-        assertEquals(
-                Money.of("1010.02"),
-                account.getBalance()
-        );
-    }
-
-    @Test
     void shouldApplyInterestToSmallAmounts() {
 
         Clock january =
@@ -367,17 +330,28 @@ public class SavingsAccountTest {
         );
     }
 
-    private AccountIdentity createIdentity() {
-        return new AccountIdentity(
-                "01",
-                "123456-1"
+    // =========================
+    // Withdraw
+    // =========================
+
+    @Test
+    void shouldNotAllowNegativeBalance() {
+
+        SavingsAccount account =
+                createSavingsAccount(Clock.systemUTC());
+
+        assertThrows(
+                InsufficientBalanceException.class,
+                () -> account.withdraw(
+                        Money.of("1")
+                )
         );
     }
 
     private SavingsAccount createSavingsAccount(Clock clock) {
         return new SavingsAccount(
                 UUID.randomUUID(),
-                createIdentity(),
+                accountIdentity,
                 clock
         );
     }

@@ -6,7 +6,7 @@ import exception.ClientNotFoundException;
 import model.Account;
 import model.AccountType;
 import model.Client;
-import model.valueObjects.*;
+import model.valueobject.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import repository.AccountRepository;
@@ -22,6 +22,10 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AccountServiceTest {
+
+    private static final Cpf cpf = new Cpf("52998224725");
+    private static final PersonName name = new PersonName("Hugo Silva");
+    private static final Email email =  new Email("hugo@gmail.com");
 
     private ClientService clientService;
     private AccountService accountService;
@@ -48,12 +52,10 @@ public class AccountServiceTest {
     @Test
     void shouldCreateAccount() {
 
-        Cpf cpf = new Cpf("52998224725");
-
         clientService.createClient(
-                new PersonName("Hugo Silva"),
+                name,
                 cpf,
-                new Email("hugo@gmail.com")
+                email
         );
 
         AccountIdentity account =
@@ -70,7 +72,7 @@ public class AccountServiceTest {
         assertThrows(
                 ClientNotFoundException.class,
                 () -> accountService.createAccount(
-                        new Cpf("52998224725"),
+                        cpf,
                         AccountType.CHECKING
                 )
         );
@@ -79,12 +81,10 @@ public class AccountServiceTest {
     @Test
     void shouldReturnAccountByIdentity() {
 
-        Cpf cpf = new Cpf("52998224725");
-
         clientService.createClient(
-                new PersonName("Hugo Silva"),
+                name,
                 cpf,
-                new Email("hugo@gmail.com")
+                email
         );
 
         AccountIdentity identity =
@@ -102,7 +102,7 @@ public class AccountServiceTest {
     @Test
     void shouldNotRemoveAccountWithBalance() {
 
-        Cpf cpf = new Cpf("52998224725");
+
 
         clientService.createClient(
                 new PersonName("Hugo Silva"),
@@ -132,12 +132,12 @@ public class AccountServiceTest {
     @Test
     void shouldRemoveAccount() {
 
-        Cpf cpf = new Cpf("52998224725");
+
 
         clientService.createClient(
-                new PersonName("Hugo Silva"),
+                name,
                 cpf,
-                new Email("hugo@gmail.com")
+                email
         );
 
         AccountIdentity identity =
@@ -158,12 +158,10 @@ public class AccountServiceTest {
     @Test
     void shouldReturnClientAccounts() {
 
-        Cpf cpf = new Cpf("52998224725");
-
         clientService.createClient(
-                new PersonName("Hugo Silva"),
+                name,
                 cpf,
-                new Email("hugo@gmail.com")
+                email
         );
 
         Client client = clientService.getClientByCpf(cpf);
@@ -187,16 +185,13 @@ public class AccountServiceTest {
     @Test
     void shouldAssociateAccountWithCorrectClient() {
 
-        Cpf cpf1 =
-                new Cpf("52998224725");
-
         Cpf cpf2 =
                 new Cpf("76887934086");
 
         clientService.createClient(
-                new PersonName("Hugo Silva"),
-                cpf1,
-                new Email("hugo@gmail.com")
+                name,
+                cpf,
+                email
         );
 
         clientService.createClient(
@@ -205,11 +200,11 @@ public class AccountServiceTest {
                 new Email("ana@gmail.com")
         );
 
-        Client client = clientService.getClientByCpf(cpf1);
+        Client client = clientService.getClientByCpf(cpf);
 
         AccountIdentity account1 =
                 accountService.createAccount(
-                        cpf1,
+                        cpf,
                         AccountType.CHECKING
                 );
 
@@ -262,13 +257,10 @@ public class AccountServiceTest {
     @Test
     void shouldReturnEmptyAccountsForNewClient() {
 
-        Cpf cpf =
-                new Cpf("52998224725");
-
         clientService.createClient(
-                new PersonName("Hugo Silva"),
+                name,
                 cpf,
-                new Email("hugo@gmail.com")
+                email
         );
 
         Client client = clientService.getClientByCpf(cpf);
@@ -296,13 +288,10 @@ public class AccountServiceTest {
                         january
                 );
 
-        Cpf cpf =
-                new Cpf("52998224725");
-
         clientService.createClient(
-                new PersonName("Hugo Silva"),
+                name,
                 cpf,
-                new Email("hugo@gmail.com")
+                email
         );
 
         AccountIdentity identity =
@@ -348,13 +337,10 @@ public class AccountServiceTest {
     @Test
     void shouldAllowRemovingClientWhenAllAccountsHaveZeroBalance() {
 
-        Cpf cpf =
-                new Cpf("52998224725");
-
         clientService.createClient(
-                new PersonName("Hugo Silva"),
+                name,
                 cpf,
-                new Email("hugo@gmail.com")
+                email
         );
 
         Client client =
@@ -374,13 +360,10 @@ public class AccountServiceTest {
     @Test
     void shouldDetectNonZeroBalanceAmongManyAccounts() {
 
-        Cpf cpf =
-                new Cpf("52998224725");
-
         clientService.createClient(
-                new PersonName("Hugo Silva"),
+                name,
                 cpf,
-                new Email("hugo@gmail.com")
+                email
         );
 
         Client client =
@@ -412,13 +395,10 @@ public class AccountServiceTest {
     @Test
     void shouldRemoveAllClientAccounts() {
 
-        Cpf cpf =
-                new Cpf("52998224725");
-
         clientService.createClient(
-                new PersonName("Hugo Silva"),
+                name,
                 cpf,
-                new Email("hugo@gmail.com")
+                email
         );
 
         Client client =

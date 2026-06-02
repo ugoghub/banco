@@ -1,14 +1,14 @@
-package UI;
+package ui;
 
-import UI.controller.AccountController;
-import UI.controller.AuthController;
-import UI.controller.ClientController;
-import UI.menu.ClientMenu;
-import UI.menu.InitialMenu;
-import UI.messages.ConsoleMessages;
+import ui.controller.AccountController;
+import ui.controller.AuthController;
+import ui.controller.ClientController;
+import ui.menu.ClientMenu;
+import ui.menu.InitialMenu;
+import ui.messages.ConsoleMessages;
 import application.ApplicationContext;
-import model.valueObjects.Cpf;
-import service.ApplicationService;
+import model.valueobject.Cpf;
+import application.ApplicationService;
 import service.dto.ClientData;
 
 import java.util.Scanner;
@@ -26,6 +26,7 @@ public final class App {
 
     public App() {
         this.scanner = new Scanner(System.in);
+
         ApplicationContext context =
                 new ApplicationContext();
 

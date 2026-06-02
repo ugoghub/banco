@@ -1,12 +1,12 @@
-package UI.controller;
+package ui.controller;
 
-import UI.InputReader;
-import UI.messages.ConsoleMessages;
+import ui.InputReader;
+import ui.messages.ConsoleMessages;
 import exception.DomainException;
-import model.valueObjects.Cpf;
-import model.valueObjects.Email;
-import model.valueObjects.PersonName;
-import service.ApplicationService;
+import model.valueobject.Cpf;
+import model.valueobject.Email;
+import model.valueobject.PersonName;
+import application.ApplicationService;
 
 import java.util.Scanner;
 

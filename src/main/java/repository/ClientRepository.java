@@ -1,8 +1,8 @@
 package repository;
 
 import model.Client;
-import model.valueObjects.Cpf;
-import model.valueObjects.Email;
+import model.valueobject.Cpf;
+import model.valueobject.Email;
 
 import java.util.HashMap;
 import java.util.Map;

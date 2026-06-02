@@ -438,3 +438,12 @@ Com isso:
 * `SavingsAccount` não conhece repositories nem services;
 * os rendimentos agora aparecem corretamente no histórico da conta;
 * o saldo permanece consistente mesmo após longos períodos sem movimentação.
+
+
+<<---------------------------------------------------------------------------------->>
+
+
+SavingsAccount nao possuem muitos testes de deposit e withdraw, pois seriam testes identicos aos de CheckingAccountTest.
+
+entao checkingAccount engloba testes basicos + testes em relação permitir saldo negativo(até 1000) + teste de conta pode ou nao ser removida.
+e savingsAccount fica com testes de aplicação de juros + 1 teste de nao permitir saldo negativo nunca.

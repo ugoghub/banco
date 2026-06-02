@@ -1,4 +1,4 @@
-package model.valueObjects;
+package model.valueobject;
 
 import java.util.concurrent.ThreadLocalRandom;
 

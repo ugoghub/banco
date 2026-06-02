@@ -1,17 +1,18 @@
 package valueObjects;
 
 import exception.InvalidCpfException;
-import model.valueObjects.Cpf;
+import model.valueobject.Cpf;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CpfTest {
 
     @Test
     void shouldCreateValidCpf() {
 
-        Cpf cpf = new Cpf("52998224725");
+        Cpf cpf = createCpf("52998224725");
 
         assertEquals("52998224725", cpf.value());
     }
@@ -21,14 +22,14 @@ class CpfTest {
 
         assertThrows(
                 InvalidCpfException.class,
-                () -> new Cpf("123")
+                () -> createCpf("123")
         );
     }
 
     @Test
     void shouldRemoveCpfFormatting() {
 
-        Cpf cpf = new Cpf("529.982.247-25");
+        Cpf cpf = createCpf("529.982.247-25");
 
         assertEquals("52998224725", cpf.value());
     }
@@ -38,7 +39,7 @@ class CpfTest {
 
         assertThrows(
                 InvalidCpfException.class,
-                () -> new Cpf(null)
+                () -> createCpf(null)
         );
     }
 
@@ -47,7 +48,7 @@ class CpfTest {
 
         assertThrows(
                 InvalidCpfException.class,
-                () -> new Cpf("52998A24725")
+                () -> createCpf("52998A24725")
         );
     }
 
@@ -56,7 +57,7 @@ class CpfTest {
 
         assertThrows(
                 InvalidCpfException.class,
-                () -> new Cpf("11111111111")
+                () -> createCpf("11111111111")
         );
     }
 
@@ -65,7 +66,7 @@ class CpfTest {
 
         assertThrows(
                 InvalidCpfException.class,
-                () -> new Cpf("52998224724")
+                () -> createCpf("52998224724")
         );
     }
 
@@ -73,7 +74,7 @@ class CpfTest {
     void shouldTrimCpfBeforeValidation() {
 
         Cpf cpf =
-                new Cpf(" 529.982.247-25 ");
+                createCpf(" 529.982.247-25 ");
 
         assertEquals(
                 "52998224725",
@@ -85,11 +86,15 @@ class CpfTest {
     void shouldBeEqualWhenCpfValuesAreEqual() {
 
         Cpf first =
-                new Cpf("52998224725");
+                createCpf("52998224725");
 
         Cpf second =
-                new Cpf("529.982.247-25");
+                createCpf("529.982.247-25");
 
         assertEquals(first, second);
+    }
+
+    private Cpf createCpf(String cpf){
+        return new Cpf(cpf);
     }
 }

@@ -1,8 +1,8 @@
-package UI;
+package ui;
 
-import UI.messages.ConsoleMessages;
+import ui.messages.ConsoleMessages;
 import exception.ValidationException;
-import model.valueObjects.Money;
+import model.valueobject.Money;
 
 import java.util.Scanner;
 import java.util.function.Function;

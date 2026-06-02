@@ -7,7 +7,7 @@ import exception.InvalidTransferException;
 import model.Account;
 import model.AccountType;
 import model.TransactionType;
-import model.valueObjects.*;
+import model.valueobject.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import repository.AccountRepository;
@@ -27,6 +27,25 @@ class TransactionServiceTest {
     private ClientService clientService;
     private AccountService accountService;
     private TransactionService transactionService;
+
+    private static final Cpf cpf1 =
+            new Cpf("52998224725");
+
+    private static final Cpf cpf2 =
+            new Cpf("76887934086");
+
+    private static final PersonName name1 =
+            new PersonName("Pedro Silva");
+
+    private static final PersonName name2 =
+            new PersonName("Ana Ferreira");
+
+    private static final Email email1 =
+            new Email("pedro@gmail.com");
+
+    private static final Email email2 =
+            new Email("ana@gmail.com");
+
 
     private static final AccountIdentity NONEXISTENT_ACCOUNT =
             new AccountIdentity(
@@ -756,18 +775,15 @@ class TransactionServiceTest {
                         january
                 );
 
-        Cpf cpf =
-                new Cpf("52998224725");
-
         clientService.createClient(
                 new PersonName("Hugo Silva"),
-                cpf,
+                cpf1,
                 new Email("hugo@gmail.com")
         );
 
         AccountIdentity account =
                 accountService.createAccount(
-                        cpf,
+                        cpf1,
                         AccountType.SAVINGS
                 );
 
@@ -842,22 +858,16 @@ class TransactionServiceTest {
                         january
                 );
 
-        Cpf cpf1 =
-                new Cpf("52998224725");
-
-        Cpf cpf2 =
-                new Cpf("76887934086");
-
         clientService.createClient(
-                new PersonName("Hugo Silva"),
+                name1,
                 cpf1,
-                new Email("hugo@gmail.com")
+                email1
         );
 
         clientService.createClient(
-                new PersonName("Ana Silva"),
+                name2,
                 cpf2,
-                new Email("ana@gmail.com")
+                email2
         );
 
         AccountIdentity from =
@@ -1036,9 +1046,9 @@ class TransactionServiceTest {
     private AccountIdentity createCheckingAccount() {
 
         return createAccount(
-                "52998224725",
-                "Pedro Silva",
-                "pedro@gmail.com",
+                cpf1,
+                name1,
+                email1,
                 AccountType.CHECKING
         );
     }
@@ -1046,27 +1056,24 @@ class TransactionServiceTest {
     private AccountIdentity createSavingsAccount() {
 
         return createAccount(
-                "76887934086",
-                "Ana Silva",
-                "ana@gmail.com",
+                cpf2,
+                name2,
+                email2,
                 AccountType.SAVINGS
         );
     }
 
     private AccountIdentity createAccount(
-            String cpfValue,
-            String name,
-            String email,
+            Cpf cpf,
+            PersonName name,
+            Email email,
             AccountType type
     ) {
 
-        Cpf cpf =
-                new Cpf(cpfValue);
-
         clientService.createClient(
-                new PersonName(name),
+                name,
                 cpf,
-                new Email(email)
+                email
         );
 
         return accountService.createAccount(

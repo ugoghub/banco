@@ -1,6 +1,6 @@
-package UI.menu;
+package ui.menu;
 
-import UI.messages.ConsoleMessages;
+import ui.messages.ConsoleMessages;
 import service.dto.ClientData;
 
 public final class ClientMenu {

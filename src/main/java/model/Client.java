@@ -1,8 +1,8 @@
 package model;
 
-import model.valueObjects.Cpf;
-import model.valueObjects.Email;
-import model.valueObjects.PersonName;
+import model.valueobject.Cpf;
+import model.valueobject.Email;
+import model.valueobject.PersonName;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -23,21 +23,9 @@ public class Client {
         this.email = email;
     }
 
-    public Cpf getCpf() {
-        return cpf;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public PersonName getName() {
-        return name;
-    }
-
-    public Email getEmail() {
-        return email;
-    }
+    // =========================
+    // Actions
+    // =========================
 
     public void changeName(PersonName newName) {
         this.name = newName;
@@ -54,6 +42,31 @@ public class Client {
     public boolean hasSameEmail(Email newEmail) {
         return this.email.equals(newEmail);
     }
+
+
+    // =========================
+    // Getters
+    // =========================
+
+    public Cpf getCpf() {
+        return cpf;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public PersonName getName() {
+        return name;
+    }
+
+    public Email getEmail() {
+        return email;
+    }
+
+    // =========================
+    // Equals/Hashcode
+    // =========================
 
     @Override
     public boolean equals(Object o) {

@@ -1,9 +1,12 @@
-package service;
+package application;
 
 import model.Account;
 import model.AccountType;
 import model.Client;
-import model.valueObjects.*;
+import model.valueobject.*;
+import service.AccountService;
+import service.ClientService;
+import service.TransactionService;
 import service.dto.ClientData;
 import service.dto.StatementData;
 
@@ -25,17 +28,15 @@ public class ApplicationService {
         this.transactionService = transactionService;
     }
 
+    // =========================
+    // Client
+    // =========================
+
     public void createClient(PersonName name,
                              Cpf cpf,
                              Email email) {
 
         clientService.createClient(name, cpf, email);
-    }
-
-    public AccountIdentity createAccount(Cpf cpf, AccountType type)
-    {
-
-        return accountService.createAccount(cpf, type);
     }
 
     public void removeClient(Cpf cpf) {
@@ -47,9 +48,50 @@ public class ApplicationService {
         clientService.delete(client.getId());
     }
 
+    public ClientData getClientData(Cpf cpf) {
+        Client client = clientService.getClientByCpf(cpf);
+
+        return new ClientData(client.getName().value(), client.getCpf().value(), client.getEmail().value());
+    }
+
+    public PersonName changeName(Cpf cpf, PersonName name) {
+        return clientService.changeName(cpf, name);
+    }
+
+    public Email changeEmail(Cpf cpf, Email email) {
+        return clientService.changeEmail(cpf, email);
+    }
+
+    public Cpf getCpfByEmail(Email email) {
+        return clientService
+                .getClientByEmail(email)
+                .getCpf();
+    }
+
+    // =========================
+    // Account
+    // =========================
+
+    public AccountIdentity createAccount(Cpf cpf, AccountType type)
+    {
+
+        return accountService.createAccount(cpf, type);
+    }
+
     public void removeAccount(AccountIdentity accountIdentity) {
         accountService.removeAccount(accountIdentity);
     }
+
+    public List<AccountIdentity> getClientAccountsIdentity(Cpf cpf) {
+
+        Client client = clientService.getClientByCpf(cpf);
+
+        return accountService.getClientAccountsIdentity(client.getId());
+    }
+
+    // =========================
+    // Transaction
+    // =========================
 
     public void deposit(AccountIdentity identity,
                         Money value){
@@ -70,13 +112,6 @@ public class ApplicationService {
         transactionService.transfer(fromId, toId, value);
     }
 
-    public List<AccountIdentity> getClientAccountsIdentity(Cpf cpf) {
-
-        Client client = clientService.getClientByCpf(cpf);
-
-        return accountService.getClientAccountsIdentity(client.getId());
-    }
-
     public Money getAccountBalance(AccountIdentity identity)
     {
 
@@ -86,25 +121,5 @@ public class ApplicationService {
     public List<StatementData> getAccountTransactions(AccountIdentity accountIdentity){
         Account accountByIdentity = accountService.getAccountByAccountIdentity(accountIdentity);
         return transactionService.getTransactionHistory(accountByIdentity.getId());
-    }
-
-    public ClientData getClientData(Cpf cpf) {
-        Client client = clientService.getClientByCpf(cpf);
-
-        return new ClientData(client.getName().value(), client.getCpf().value(), client.getEmail().value());
-    }
-
-    public Cpf getCpfByEmail(Email email) {
-        return clientService
-                .getClientByEmail(email)
-                .getCpf();
-    }
-
-    public PersonName changeName(Cpf cpf, PersonName name) {
-        return clientService.changeName(cpf, name);
-    }
-
-    public Email changeEmail(Cpf cpf, Email email) {
-        return clientService.changeEmail(cpf, email);
     }
 }

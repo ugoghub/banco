@@ -1,7 +1,7 @@
 package model;
 
-import model.valueObjects.AccountIdentity;
-import model.valueObjects.Money;
+import model.valueobject.AccountIdentity;
+import model.valueobject.Money;
 
 import java.math.BigDecimal;
 import java.time.Clock;

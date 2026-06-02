@@ -2,21 +2,24 @@ package valueObjects;
 
 import exception.InvalidAccountNumberException;
 import exception.InvalidBranchException;
-import model.valueObjects.AccountIdentity;
+import model.valueobject.AccountIdentity;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class AccountIdentityTest {
 
+    private static final AccountIdentity accountIdentity =
+            new AccountIdentity(
+                    "01",
+                    "123456-1"
+            );
+
     @Test
     void shouldCreateValidIdentity() {
 
         AccountIdentity identity =
-                new AccountIdentity(
-                        "01",
-                        "123456-1"
-                );
+                accountIdentity;
 
         assertEquals("01", identity.branch());
 
@@ -31,7 +34,7 @@ class AccountIdentityTest {
 
         assertThrows(
                 InvalidBranchException.class,
-                () -> new AccountIdentity(
+                () -> createIdentity(
                         "1",
                         "123456-1"
                 )
@@ -43,7 +46,7 @@ class AccountIdentityTest {
 
         assertThrows(
                 InvalidAccountNumberException.class,
-                () -> new AccountIdentity(
+                () -> createIdentity(
                         "01",
                         "123456-0"
                 )
@@ -55,7 +58,7 @@ class AccountIdentityTest {
 
         assertThrows(
                 InvalidBranchException.class,
-                () -> new AccountIdentity(
+                () -> createIdentity(
                         "AA",
                         "123456-1"
                 )
@@ -67,7 +70,7 @@ class AccountIdentityTest {
 
         assertThrows(
                 InvalidBranchException.class,
-                () -> new AccountIdentity(
+                () -> createIdentity(
                         null,
                         "123456-1"
                 )
@@ -79,7 +82,7 @@ class AccountIdentityTest {
 
         assertThrows(
                 InvalidBranchException.class,
-                () -> new AccountIdentity(
+                () -> createIdentity(
                         "",
                         "123456-1"
                 )
@@ -91,7 +94,7 @@ class AccountIdentityTest {
 
         assertThrows(
                 InvalidBranchException.class,
-                () -> new AccountIdentity(
+                () -> createIdentity(
                         "  ",
                         "123456-1"
                 )
@@ -103,7 +106,7 @@ class AccountIdentityTest {
 
         assertThrows(
                 InvalidAccountNumberException.class,
-                () -> new AccountIdentity(
+                () -> createIdentity(
                         "01",
                         "1234561"
                 )
@@ -115,7 +118,7 @@ class AccountIdentityTest {
 
         assertThrows(
                 InvalidAccountNumberException.class,
-                () -> new AccountIdentity(
+                () -> createIdentity(
                         "01",
                         null
                 )
@@ -128,7 +131,7 @@ class AccountIdentityTest {
 
         assertThrows(
                 InvalidAccountNumberException.class,
-                () -> new AccountIdentity(
+                () -> createIdentity(
                         "01",
                         "123"
                 )
@@ -140,7 +143,7 @@ class AccountIdentityTest {
 
         assertThrows(
                 InvalidAccountNumberException.class,
-                () -> new AccountIdentity(
+                () -> createIdentity(
                         "01",
                         "abcdeF-1"
                 )
@@ -151,7 +154,7 @@ class AccountIdentityTest {
     void shouldAllowLeadingZeros() {
 
         AccountIdentity identity =
-                new AccountIdentity(
+                createIdentity(
                         "00",
                         "000001-1"
                 );
@@ -167,39 +170,19 @@ class AccountIdentityTest {
     @Test
     void shouldBeEqualWhenValuesAreEqual() {
 
-        AccountIdentity first =
-                new AccountIdentity(
-                        "01",
-                        "123456-1"
-                );
-
-        AccountIdentity second =
-                new AccountIdentity(
-                        "01",
-                        "123456-1"
-                );
-
-        assertEquals(first, second);
+        assertEquals(accountIdentity, accountIdentity);
     }
 
     @Test
     void shouldHaveSameHashCodeWhenValuesAreEqual() {
 
-        AccountIdentity first =
-                new AccountIdentity(
-                        "01",
-                        "123456-1"
-                );
-
-        AccountIdentity second =
-                new AccountIdentity(
-                        "01",
-                        "123456-1"
-                );
-
         assertEquals(
-                first.hashCode(),
-                second.hashCode()
+                accountIdentity.hashCode(),
+                accountIdentity.hashCode()
         );
+    }
+
+    private AccountIdentity createIdentity(String branch, String accountNumber){
+        return new AccountIdentity(branch, accountNumber);
     }
 }

@@ -1,8 +1,8 @@
 package model;
 
 import exception.*;
-import model.valueObjects.AccountIdentity;
-import model.valueObjects.Money;
+import model.valueobject.AccountIdentity;
+import model.valueobject.Money;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -42,6 +42,10 @@ public abstract class Account {
         this.creationTime = LocalDateTime.now(clock);
         this.balance = Money.ZERO;
     }
+
+    // =========================
+    // Actions
+    // =========================
 
     public void deposit(Money amount) {
 
@@ -95,6 +99,11 @@ public abstract class Account {
         return balance.isZero();
     }
 
+
+    // =========================
+    // Getters
+    // =========================
+
     public UUID getId() {
         return id;
     }
@@ -114,6 +123,11 @@ public abstract class Account {
     public Money getBalance() {
         return balance;
     }
+
+
+    // =========================
+    // Equals e Hashcode
+    // =========================
 
     @Override
     public boolean equals(Object o) {

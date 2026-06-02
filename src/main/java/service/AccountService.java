@@ -3,10 +3,10 @@ package service;
 import exception.AccountDeletionNotAllowedException;
 import exception.AccountNotFoundException;
 import exception.InvalidTypeException;
-import model.valueObjects.AccountIdentityFactory;
+import model.valueobject.AccountIdentityFactory;
 import model.*;
-import model.valueObjects.AccountIdentity;
-import model.valueObjects.Cpf;
+import model.valueobject.AccountIdentity;
+import model.valueobject.Cpf;
 import repository.AccountRepository;
 
 import java.time.Clock;

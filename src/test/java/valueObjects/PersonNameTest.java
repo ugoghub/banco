@@ -1,7 +1,7 @@
 package valueObjects;
 
 import exception.InvalidPersonNameException;
-import model.valueObjects.PersonName;
+import model.valueobject.PersonName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,7 +13,7 @@ class PersonNameTest {
     void shouldCreateValidName() {
 
         PersonName name =
-                new PersonName("Hugo Silva");
+                createPersonName("Hugo Silva");
 
         assertEquals(
                 "Hugo Silva",
@@ -25,7 +25,7 @@ class PersonNameTest {
     void shouldTrimName() {
 
         PersonName name =
-                new PersonName("   Hugo Silva   ");
+                createPersonName("   Hugo Silva   ");
 
         assertEquals(
                 "Hugo Silva",
@@ -38,7 +38,7 @@ class PersonNameTest {
 
         assertThrows(
                 InvalidPersonNameException.class,
-                () -> new PersonName("A")
+                () -> createPersonName("A")
         );
     }
 
@@ -47,7 +47,7 @@ class PersonNameTest {
 
         assertThrows(
                 InvalidPersonNameException.class,
-                () -> new PersonName(null)
+                () -> createPersonName(null)
         );
     }
 
@@ -56,7 +56,7 @@ class PersonNameTest {
 
         assertThrows(
                 InvalidPersonNameException.class,
-                () -> new PersonName("")
+                () -> createPersonName("")
         );
     }
 
@@ -65,7 +65,7 @@ class PersonNameTest {
 
         assertThrows(
                 InvalidPersonNameException.class,
-                () -> new PersonName("     ")
+                () -> createPersonName("     ")
         );
     }
 
@@ -73,7 +73,7 @@ class PersonNameTest {
     void shouldNormalizeMultipleInternalSpaces() {
 
         PersonName name =
-                new PersonName(
+                createPersonName(
                         "Hugo    Silva"
                 );
 
@@ -87,10 +87,10 @@ class PersonNameTest {
     void shouldBeEqualAfterNormalization() {
 
         PersonName first =
-                new PersonName(" Hugo   Silva ");
+                createPersonName(" Hugo   Silva ");
 
         PersonName second =
-                new PersonName("Hugo Silva");
+                createPersonName("Hugo Silva");
 
         assertEquals(first, second);
     }
@@ -99,7 +99,7 @@ class PersonNameTest {
     void shouldAllowCompoundNames() {
 
         PersonName name =
-                new PersonName(
+                createPersonName(
                         "Maria Clara Souza"
                 );
 
@@ -113,7 +113,7 @@ class PersonNameTest {
     void shouldAllowAccentedCharacters() {
 
         PersonName name =
-                new PersonName(
+                createPersonName(
                         "João da Silva"
                 );
 
@@ -121,5 +121,9 @@ class PersonNameTest {
                 "João da Silva",
                 name.value()
         );
+    }
+
+    private PersonName createPersonName(String name){
+        return new PersonName(name);
     }
 }

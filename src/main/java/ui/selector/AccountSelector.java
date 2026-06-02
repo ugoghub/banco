@@ -1,9 +1,9 @@
-package UI.selector;
+package ui.selector;
 
-import UI.InputReader;
-import UI.messages.ConsoleMessages;
+import ui.InputReader;
+import ui.messages.ConsoleMessages;
 import exception.NoAccountsFoundException;
-import model.valueObjects.AccountIdentity;
+import model.valueobject.AccountIdentity;
 
 import java.util.List;
 import java.util.Scanner;

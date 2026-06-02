@@ -5,9 +5,9 @@ import exception.CpfAlreadyExistsException;
 import exception.EmailAlreadyExistsException;
 import exception.InvalidClientChangeException;
 import model.Client;
-import model.valueObjects.Cpf;
-import model.valueObjects.Email;
-import model.valueObjects.PersonName;
+import model.valueobject.Cpf;
+import model.valueobject.Email;
+import model.valueobject.PersonName;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import repository.ClientRepository;
@@ -17,12 +17,28 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ClientServiceTest {
-    ClientRepository clientRepository;
+
     private ClientService clientService;
+
+    private static final Cpf cpf =
+            new Cpf("52998224725");
+
+    private static final PersonName name =
+            new PersonName("Pedro Silva");
+
+    private static final Email email =
+            new Email("pedro@gmail.com");
+
+    private static final Client client = new Client(
+            name,
+            cpf,
+            email
+    );
+
 
     @BeforeEach
     void setup() {
-        clientRepository = new ClientRepository();
+        ClientRepository clientRepository = new ClientRepository();
 
         clientService =
                 new ClientService(clientRepository);
@@ -31,9 +47,7 @@ public class ClientServiceTest {
     @Test
     void shouldNotAllowDuplicateCpf() {
 
-        Client client = createClient();
         clientService.createClient(client.getName(), client.getCpf(), client.getEmail());
-
 
         assertThrows(
                 CpfAlreadyExistsException.class,
@@ -48,7 +62,6 @@ public class ClientServiceTest {
     @Test
     void shouldChangeName() {
 
-        Client client = createClient();
         clientService.createClient(client.getName(), client.getCpf(), client.getEmail());
 
         clientService.changeName(
@@ -70,7 +83,7 @@ public class ClientServiceTest {
         assertThrows(
                 ClientNotFoundException.class,
                 () -> clientService.changeName(
-                        new Cpf("52998224725"),
+                        cpf,
                         new PersonName("Novo Nome")
                 )
         );
@@ -78,8 +91,6 @@ public class ClientServiceTest {
 
     @Test
     void shouldChangeEmail() {
-
-        Client client = createClient();
         clientService.createClient(client.getName(), client.getCpf(), client.getEmail());
 
         clientService.changeEmail(
@@ -101,7 +112,7 @@ public class ClientServiceTest {
         assertThrows(
                 ClientNotFoundException.class,
                 () -> clientService.changeEmail(
-                        new Cpf("52998224725"),
+                        cpf,
                         new Email("novo@gmail.com")
                 )
         );
@@ -109,8 +120,6 @@ public class ClientServiceTest {
 
     @Test
     void shouldNotAllowDuplicateEmail() {
-
-        Client client = createClient();
         clientService.createClient(client.getName(), client.getCpf(), client.getEmail());
 
         assertThrows(
@@ -125,8 +134,6 @@ public class ClientServiceTest {
 
     @Test
     void shouldNotAllowChangingEmailToExistingEmail() {
-
-        Client client = createClient();
         clientService.createClient(client.getName(), client.getCpf(), client.getEmail());
 
         clientService.createClient(
@@ -147,8 +154,6 @@ public class ClientServiceTest {
 
     @Test
     void shouldDeleteClient() {
-
-        Client client = createClient();
 
         clientService.createClient(
                 client.getName(),
@@ -183,8 +188,6 @@ public class ClientServiceTest {
     @Test
     void shouldNotFindClientByOldEmailAfterEmailChange() {
 
-        Client client = createClient();
-
         clientService.createClient(
                 client.getName(),
                 client.getCpf(),
@@ -199,15 +202,13 @@ public class ClientServiceTest {
         assertThrows(
                 ClientNotFoundException.class,
                 () -> clientService.getClientByEmail(
-                        new Email("old@gmail.com")
+                        email
                 )
         );
     }
 
     @Test
     void shouldNotFindDeletedClientByEmail() {
-
-        Client client = createClient();
 
         clientService.createClient(
                 client.getName(),
@@ -230,8 +231,6 @@ public class ClientServiceTest {
 
     @Test
     void shouldReturnClientByEmail() {
-
-        Client client = createClient();
 
         clientService.createClient(
                 client.getName(),
@@ -264,8 +263,6 @@ public class ClientServiceTest {
     @Test
     void shouldNotAllowChangingNameToSameName() {
 
-        Client client = createClient();
-
         clientService.createClient(
                 client.getName(),
                 client.getCpf(),
@@ -284,8 +281,6 @@ public class ClientServiceTest {
     @Test
     void shouldNotAllowChangingEmailToSameEmail() {
 
-        Client client = createClient();
-
         clientService.createClient(
                 client.getName(),
                 client.getCpf(),
@@ -298,18 +293,6 @@ public class ClientServiceTest {
                         client.getCpf(),
                         client.getEmail()
                 )
-        );
-    }
-
-    // =========================
-    // Helpers
-    // =========================
-
-    private Client createClient(){
-        return new Client(
-                new PersonName("Hugo Silva"),
-                new Cpf("52998224725"),
-                new Email("old@gmail.com")
         );
     }
 }
