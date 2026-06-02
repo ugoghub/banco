@@ -4,7 +4,6 @@ import exception.AccountNotFoundException;
 import exception.InsufficientBalanceException;
 import exception.InvalidAmountException;
 import exception.InvalidTransferException;
-import model.Account;
 import model.AccountType;
 import model.TransactionType;
 import model.valueobject.*;
@@ -1028,15 +1027,11 @@ class TransactionServiceTest {
     }
 
     private List<StatementData> history(
-            AccountIdentity account
+            AccountIdentity accountIdentity
     ) {
 
-        Account entity =
-                accountService
-                        .getAccountByAccountIdentity(account);
-
         return transactionService
-                .getTransactionHistory(entity.getId());
+                .getTransactionHistoryByAccountIdentity(accountIdentity);
     }
 
     private Money money(String value) {

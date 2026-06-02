@@ -6,6 +6,7 @@ import model.valueobject.Cpf;
 import model.valueobject.Email;
 import model.valueobject.PersonName;
 import repository.ClientRepository;
+import service.dto.ClientData;
 
 import java.util.UUID;
 
@@ -31,7 +32,7 @@ public class ClientService {
         clientRepository.save(client);
     }
 
-    public Client getClientByCpf(Cpf cpf) {
+    private Client getClientByCpf(Cpf cpf) {
 
         return clientRepository
                 .findByCpf(cpf)
@@ -41,29 +42,36 @@ public class ClientService {
                         ));
     }
 
-    public Client getClientByEmail(Email email) {
+    public Cpf getCpfByEmail(Email email) {
         return clientRepository
                 .findByEmail(email)
                 .orElseThrow(() ->
                         new ClientNotFoundException(
                                 "Cliente não encontrado"
-                        ));
+                        )
+                )
+                .getCpf();
     }
 
-    public Client getClientById(UUID clientId) {
-        return clientRepository
-                .findById(clientId)
-                .orElseThrow(() ->
-                        new ClientNotFoundException(
-                                "Cliente não encontrado"
-                        ));
+    public UUID getClientId(Cpf cpf) {
+        return getClientByCpf(cpf).getId();
     }
 
-    public void delete(UUID clientId) {
+    public ClientData getClientData(Cpf cpf) {
+        Client client = getClientByCpf(cpf);
 
-        Client client = getClientById(clientId);
+        return new ClientData(client.getName().value(), client.getCpf().value(), client.getEmail().value());
+    }
 
-        clientRepository.delete(client.getId());
+    public boolean clientExists(UUID clientId){
+        return clientRepository.existsById(clientId);
+    }
+
+    public void delete(Cpf cpf) {
+
+        UUID clientId = getClientId(cpf);
+
+        clientRepository.delete(clientId);
     }
 
     public PersonName changeName(
@@ -119,5 +127,9 @@ public class ClientService {
                     "Email já cadastrado"
             );
         }
+    }
+
+    public void validateIfClientExists(Cpf cpf) {
+        getClientByCpf(cpf);
     }
 }

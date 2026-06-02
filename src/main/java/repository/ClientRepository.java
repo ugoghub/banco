@@ -47,6 +47,10 @@ public class ClientRepository {
         return clientIdByEmail.containsKey(email);
     }
 
+    public boolean existsById(UUID id) {
+        return clientsById.containsKey(id);
+    }
+
     public Optional<Client> findByCpf(Cpf cpf) {
 
         UUID clientId = clientIdByCpf.get(cpf);

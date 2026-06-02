@@ -116,7 +116,8 @@ public class TransactionService {
         return account.getBalance();
     }
 
-    public List<StatementData> getTransactionHistory(UUID accountId) {
+    public List<StatementData> getTransactionHistoryByAccountIdentity(AccountIdentity accountIdentity) {
+        UUID accountId = accountService.getAccountIdByAccountIdentity(accountIdentity);
         List<Transaction> transactionsByAccountId = transactionRepository.getTransactionsByAccountId(accountId);
 
         return transactionsByAccountId.stream()

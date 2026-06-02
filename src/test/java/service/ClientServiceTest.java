@@ -11,10 +11,10 @@ import model.valueobject.PersonName;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import repository.ClientRepository;
+import service.dto.ClientData;
 
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ClientServiceTest {
 
@@ -69,11 +69,11 @@ public class ClientServiceTest {
                 new PersonName("Pedro Souza")
         );
 
-        Client updatedClient = clientService.getClientByCpf(client.getCpf());
+        ClientData updatedClient = clientService.getClientData(client.getCpf());
 
         assertEquals(
                 "Pedro Souza",
-                updatedClient.getName().value()
+                updatedClient.name()
         );
     }
 
@@ -98,11 +98,11 @@ public class ClientServiceTest {
                 new Email("novo@gmail.com")
         );
 
-        Client updatedClient = clientService.getClientByCpf(client.getCpf());
+        ClientData updatedClient = clientService.getClientData(client.getCpf());
 
         assertEquals(
                 "novo@gmail.com",
-                updatedClient.getEmail().value()
+                updatedClient.email()
         );
     }
 
@@ -161,26 +161,21 @@ public class ClientServiceTest {
                 client.getEmail()
         );
 
-        Client saved =
-                clientService.getClientByCpf(client.getCpf());
-
-        clientService.delete(saved.getId());
+        clientService.delete(client.getCpf());
 
         assertThrows(
                 ClientNotFoundException.class,
-                () -> clientService.getClientByCpf(client.getCpf())
+                () -> clientService.getClientId(client.getCpf())
         );
     }
 
     @Test
     void shouldThrowExceptionWhenDeletingNonexistentClient() {
 
-        UUID nonExistentId = UUID.randomUUID();
-
         assertThrows(
                 ClientNotFoundException.class,
                 () -> clientService.delete(
-                        nonExistentId
+                        cpf
                 )
         );
     }
@@ -201,7 +196,7 @@ public class ClientServiceTest {
 
         assertThrows(
                 ClientNotFoundException.class,
-                () -> clientService.getClientByEmail(
+                () -> clientService.getCpfByEmail(
                         email
                 )
         );
@@ -216,14 +211,11 @@ public class ClientServiceTest {
                 client.getEmail()
         );
 
-        Client saved =
-                clientService.getClientByCpf(client.getCpf());
-
-        clientService.delete(saved.getId());
+        clientService.delete(client.getCpf());
 
         assertThrows(
                 ClientNotFoundException.class,
-                () -> clientService.getClientByEmail(
+                () -> clientService.getCpfByEmail(
                         client.getEmail()
                 )
         );
@@ -238,14 +230,14 @@ public class ClientServiceTest {
                 client.getEmail()
         );
 
-        Client found =
-                clientService.getClientByEmail(
+        Cpf found =
+                clientService.getCpfByEmail(
                         client.getEmail()
                 );
 
         assertEquals(
                 client.getCpf(),
-                found.getCpf()
+                found
         );
     }
 
@@ -254,7 +246,7 @@ public class ClientServiceTest {
 
         assertThrows(
                 ClientNotFoundException.class,
-                () -> clientService.getClientByEmail(
+                () -> clientService.getCpfByEmail(
                         new Email("missing@gmail.com")
                 )
         );

@@ -1,8 +1,6 @@
 package application;
 
-import model.Account;
 import model.AccountType;
-import model.Client;
 import model.valueobject.*;
 import service.AccountService;
 import service.ClientService;
@@ -40,18 +38,14 @@ public class ApplicationService {
     }
 
     public void removeClient(Cpf cpf) {
-
-        Client client = clientService.getClientByCpf(cpf);
-
-        accountService.validateIfAccountCanBeRemoved(client.getId());
-        accountService.removeClientAccounts(client.getId());
-        clientService.delete(client.getId());
+        clientService.validateIfClientExists(cpf);
+        accountService.validateIfAccountCanBeRemoved(cpf);
+        accountService.removeClientAccounts(cpf);
+        clientService.delete(cpf);
     }
 
     public ClientData getClientData(Cpf cpf) {
-        Client client = clientService.getClientByCpf(cpf);
-
-        return new ClientData(client.getName().value(), client.getCpf().value(), client.getEmail().value());
+        return clientService.getClientData(cpf);
     }
 
     public PersonName changeName(Cpf cpf, PersonName name) {
@@ -63,9 +57,8 @@ public class ApplicationService {
     }
 
     public Cpf getCpfByEmail(Email email) {
-        return clientService
-                .getClientByEmail(email)
-                .getCpf();
+
+        return clientService.getCpfByEmail(email);
     }
 
     // =========================
@@ -84,9 +77,7 @@ public class ApplicationService {
 
     public List<AccountIdentity> getClientAccountsIdentity(Cpf cpf) {
 
-        Client client = clientService.getClientByCpf(cpf);
-
-        return accountService.getClientAccountsIdentity(client.getId());
+        return accountService.getClientAccountsIdentity(cpf);
     }
 
     // =========================
@@ -119,7 +110,6 @@ public class ApplicationService {
     }
 
     public List<StatementData> getAccountTransactions(AccountIdentity accountIdentity){
-        Account accountByIdentity = accountService.getAccountByAccountIdentity(accountIdentity);
-        return transactionService.getTransactionHistory(accountByIdentity.getId());
+        return transactionService.getTransactionHistoryByAccountIdentity(accountIdentity);
     }
 }

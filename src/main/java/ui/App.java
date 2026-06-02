@@ -11,6 +11,7 @@ import model.valueobject.Cpf;
 import application.ApplicationService;
 import service.dto.ClientData;
 
+import java.time.Clock;
 import java.util.Scanner;
 
 public final class App {
@@ -28,7 +29,7 @@ public final class App {
         this.scanner = new Scanner(System.in);
 
         ApplicationContext context =
-                new ApplicationContext();
+                new ApplicationContext(Clock.systemUTC());
 
         applicationService =
                 new ApplicationService(

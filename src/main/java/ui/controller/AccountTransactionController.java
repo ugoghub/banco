@@ -13,12 +13,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 
-public final class AccountOperationsController {
+public final class AccountTransactionController {
 
     private final Scanner scanner;
     private final ApplicationService applicationService;
 
-    public AccountOperationsController(Scanner scanner, ApplicationService applicationService) {
+    public AccountTransactionController(Scanner scanner, ApplicationService applicationService) {
         this.scanner = scanner;
         this.applicationService = applicationService;
     }

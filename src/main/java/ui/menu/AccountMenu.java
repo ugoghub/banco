@@ -8,7 +8,7 @@ public final class AccountMenu {
     private AccountMenu() {
     }
 
-    public static void menuLoop(
+    public static void show(
             AccountIdentity accountIdentity
     ) {
 

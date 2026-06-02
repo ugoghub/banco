@@ -15,9 +15,7 @@ public class ApplicationContext {
     private final AccountService accountService;
     private final TransactionService transactionService;
 
-    public ApplicationContext() {
-
-        Clock clock = Clock.systemDefaultZone();
+    public ApplicationContext(Clock clock) {
 
         ClientRepository clientRepository =
                 new ClientRepository();

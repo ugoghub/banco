@@ -17,13 +17,13 @@ public final class AccountController {
 
     private final ApplicationService applicationService;
     private final Scanner scanner;
-    private final AccountOperationsController accountOperationsController;
+    private final AccountTransactionController accountOperationsController;
 
 
     public AccountController(Scanner scanner, ApplicationService applicationService) {
         this.scanner = scanner;
         this.applicationService = applicationService;
-        this.accountOperationsController = new AccountOperationsController(scanner, applicationService);
+        this.accountOperationsController = new AccountTransactionController(scanner, applicationService);
     }
 
     public void start(Cpf cpf) {
@@ -45,7 +45,7 @@ public final class AccountController {
 
     public void enterAccountMenu(AccountIdentity accountIdentity) {
         while (true) {
-            AccountMenu.menuLoop(accountIdentity);
+            AccountMenu.show(accountIdentity);
 
             int option = InputReader.readOption(scanner, o -> o >= 0 && o <= 5);
 
