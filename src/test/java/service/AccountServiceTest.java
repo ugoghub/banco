@@ -85,62 +85,6 @@ public class AccountServiceTest {
     }
 
     @Test
-    void shouldNotRemoveAccountWithBalance() {
-
-        clientService.createClient(
-                new PersonName("Hugo Silva"),
-                cpf,
-                new Email("hugo@gmail.com")
-        );
-
-        UUID clientId = clientService.getClientId(cpf);
-
-        AccountIdentity identity =
-                accountService.createAccount(
-                        clientId,
-                        AccountType.CHECKING
-                );
-
-        Account account =
-                accountService.getAccountByAccountIdentity(identity);
-
-        account.deposit(
-                Money.of("100")
-        );
-
-        assertThrows(
-                AccountDeletionNotAllowedException.class,
-                () -> accountService.removeAccount(identity)
-        );
-    }
-
-    @Test
-    void shouldRemoveAccount() {
-
-        clientService.createClient(
-                name,
-                cpf,
-                email
-        );
-
-        UUID clientId = clientService.getClientId(cpf);
-
-        AccountIdentity identity =
-                accountService.createAccount(
-                        clientId,
-                        AccountType.CHECKING
-                );
-
-        accountService.removeAccount(identity);
-
-        assertThrows(
-                AccountNotFoundException.class,
-                () -> accountService
-                        .getAccountByAccountIdentity(identity)
-        );
-    }
-
-    @Test
     void shouldReturnClientAccounts() {
 
         clientService.createClient(
@@ -222,36 +166,6 @@ public class AccountServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenAccountDoesNotExist() {
-
-        AccountIdentity identity =
-                new AccountIdentity(
-                        "01",
-                        "000001-1"
-                );
-
-        assertThrows(
-                AccountNotFoundException.class,
-                () -> accountService
-                        .getAccountByAccountIdentity(identity)
-        );
-    }
-
-    @Test
-    void shouldThrowExceptionWhenRemovingNonexistentAccount() {
-        AccountIdentity identity =
-                new AccountIdentity(
-                        "01",
-                        "000001-1"
-                );
-
-        assertThrows(
-                AccountNotFoundException.class,
-                () -> accountService.removeAccount(identity)
-        );
-    }
-
-    @Test
     void shouldReturnEmptyAccountsForNewClient() {
 
         clientService.createClient(
@@ -266,38 +180,6 @@ public class AccountServiceTest {
                 accountService.getClientAccountsIdentity(clientId);
 
         assertTrue(accounts.isEmpty());
-    }
-
-    @Test
-    void shouldAllowRemovingClientWhenAllAccountsHaveZeroBalance() {
-
-        clientService.createClient(
-                name,
-                cpf,
-                email
-        );
-
-        UUID clientId = clientService.getClientId(cpf);
-
-        accountService.createAccount(
-                clientId,
-                AccountType.CHECKING
-        );
-
-        accountService.createAccount(
-                clientId,
-                AccountType.SAVINGS
-        );
-
-        accountService.createAccount(
-                clientId,
-                AccountType.SAVINGS
-        );
-
-        assertDoesNotThrow(
-                () -> accountService
-                        .validateIfAccountsCanBeRemoved(clientId)
-        );
     }
 
     @Test
@@ -339,6 +221,98 @@ public class AccountServiceTest {
         );
     }
 
+    // =========================
+    // RemoveTests
+    // =========================
+
+    @Test
+    void shouldNotRemoveAccountWithBalance() {
+
+        clientService.createClient(
+                new PersonName("Hugo Silva"),
+                cpf,
+                new Email("hugo@gmail.com")
+        );
+
+        UUID clientId = clientService.getClientId(cpf);
+
+        AccountIdentity identity =
+                accountService.createAccount(
+                        clientId,
+                        AccountType.CHECKING
+                );
+
+        Account account =
+                accountService.getAccountByAccountIdentity(identity);
+
+        account.deposit(
+                Money.of("100")
+        );
+
+        assertThrows(
+                AccountDeletionNotAllowedException.class,
+                () -> accountService.removeAccount(identity)
+        );
+    }
+
+    @Test
+    void shouldRemoveAccount() {
+
+        clientService.createClient(
+                name,
+                cpf,
+                email
+        );
+
+        UUID clientId = clientService.getClientId(cpf);
+
+        AccountIdentity identity =
+                accountService.createAccount(
+                        clientId,
+                        AccountType.CHECKING
+                );
+
+        accountService.removeAccount(identity);
+
+        assertThrows(
+                AccountNotFoundException.class,
+                () -> accountService
+                        .getAccountByAccountIdentity(identity)
+        );
+    }
+
+    @Test
+    void shouldAllowRemovingClientWhenAllAccountsHaveZeroBalance() {
+
+        clientService.createClient(
+                name,
+                cpf,
+                email
+        );
+
+        UUID clientId = clientService.getClientId(cpf);
+
+        accountService.createAccount(
+                clientId,
+                AccountType.CHECKING
+        );
+
+        accountService.createAccount(
+                clientId,
+                AccountType.SAVINGS
+        );
+
+        accountService.createAccount(
+                clientId,
+                AccountType.SAVINGS
+        );
+
+        assertDoesNotThrow(
+                () -> accountService
+                        .validateIfAccountsCanBeRemoved(clientId)
+        );
+    }
+
     @Test
     void shouldRemoveAllClientAccounts() {
 
@@ -374,6 +348,40 @@ public class AccountServiceTest {
                 AccountNotFoundException.class,
                 () -> accountService
                         .getAccountByAccountIdentity(second)
+        );
+    }
+
+    // =========================
+    // shouldThrowTests
+    // =========================
+
+    @Test
+    void shouldThrowExceptionWhenAccountDoesNotExist() {
+
+        AccountIdentity identity =
+                new AccountIdentity(
+                        "01",
+                        "000001-1"
+                );
+
+        assertThrows(
+                AccountNotFoundException.class,
+                () -> accountService
+                        .getAccountByAccountIdentity(identity)
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenRemovingNonexistentAccount() {
+        AccountIdentity identity =
+                new AccountIdentity(
+                        "01",
+                        "000001-1"
+                );
+
+        assertThrows(
+                AccountNotFoundException.class,
+                () -> accountService.removeAccount(identity)
         );
     }
 }

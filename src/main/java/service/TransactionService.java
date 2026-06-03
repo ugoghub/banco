@@ -99,6 +99,10 @@ public class TransactionService {
         );
     }
 
+    // =========================
+    // GETTERS
+    // =========================
+
     public Money getAccountBalance(AccountIdentity accountIdentity) {
 
         Account account = getAccountWithUpdatedInterest(accountIdentity);
@@ -122,6 +126,10 @@ public class TransactionService {
                         t.getOperationId()
                 )).toList();
     }
+
+    // =========================
+    // Interest
+    // =========================
 
     private List<Transaction> applyInterestAndGenerateTransactions(Account account) {
 

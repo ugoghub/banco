@@ -1,7 +1,7 @@
 package model;
 
 import exception.InsufficientBalanceException;
-import model.valueobject.AccountIdentity;
+import helper.AccountTestFactory;
 import model.valueobject.Money;
 import org.junit.jupiter.api.Test;
 
@@ -9,18 +9,10 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SavingsAccountTest {
-
-    private static final AccountIdentity accountIdentity =
-            new AccountIdentity(
-                    "01",
-                    "123456-1"
-            );
-
 
     // =========================
     // Interest
@@ -35,7 +27,7 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                createSavingsAccount(january);
+                AccountTestFactory.savings(january);
 
         account.deposit(
                 Money.of("1000")
@@ -79,7 +71,7 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                createSavingsAccount(january);
+                AccountTestFactory.savings(january);
 
         List<Money> appliedInterests =
                 account.applyPendingInterests(beforeOneMonth);
@@ -103,7 +95,7 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                createSavingsAccount(february);
+                AccountTestFactory.savings(february);
 
         account.deposit(
                 Money.of("1000")
@@ -130,7 +122,7 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                createSavingsAccount(january);
+                AccountTestFactory.savings(january);
 
         account.deposit(Money.of("1000"));
 
@@ -178,7 +170,7 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                createSavingsAccount(january);
+                AccountTestFactory.savings(january);
 
         List<Money> appliedInterests =
                 account.applyPendingInterests(february);
@@ -207,7 +199,7 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                createSavingsAccount(january);
+                AccountTestFactory.savings(january);
 
         account.deposit(
                 Money.of("1000")
@@ -234,7 +226,7 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                createSavingsAccount(january15);
+                AccountTestFactory.savings(january15);
 
         account.deposit(Money.of("1000"));
 
@@ -271,7 +263,7 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                createSavingsAccount(january);
+                AccountTestFactory.savings(january);
 
         Clock april =
                 Clock.fixed(
@@ -295,7 +287,7 @@ public class SavingsAccountTest {
     }
 
     @Test
-    void shouldApplyInterestToSmallAmounts() {
+    void shouldRoundInterestCorrectlyForSmallAmounts() {
 
         Clock january =
                 Clock.fixed(
@@ -304,7 +296,7 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                createSavingsAccount(january);
+                AccountTestFactory.savings(january);
 
         account.deposit(Money.of("0.01"));
 
@@ -338,21 +330,13 @@ public class SavingsAccountTest {
     void shouldNotAllowNegativeBalance() {
 
         SavingsAccount account =
-                createSavingsAccount(Clock.systemUTC());
+                AccountTestFactory.savings(Clock.systemUTC());
 
         assertThrows(
                 InsufficientBalanceException.class,
                 () -> account.withdraw(
                         Money.of("1")
                 )
-        );
-    }
-
-    private SavingsAccount createSavingsAccount(Clock clock) {
-        return new SavingsAccount(
-                UUID.randomUUID(),
-                accountIdentity,
-                clock
         );
     }
 }

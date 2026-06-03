@@ -39,6 +39,10 @@ public class ClientRepository {
         }
     }
 
+    // =========================
+    // Exists
+    // =========================
+
     public boolean existsByCpf(Cpf cpf) {
         return clientIdByCpf.containsKey(cpf);
     }
@@ -50,6 +54,10 @@ public class ClientRepository {
     public boolean existsById(UUID id) {
         return clientsById.containsKey(id);
     }
+
+    // =========================
+    // FindBy
+    // =========================
 
     public Optional<Client> findByCpf(Cpf cpf) {
 
@@ -69,6 +77,14 @@ public class ClientRepository {
         return findByIndexedId(clientId);
     }
 
+    private Optional<Client> findByIndexedId(UUID id) {
+        if (id == null) {
+            return Optional.empty();
+        }
+
+        return findById(id);
+    }
+
     public void reindexEmail(
             Email oldEmail,
             Client client
@@ -76,13 +92,5 @@ public class ClientRepository {
 
         clientIdByEmail.remove(oldEmail);
         clientIdByEmail.put(client.getEmail(), client.getId());
-    }
-
-    private Optional<Client> findByIndexedId(UUID id) {
-        if (id == null) {
-            return Optional.empty();
-        }
-
-        return findById(id);
     }
 }

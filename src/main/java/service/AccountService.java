@@ -60,6 +60,10 @@ public class AccountService {
         return account.getAccountIdentity();
     }
 
+    // =========================
+    // GETTERS
+    // =========================
+
     public List<AccountIdentity> getClientAccountsIdentity(UUID clientId) {
 
         return accountRepository
@@ -76,6 +80,9 @@ public class AccountService {
                 .orElseThrow(() -> new AccountNotFoundException("Conta não encontrada"));
     }
 
+    // =========================
+    // RemoveActions
+    // =========================
 
     public void removeClientAccounts(UUID clientId) {
 
@@ -92,6 +99,10 @@ public class AccountService {
 
         accountRepository.removeAccount(account.getId());
     }
+
+    // =========================
+    // Validate
+    // =========================
 
     public void validateIfAccountsCanBeRemoved(UUID clientId) {
 

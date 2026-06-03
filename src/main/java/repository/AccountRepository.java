@@ -32,6 +32,10 @@ public class AccountRepository {
         );
     }
 
+    // =========================
+    // FindBy
+    // =========================
+
     public Optional<Account> findById(UUID accountId){
         return Optional.ofNullable(accountByAccountId.get(accountId));
     }
@@ -46,9 +50,17 @@ public class AccountRepository {
         return findById(accountId);
     }
 
+    // =========================
+    // exists
+    // =========================
+
     public boolean existsByAccountIdentity(AccountIdentity accountIdentity) {
         return accountIndex.containsKey(accountIdentity);
     }
+
+    // =========================
+    // GET
+    // =========================
 
     public List<Account> getAccountsByClient(UUID clientId) {
 
@@ -59,6 +71,10 @@ public class AccountRepository {
                 .map(accountByAccountId::get)
                 .toList();
     }
+
+    // =========================
+    // RemoveActions
+    // =========================
 
     public void removeAccount(UUID accountId){
 

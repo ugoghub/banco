@@ -40,6 +40,30 @@ public class ClientServiceTest {
     }
 
     @Test
+    void shouldReturnClientByEmail() {
+
+        clientService.createClient(
+                name,
+                cpf,
+                email
+        );
+
+        Cpf found =
+                clientService.getCpfByEmail(
+                        email
+                );
+
+        assertEquals(
+                cpf,
+                found
+        );
+    }
+
+    // =========================
+    // ShouldThrowTests
+    // =========================
+
+    @Test
     void shouldNotAllowDuplicateCpf() {
 
         clientService.createClient(name, cpf, email);
@@ -50,65 +74,6 @@ public class ClientServiceTest {
                         new PersonName("Outro Nome"),
                         cpf,
                         new Email("outro@gmail.com")
-                )
-        );
-    }
-
-    @Test
-    void shouldChangeName() {
-
-        clientService.createClient(name, cpf, email);
-
-        clientService.changeName(
-                cpf,
-                new PersonName("Pedro Souza")
-        );
-
-        ClientData updatedClient = clientService.getClientData(cpf);
-
-        assertEquals(
-                "Pedro Souza",
-                updatedClient.name().value()
-        );
-    }
-
-    @Test
-    void shouldThrowExceptionWhenChangingNameFromNonexistentClient() {
-
-        assertThrows(
-                ClientNotFoundException.class,
-                () -> clientService.changeName(
-                        cpf,
-                        new PersonName("Novo Nome")
-                )
-        );
-    }
-
-    @Test
-    void shouldChangeEmail() {
-        clientService.createClient(name, cpf, email);
-
-        clientService.changeEmail(
-                cpf,
-                new Email("novo@gmail.com")
-        );
-
-        ClientData updatedClient = clientService.getClientData(cpf);
-
-        assertEquals(
-                "novo@gmail.com",
-                updatedClient.email().value()
-        );
-    }
-
-    @Test
-    void shouldThrowExceptionWhenChangingEmailFromNonexistentClient() {
-
-        assertThrows(
-                ClientNotFoundException.class,
-                () -> clientService.changeEmail(
-                        cpf,
-                        new Email("novo@gmail.com")
                 )
         );
     }
@@ -128,23 +93,54 @@ public class ClientServiceTest {
     }
 
     @Test
-    void shouldNotAllowChangingEmailToExistingEmail() {
-        clientService.createClient(name, cpf, email);
-
-        clientService.createClient(
-                new PersonName("Ana Silva"),
-                new Cpf("76887934086"),
-                new Email("ana@gmail.com")
-        );
+    void shouldThrowExceptionWhenChangingNameFromNonexistentClient() {
 
         assertThrows(
-                EmailAlreadyExistsException.class,
-                () -> clientService.changeEmail(
-                        new Cpf("76887934086"),
-                        email
+                ClientNotFoundException.class,
+                () -> clientService.changeName(
+                        cpf,
+                        new PersonName("Novo Nome")
                 )
         );
     }
+
+    @Test
+    void shouldThrowExceptionWhenChangingEmailFromNonexistentClient() {
+
+        assertThrows(
+                ClientNotFoundException.class,
+                () -> clientService.changeEmail(
+                        cpf,
+                        new Email("novo@gmail.com")
+                )
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDeletingNonexistentClient() {
+
+        assertThrows(
+                ClientNotFoundException.class,
+                () -> clientService.delete(
+                        UUID.randomUUID()
+                )
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenEmailDoesNotExist() {
+
+        assertThrows(
+                ClientNotFoundException.class,
+                () -> clientService.getCpfByEmail(
+                        new Email("missing@gmail.com")
+                )
+        );
+    }
+
+    // =========================
+    // RemoveTests
+    // =========================
 
     @Test
     void shouldDeleteClient() {
@@ -162,39 +158,6 @@ public class ClientServiceTest {
         assertThrows(
                 ClientNotFoundException.class,
                 () -> clientService.getClientId(cpf)
-        );
-    }
-
-    @Test
-    void shouldThrowExceptionWhenDeletingNonexistentClient() {
-
-        assertThrows(
-                ClientNotFoundException.class,
-                () -> clientService.delete(
-                        UUID.randomUUID()
-                )
-        );
-    }
-
-    @Test
-    void shouldNotFindClientByOldEmailAfterEmailChange() {
-
-        clientService.createClient(
-                name,
-                cpf,
-                email
-        );
-
-        clientService.changeEmail(
-                cpf,
-                new Email("new@gmail.com")
-        );
-
-        assertThrows(
-                ClientNotFoundException.class,
-                () -> clientService.getCpfByEmail(
-                        email
-                )
         );
     }
 
@@ -219,34 +182,42 @@ public class ClientServiceTest {
         );
     }
 
-    @Test
-    void shouldReturnClientByEmail() {
+    // =========================
+    // UpdateTests
+    // =========================
 
-        clientService.createClient(
-                name,
+    @Test
+    void shouldChangeName() {
+
+        clientService.createClient(name, cpf, email);
+
+        clientService.changeName(
                 cpf,
-                email
+                new PersonName("Pedro Souza")
         );
 
-        Cpf found =
-                clientService.getCpfByEmail(
-                        email
-                );
+        ClientData updatedClient = clientService.getClientData(cpf);
 
         assertEquals(
-                cpf,
-                found
+                "Pedro Souza",
+                updatedClient.name().value()
         );
     }
 
     @Test
-    void shouldThrowExceptionWhenEmailDoesNotExist() {
+    void shouldChangeEmail() {
+        clientService.createClient(name, cpf, email);
 
-        assertThrows(
-                ClientNotFoundException.class,
-                () -> clientService.getCpfByEmail(
-                        new Email("missing@gmail.com")
-                )
+        clientService.changeEmail(
+                cpf,
+                new Email("novo@gmail.com")
+        );
+
+        ClientData updatedClient = clientService.getClientData(cpf);
+
+        assertEquals(
+                "novo@gmail.com",
+                updatedClient.email().value()
         );
     }
 
@@ -281,6 +252,47 @@ public class ClientServiceTest {
                 InvalidClientChangeException.class,
                 () -> clientService.changeEmail(
                         cpf,
+                        email
+                )
+        );
+    }
+
+    @Test
+    void shouldNotFindClientByOldEmailAfterEmailChange() {
+
+        clientService.createClient(
+                name,
+                cpf,
+                email
+        );
+
+        clientService.changeEmail(
+                cpf,
+                new Email("new@gmail.com")
+        );
+
+        assertThrows(
+                ClientNotFoundException.class,
+                () -> clientService.getCpfByEmail(
+                        email
+                )
+        );
+    }
+
+    @Test
+    void shouldNotAllowChangingEmailToExistingEmail() {
+        clientService.createClient(name, cpf, email);
+
+        clientService.createClient(
+                new PersonName("Ana Silva"),
+                new Cpf("76887934086"),
+                new Email("ana@gmail.com")
+        );
+
+        assertThrows(
+                EmailAlreadyExistsException.class,
+                () -> clientService.changeEmail(
+                        new Cpf("76887934086"),
                         email
                 )
         );

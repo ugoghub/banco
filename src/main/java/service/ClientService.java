@@ -32,6 +32,10 @@ public class ClientService {
         clientRepository.save(client);
     }
 
+    // =========================
+    // GETTERS
+    // =========================
+
     private Client getClientByCpf(Cpf cpf) {
 
         return clientRepository
@@ -63,11 +67,19 @@ public class ClientService {
         return new ClientData(client.getName(), client.getCpf(), client.getEmail());
     }
 
+    // =========================
+    // RemoveActions
+    // =========================
+
     public void delete(UUID clientId) {
         if(!clientRepository.existsById(clientId)) throw new ClientNotFoundException("Cliente não encontrado");
 
         clientRepository.delete(clientId);
     }
+
+    // =========================
+    // Update
+    // =========================
 
     public PersonName changeName(
             Cpf cpf,
@@ -105,6 +117,10 @@ public class ClientService {
 
         return client.getEmail();
     }
+
+    // =========================
+    // Validate
+    // =========================
 
     private void validateCpfUniqueness(Cpf cpf) {
 
