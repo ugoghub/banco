@@ -103,7 +103,7 @@ public final class AuthController {
                     email
             );
 
-            ConsoleMessages.successLn(
+            ConsoleMessages.success(
                     "Cliente cadastrado com sucesso!"
             );
 

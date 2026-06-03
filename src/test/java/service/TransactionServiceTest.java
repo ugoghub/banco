@@ -18,6 +18,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -68,7 +69,6 @@ class TransactionServiceTest {
         accountService =
                 new AccountService(
                         accountRepository,
-                        clientService,
                         clock
                 );
 
@@ -763,7 +763,6 @@ class TransactionServiceTest {
         accountService =
                 new AccountService(
                         accountRepository,
-                        clientService,
                         january
                 );
 
@@ -780,9 +779,11 @@ class TransactionServiceTest {
                 new Email("hugo@gmail.com")
         );
 
+        UUID clientId = clientService.getClientId(cpf1);
+
         AccountIdentity account =
                 accountService.createAccount(
-                        cpf1,
+                        clientId,
                         AccountType.SAVINGS
                 );
 
@@ -800,7 +801,6 @@ class TransactionServiceTest {
         accountService =
                 new AccountService(
                         accountRepository,
-                        clientService,
                         february
                 );
 
@@ -846,7 +846,6 @@ class TransactionServiceTest {
         accountService =
                 new AccountService(
                         accountRepository,
-                        clientService,
                         january
                 );
 
@@ -863,21 +862,25 @@ class TransactionServiceTest {
                 email1
         );
 
+        UUID clientId = clientService.getClientId(cpf1);
+
         clientService.createClient(
                 name2,
                 cpf2,
                 email2
         );
 
+        UUID clientId2  = clientService.getClientId(cpf2);
+
         AccountIdentity from =
                 accountService.createAccount(
-                        cpf1,
+                        clientId,
                         AccountType.SAVINGS
                 );
 
         AccountIdentity to =
                 accountService.createAccount(
-                        cpf2,
+                        clientId2,
                         AccountType.SAVINGS
                 );
 
@@ -895,7 +898,6 @@ class TransactionServiceTest {
         accountService =
                 new AccountService(
                         accountRepository,
-                        clientService,
                         february
                 );
 
@@ -1071,8 +1073,10 @@ class TransactionServiceTest {
                 email
         );
 
+        UUID clientId = clientService.getClientId(cpf);
+
         return accountService.createAccount(
-                cpf,
+                clientId,
                 type
         );
     }

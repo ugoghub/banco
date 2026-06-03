@@ -25,7 +25,7 @@ public final class AccountSelector {
         ConsoleMessages.infoLn("Qual conta você deseja acessar: ");
 
         for (int i = 0; i < accounts.size(); i++) {
-            ConsoleMessages.highlightLn(
+            ConsoleMessages.highlight(
                     "%d - %s",
                     i + 1,
                     accounts.get(i)

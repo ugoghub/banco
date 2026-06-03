@@ -3,7 +3,6 @@ package model;
 import exception.InvalidAmountException;
 import exception.InvalidClockException;
 import exception.InvalidTransactionException;
-import exception.InvalidTypeException;
 import model.valueobject.AccountIdentity;
 import model.valueobject.Money;
 
@@ -93,7 +92,7 @@ public class Transaction {
         //validação defensiva
 
         if(type == null){
-            throw new InvalidTypeException(
+            throw new InvalidTransactionException(
                     "Tipo de transação inválido"
             );
         }

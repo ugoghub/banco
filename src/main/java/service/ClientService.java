@@ -63,13 +63,8 @@ public class ClientService {
         return new ClientData(client.getName().value(), client.getCpf().value(), client.getEmail().value());
     }
 
-    public boolean clientExists(UUID clientId){
-        return clientRepository.existsById(clientId);
-    }
-
-    public void delete(Cpf cpf) {
-
-        UUID clientId = getClientId(cpf);
+    public void delete(UUID clientId) {
+        if(!clientRepository.existsById(clientId)) throw new ClientNotFoundException("Cliente não encontrado");
 
         clientRepository.delete(clientId);
     }
@@ -127,9 +122,5 @@ public class ClientService {
                     "Email já cadastrado"
             );
         }
-    }
-
-    public void validateIfClientExists(Cpf cpf) {
-        getClientByCpf(cpf);
     }
 }

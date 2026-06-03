@@ -24,19 +24,19 @@ public final class ConsoleMessages {
         System.out.printf(msg, values);
     }
 
-    public static void successLn(String msg) {
+    public static void success(String msg) {
         System.out.println(GREEN + msg + RESET);
     }
 
-    public static void successLn(String msg, Object... values) {
+    public static void success(String msg, Object... values) {
         System.out.printf(GREEN + msg + "%n" + RESET, values);
     }
 
-    public static void highlightLn(String msg) {
+    public static void highlight(String msg) {
         System.out.println(BLUE + msg + RESET);
     }
 
-    public static void highlightLn(String msg, Object ... values) {
+    public static void highlight(String msg, Object ... values) {
         System.out.printf(BLUE + msg + "%n" + RESET, values);
     }
 

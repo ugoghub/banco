@@ -16,25 +16,6 @@ public final class Money implements Comparable<Money>{
         this.value = value.setScale(2, RoundingMode.HALF_EVEN);
     }
 
-    @Override
-    public boolean equals(Object o) {
-
-        if (this == o) return true;
-
-        if (!(o instanceof Money money)) return false;
-
-        return value.compareTo(money.value) == 0;
-    }
-
-    @Override
-    public int hashCode() {
-        return value.stripTrailingZeros().hashCode();
-    }
-
-    public boolean isZero(){
-        return value.compareTo(BigDecimal.ZERO) == 0;
-    }
-
     public static Money of(String amount) {
 
         if(amount == null){
@@ -64,6 +45,10 @@ public final class Money implements Comparable<Money>{
         }
 
         return new Money(amount);
+    }
+
+    public boolean isZero(){
+        return value.compareTo(BigDecimal.ZERO) == 0;
     }
 
     public boolean isNegativeOrZero(){
@@ -106,9 +91,28 @@ public final class Money implements Comparable<Money>{
         return value.compareTo(other.value);
     }
 
-    private <T> void validateNonNull(T money){
-        if(money == null){
+    private static void validateNonNull(Object obj){
+        if(obj == null){
             throw new InvalidAmountException("Valor não pode ser null");
         }
+    }
+
+    public BigDecimal value() {
+        return value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) return true;
+
+        if (!(o instanceof Money money)) return false;
+
+        return value.compareTo(money.value) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return value.stripTrailingZeros().hashCode();
     }
 }

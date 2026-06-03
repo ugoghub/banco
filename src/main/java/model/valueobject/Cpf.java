@@ -10,7 +10,12 @@ public record Cpf(String value) {
             throw new InvalidCpfException("CPF não pode ser null");
         }
 
-        value = value.replaceAll("[^0-9]", "");
+        if (!value.matches("\\d{11}") &&
+                !value.matches("\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}")) {
+            throw new InvalidCpfException("CPF inválido");
+        }
+
+        value = value.replaceAll("[.-]", "");
 
         if (!isValidCpf(value)) {
             throw new InvalidCpfException("CPF inválido");
@@ -25,9 +30,6 @@ public record Cpf(String value) {
 
     private static boolean isValidCpf(String cpf) {
 
-        if (cpf.length() != 11) return false;
-
-        // Bloqueia CPFs com todos os números iguais
         if (cpf.matches("(\\d)\\1{10}")) return false;
 
         int sum = 0;

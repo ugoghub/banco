@@ -1,16 +1,16 @@
 package ui.controller;
 
-import ui.InputReader;
-import ui.messages.ConsoleMessages;
+import application.ApplicationService;
 import exception.DomainException;
 import model.valueobject.AccountIdentity;
 import model.valueobject.Money;
-import application.ApplicationService;
 import service.dto.StatementData;
+import service.formatter.MoneyFormatter;
+import service.formatter.StatementFormatter;
+import ui.InputReader;
+import ui.messages.ConsoleMessages;
 
-import java.text.NumberFormat;
 import java.util.List;
-import java.util.Locale;
 import java.util.Scanner;
 
 public final class AccountTransactionController {
@@ -40,7 +40,7 @@ public final class AccountTransactionController {
                     value
             );
 
-            ConsoleMessages.successLn("Depósito Realizado!");
+            ConsoleMessages.success("Depósito Realizado!");
 
         } catch (DomainException e) {
             ConsoleMessages.error(e);
@@ -64,7 +64,7 @@ public final class AccountTransactionController {
                     value
             );
 
-            ConsoleMessages.successLn("Saque Realizado!");
+            ConsoleMessages.success("Saque Realizado!");
 
         } catch (
                 DomainException e
@@ -79,17 +79,13 @@ public final class AccountTransactionController {
 
         try {
 
-            String formatBalance = NumberFormat
-                    .getCurrencyInstance(
-                            Locale.of("pt", "BR")
-                    ).format(
-                            applicationService
-                                    .getAccountBalance(accountIdentity)
-                    );
+            Money accountBalance = applicationService.getAccountBalance(accountIdentity);
 
-            ConsoleMessages.highlightLn(
+            String formatted = MoneyFormatter.format(accountBalance);
+
+            ConsoleMessages.highlight(
                     "Saldo: "
-                            + formatBalance
+                            + formatted
                     );
 
         } catch (DomainException e) {
@@ -135,7 +131,7 @@ public final class AccountTransactionController {
                     value
             );
 
-            ConsoleMessages.successLn("Transferência Realizada!");
+            ConsoleMessages.success("Transferência Realizada!");
 
         } catch (DomainException e) {
             ConsoleMessages.error(e);
@@ -156,7 +152,7 @@ public final class AccountTransactionController {
 
             if (transactions.isEmpty()) {
 
-                ConsoleMessages.highlightLn("Conta sem extrato!");
+                ConsoleMessages.highlight("Conta sem extrato!");
 
                 return;
             }
@@ -164,7 +160,10 @@ public final class AccountTransactionController {
             for (StatementData transaction
                     : transactions) {
 
-                ConsoleMessages.highlightLn(transaction.toString());
+                ConsoleMessages.highlight(
+                        StatementFormatter.format(transaction)
+                );
+
             }
 
         } catch (DomainException e) {

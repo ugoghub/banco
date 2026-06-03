@@ -1,7 +1,6 @@
 package valueObjects;
 
 import exception.InvalidEmailException;
-import model.valueobject.Cpf;
 import model.valueobject.Email;
 import org.junit.jupiter.api.Test;
 

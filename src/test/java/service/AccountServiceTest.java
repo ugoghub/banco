@@ -2,7 +2,6 @@ package service;
 
 import exception.AccountDeletionNotAllowedException;
 import exception.AccountNotFoundException;
-import exception.ClientNotFoundException;
 import model.Account;
 import model.AccountType;
 import model.valueobject.*;
@@ -16,6 +15,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,7 +41,6 @@ public class AccountServiceTest {
         accountService =
                 new AccountService(
                         accountRepository,
-                        clientService,
                         Clock.systemUTC()
                 );
     }
@@ -55,24 +54,15 @@ public class AccountServiceTest {
                 email
         );
 
+        UUID clientId = clientService.getClientId(cpf);
+
         AccountIdentity account =
                 accountService.createAccount(
-                        cpf,
+                        clientId,
                         AccountType.CHECKING
                 );
 
         assertNotNull(account);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenClientDoesNotExist() {
-        assertThrows(
-                ClientNotFoundException.class,
-                () -> accountService.createAccount(
-                        cpf,
-                        AccountType.CHECKING
-                )
-        );
     }
 
     @Test
@@ -84,9 +74,11 @@ public class AccountServiceTest {
                 email
         );
 
+        UUID clientId = clientService.getClientId(cpf);
+
         AccountIdentity identity =
                 accountService.createAccount(
-                        cpf,
+                        clientId,
                         AccountType.CHECKING
                 );
 
@@ -99,17 +91,17 @@ public class AccountServiceTest {
     @Test
     void shouldNotRemoveAccountWithBalance() {
 
-
-
         clientService.createClient(
                 new PersonName("Hugo Silva"),
                 cpf,
                 new Email("hugo@gmail.com")
         );
 
+        UUID clientId = clientService.getClientId(cpf);
+
         AccountIdentity identity =
                 accountService.createAccount(
-                        cpf,
+                        clientId,
                         AccountType.CHECKING
                 );
 
@@ -129,17 +121,17 @@ public class AccountServiceTest {
     @Test
     void shouldRemoveAccount() {
 
-
-
         clientService.createClient(
                 name,
                 cpf,
                 email
         );
 
+        UUID clientId = clientService.getClientId(cpf);
+
         AccountIdentity identity =
                 accountService.createAccount(
-                        cpf,
+                        clientId,
                         AccountType.CHECKING
                 );
 
@@ -161,27 +153,36 @@ public class AccountServiceTest {
                 email
         );
 
+        UUID clientId = clientService.getClientId(cpf);
+
         accountService.createAccount(
-                cpf,
+                clientId,
                 AccountType.CHECKING
         );
 
         accountService.createAccount(
-                cpf,
+                clientId,
                 AccountType.SAVINGS
         );
 
-        List<AccountIdentity> accounts =
-                accountService.getClientAccountsIdentity(cpf);
+        accountService.createAccount(
+                clientId,
+                AccountType.SAVINGS
+        );
 
-        assertEquals(2, accounts.size());
+        accountService.createAccount(
+                clientId,
+                AccountType.CHECKING
+        );
+
+        List<AccountIdentity> accounts =
+                accountService.getClientAccountsIdentity(clientId);
+
+        assertEquals(4, accounts.size());
     }
 
     @Test
     void shouldAssociateAccountWithCorrectClient() {
-
-        Cpf cpf2 =
-                new Cpf("76887934086");
 
         clientService.createClient(
                 name,
@@ -189,25 +190,32 @@ public class AccountServiceTest {
                 email
         );
 
+        UUID clientId = clientService.getClientId(cpf);
+
+        Cpf cpf2 =
+                new Cpf("76887934086");
+
         clientService.createClient(
                 new PersonName("Ana Silva"),
                 cpf2,
                 new Email("ana@gmail.com")
         );
 
+        UUID clientId2 = clientService.getClientId(cpf2);
+
         AccountIdentity account1 =
                 accountService.createAccount(
-                        cpf,
+                        clientId,
                         AccountType.CHECKING
                 );
 
         accountService.createAccount(
-                cpf2,
+                clientId2,
                 AccountType.SAVINGS
         );
 
         List<AccountIdentity> accounts =
-                accountService.getClientAccountsIdentity(cpf);
+                accountService.getClientAccountsIdentity(clientId);
 
         assertEquals(1, accounts.size());
 
@@ -256,8 +264,10 @@ public class AccountServiceTest {
                 email
         );
 
+        UUID clientId = clientService.getClientId(cpf);
+
         List<AccountIdentity> accounts =
-                accountService.getClientAccountsIdentity(cpf);
+                accountService.getClientAccountsIdentity(clientId);
 
         assertTrue(accounts.isEmpty());
     }
@@ -274,7 +284,6 @@ public class AccountServiceTest {
         accountService =
                 new AccountService(
                         accountRepository,
-                        clientService,
                         january
                 );
 
@@ -284,14 +293,16 @@ public class AccountServiceTest {
                 email
         );
 
-        AccountIdentity identity =
+        UUID clientId = clientService.getClientId(cpf);
+
+        AccountIdentity accountIdentity =
                 accountService.createAccount(
-                        cpf,
+                        clientId,
                         AccountType.SAVINGS
                 );
 
         Account account =
-                accountService.getAccountByAccountIdentity(identity);
+                accountService.getAccountByAccountIdentity(accountIdentity);
 
         account.deposit(Money.of("1000"));
 
@@ -304,7 +315,6 @@ public class AccountServiceTest {
         accountService =
                 new AccountService(
                         accountRepository,
-                        clientService,
                         february
                 );
 
@@ -316,7 +326,7 @@ public class AccountServiceTest {
         );
 
         Money balance =
-                transactionService.getAccountBalance(identity);
+                transactionService.getAccountBalance(accountIdentity);
 
         assertEquals(
                 Money.of("1005"),
@@ -333,14 +343,26 @@ public class AccountServiceTest {
                 email
         );
 
+        UUID clientId = clientService.getClientId(cpf);
+
         accountService.createAccount(
-                cpf,
+                clientId,
                 AccountType.CHECKING
+        );
+
+        accountService.createAccount(
+                clientId,
+                AccountType.SAVINGS
+        );
+
+        accountService.createAccount(
+                clientId,
+                AccountType.SAVINGS
         );
 
         assertDoesNotThrow(
                 () -> accountService
-                        .validateIfAccountCanBeRemoved(cpf)
+                        .validateIfAccountsCanBeRemoved(clientId)
         );
     }
 
@@ -353,14 +375,21 @@ public class AccountServiceTest {
                 email
         );
 
+        UUID clientId = clientService.getClientId(cpf);
+
         AccountIdentity checking =
                 accountService.createAccount(
-                        cpf,
+                        clientId,
                         AccountType.CHECKING
                 );
 
         accountService.createAccount(
-                cpf,
+                clientId,
+                AccountType.SAVINGS
+        );
+
+        accountService.createAccount(
+                clientId,
                 AccountType.SAVINGS
         );
 
@@ -372,7 +401,7 @@ public class AccountServiceTest {
         assertThrows(
                 AccountDeletionNotAllowedException.class,
                 () -> accountService
-                        .validateIfAccountCanBeRemoved(cpf)
+                        .validateIfAccountsCanBeRemoved(clientId)
         );
     }
 
@@ -385,19 +414,21 @@ public class AccountServiceTest {
                 email
         );
 
+        UUID clientId = clientService.getClientId(cpf);
+
         AccountIdentity first =
                 accountService.createAccount(
-                        cpf,
+                        clientId,
                         AccountType.CHECKING
                 );
 
         AccountIdentity second =
                 accountService.createAccount(
-                        cpf,
+                        clientId,
                         AccountType.SAVINGS
                 );
 
-        accountService.removeClientAccounts(cpf);
+        accountService.removeClientAccounts(clientId);
 
         assertThrows(
                 AccountNotFoundException.class,
@@ -409,17 +440,6 @@ public class AccountServiceTest {
                 AccountNotFoundException.class,
                 () -> accountService
                         .getAccountByAccountIdentity(second)
-        );
-    }
-
-    @Test
-    void shouldThrowExceptionWhenGettingAccountsFromNonexistentClient() {
-
-        assertThrows(
-                ClientNotFoundException.class,
-                () -> accountService.getClientAccountsIdentity(
-                        cpf
-                )
         );
     }
 }

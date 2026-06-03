@@ -71,14 +71,11 @@ class CpfTest {
     }
 
     @Test
-    void shouldTrimCpfBeforeValidation() {
+    void shouldThrowExceptionWhenCpfHasInvalidSpaces() {
 
-        Cpf cpf =
-                createCpf(" 529.982.247-25 ");
-
-        assertEquals(
-                "52998224725",
-                cpf.value()
+        assertThrows(
+                InvalidCpfException.class,
+                () -> createCpf(" 529.982 . 247-25 ")
         );
     }
 

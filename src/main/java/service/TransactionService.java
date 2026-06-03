@@ -27,13 +27,11 @@ public class TransactionService {
         this.clock = clock;
     }
 
-    public void deposit(AccountIdentity id,
+    public void deposit(AccountIdentity accountIdentity,
                         Money value) {
 
 
-        Account account = accountService.getAccountByAccountIdentity(id);
-
-        applyPendingInterest(account);
+        Account account = getAccountWithUpdatedInterest(accountIdentity);
 
         account.deposit(value);
 
@@ -47,12 +45,10 @@ public class TransactionService {
     }
 
 
-    public void withdraw(AccountIdentity id,
+    public void withdraw(AccountIdentity accountIdentity,
                          Money value) {
 
-        Account account = accountService.getAccountByAccountIdentity(id);
-
-        applyPendingInterest(account);
+        Account account = getAccountWithUpdatedInterest(accountIdentity);
 
         account.withdraw(value);
 
@@ -66,20 +62,17 @@ public class TransactionService {
     }
 
 
-    public void transfer(AccountIdentity fromId,
-                         AccountIdentity toId,
+    public void transfer(AccountIdentity fromAccountIdentity,
+                         AccountIdentity toAccountIdentity,
                          Money value) {
 
 
-        Account from = accountService.getAccountByAccountIdentity(fromId);
-        Account to = accountService.getAccountByAccountIdentity(toId);
+        Account from = getAccountWithUpdatedInterest(fromAccountIdentity);
+        Account to = getAccountWithUpdatedInterest(toAccountIdentity);
 
         if (from.equals(to)) {
             throw new InvalidTransferException("Não é possível transferir para a mesma conta");
         }
-
-        applyPendingInterest(from);
-        applyPendingInterest(to);
 
         from.withdraw(value);
 
@@ -106,18 +99,16 @@ public class TransactionService {
         );
     }
 
-    public Money getAccountBalance(AccountIdentity identity) {
+    public Money getAccountBalance(AccountIdentity accountIdentity) {
 
-        Account account =
-                accountService.getAccountByAccountIdentity(identity);
-
-        applyPendingInterest(account);
+        Account account = getAccountWithUpdatedInterest(accountIdentity);
 
         return account.getBalance();
     }
 
     public List<StatementData> getTransactionHistoryByAccountIdentity(AccountIdentity accountIdentity) {
-        UUID accountId = accountService.getAccountIdByAccountIdentity(accountIdentity);
+        UUID accountId = accountService.getAccountByAccountIdentity(accountIdentity).getId();
+
         List<Transaction> transactionsByAccountId = transactionRepository.getTransactionsByAccountId(accountId);
 
         return transactionsByAccountId.stream()
@@ -160,5 +151,13 @@ public class TransactionService {
         transactions.forEach(t ->
                 transactionRepository.save(account.getId(), t)
         );
+    }
+
+    private Account getAccountWithUpdatedInterest(AccountIdentity accountIdentity){
+        Account account = accountService.getAccountByAccountIdentity(accountIdentity);
+
+        applyPendingInterest(account);
+
+        return account;
     }
 }

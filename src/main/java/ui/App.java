@@ -75,7 +75,7 @@ public final class App {
                 case 2 -> loggedCpf = authController.register();
 
                 case 0 -> {
-                    ConsoleMessages.successLn("Saindo...");
+                    ConsoleMessages.success("Saindo...");
                     scanner.close();
                     return;
                 }
@@ -133,7 +133,7 @@ public final class App {
 
         loggedCpf = null;
 
-        ConsoleMessages.successLn(
+        ConsoleMessages.success(
                 "Logout realizado!"
         );
     }

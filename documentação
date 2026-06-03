@@ -447,3 +447,9 @@ SavingsAccount nao possuem muitos testes de deposit e withdraw, pois seriam test
 
 entao checkingAccount engloba testes basicos + testes em relação permitir saldo negativo(até 1000) + teste de conta pode ou nao ser removida.
 e savingsAccount fica com testes de aplicação de juros + 1 teste de nao permitir saldo negativo nunca.
+
+<<--------------------------------------->>
+
+historico de transação permanece mesmo apos conta ser removida.
+
+<<------------------------------------>>

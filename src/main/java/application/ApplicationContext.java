@@ -32,7 +32,6 @@ public class ApplicationContext {
         accountService =
                 new AccountService(
                         accountRepository,
-                        clientService,
                         clock
                 );
 

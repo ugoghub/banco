@@ -105,7 +105,8 @@ public final class AccountController {
             );
 
             ConsoleMessages.infoLn(account.toString());
-            ConsoleMessages.successLn(
+
+            ConsoleMessages.success(
                     "Conta criada com sucesso!"
             );
 
@@ -130,7 +131,7 @@ public final class AccountController {
                     accountIdentity
             );
 
-            ConsoleMessages.successLn(
+            ConsoleMessages.success(
                     "Conta removida com sucesso!"
             );
 

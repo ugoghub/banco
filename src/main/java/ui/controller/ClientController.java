@@ -22,19 +22,19 @@ public final class ClientController {
 
     public void showData(ClientData client) {
 
-        ConsoleMessages.info("%n== DADOS ==%n");
+        ConsoleMessages.highlight("== DADOS ==");
 
-        ConsoleMessages.highlightLn(
+        ConsoleMessages.highlight(
                 "Nome: %s",
                 client.name()
         );
 
-        ConsoleMessages.highlightLn(
+        ConsoleMessages.highlight(
                 "Cpf: %s",
                 client.cpf()
         );
 
-        ConsoleMessages.highlightLn(
+        ConsoleMessages.highlight(
                 "Email: %s",
                 client.email()
         );
@@ -74,7 +74,7 @@ public final class ClientController {
                                     personName
                             );
 
-                    ConsoleMessages.successLn(
+                    ConsoleMessages.success(
                             "Nome alterado para %s com sucesso",
                             newName
                     );
@@ -95,7 +95,7 @@ public final class ClientController {
                                     email
                             );
 
-                    ConsoleMessages.successLn(
+                    ConsoleMessages.success(
                             "Email alterado para %s com sucesso%n",
                             newEmail
                     );
@@ -115,7 +115,7 @@ public final class ClientController {
                     loggedCpf
             );
 
-            ConsoleMessages.successLn(
+            ConsoleMessages.success(
                     "Cliente removido com sucesso!"
             );
 

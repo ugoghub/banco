@@ -9,6 +9,7 @@ import service.dto.ClientData;
 import service.dto.StatementData;
 
 import java.util.List;
+import java.util.UUID;
 
 public class ApplicationService {
     private final ClientService clientService;
@@ -38,10 +39,12 @@ public class ApplicationService {
     }
 
     public void removeClient(Cpf cpf) {
-        clientService.validateIfClientExists(cpf);
-        accountService.validateIfAccountCanBeRemoved(cpf);
-        accountService.removeClientAccounts(cpf);
-        clientService.delete(cpf);
+
+        UUID clientId = clientService.getClientId(cpf);
+
+        accountService.validateIfAccountsCanBeRemoved(clientId);
+        accountService.removeClientAccounts(clientId);
+        clientService.delete(clientId);
     }
 
     public ClientData getClientData(Cpf cpf) {
@@ -56,10 +59,7 @@ public class ApplicationService {
         return clientService.changeEmail(cpf, email);
     }
 
-    public Cpf getCpfByEmail(Email email) {
-
-        return clientService.getCpfByEmail(email);
-    }
+    public Cpf getCpfByEmail(Email email) { return clientService.getCpfByEmail(email); }
 
     // =========================
     // Account
@@ -67,8 +67,9 @@ public class ApplicationService {
 
     public AccountIdentity createAccount(Cpf cpf, AccountType type)
     {
+        UUID clientId = clientService.getClientId(cpf);
 
-        return accountService.createAccount(cpf, type);
+        return accountService.createAccount(clientId, type);
     }
 
     public void removeAccount(AccountIdentity accountIdentity) {
@@ -76,37 +77,38 @@ public class ApplicationService {
     }
 
     public List<AccountIdentity> getClientAccountsIdentity(Cpf cpf) {
+        UUID clientId = clientService.getClientId(cpf);
 
-        return accountService.getClientAccountsIdentity(cpf);
+        return accountService.getClientAccountsIdentity(clientId);
     }
 
     // =========================
     // Transaction
     // =========================
 
-    public void deposit(AccountIdentity identity,
+    public void deposit(AccountIdentity accountIdentity,
                         Money value){
 
-        transactionService.deposit(identity, value);
+        transactionService.deposit(accountIdentity, value);
     }
 
-    public void withdraw(AccountIdentity identity,
+    public void withdraw(AccountIdentity accountIdentity,
                          Money value) {
 
-        transactionService.withdraw(identity, value);
+        transactionService.withdraw(accountIdentity, value);
     }
 
-    public void transfer(AccountIdentity fromId,
-                         AccountIdentity toId,
+    public void transfer(AccountIdentity fromAccountIdentity,
+                         AccountIdentity toAccountIdentity,
                          Money value) {
 
-        transactionService.transfer(fromId, toId, value);
+        transactionService.transfer(fromAccountIdentity, toAccountIdentity, value);
     }
 
-    public Money getAccountBalance(AccountIdentity identity)
+    public Money getAccountBalance(AccountIdentity accountIdentity)
     {
 
-        return transactionService.getAccountBalance(identity);
+        return transactionService.getAccountBalance(accountIdentity);
     }
 
     public List<StatementData> getAccountTransactions(AccountIdentity accountIdentity){

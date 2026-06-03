@@ -1,3 +1,10 @@
-aumentando a consistencia das exceções no codigo;
+accountService nao conhece mais clientService
 
-introdução de ApplictionContext e reorganizaçao de applicationService e do construtor de App;
+applicationService coordena o parsing de cpf -> clientId
+serviços(exceto clientService) usam apenas clientId
+
+applicationServiceTest
+
+criação de StatementFormatter para tirar a responsabilidade de apresentação de uma transação de StatementData
+
+money voltou a expor BigDecimal apenas para permitir apresentação de saldo formatada.
