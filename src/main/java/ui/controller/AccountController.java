@@ -1,9 +1,10 @@
 package ui.controller;
 
 import ui.InputReader;
+import ui.formatter.AccountIdentityFormatter;
 import ui.menu.AccountMenu;
 import ui.messages.ConsoleMessages;
-import ui.selector.AccountSelector;
+import ui.menu.AccountSelector;
 import exception.DomainException;
 import model.AccountType;
 import model.valueobject.AccountIdentity;
@@ -20,13 +21,15 @@ public final class AccountController {
     private final AccountTransactionController accountOperationsController;
 
 
-    public AccountController(Scanner scanner, ApplicationService applicationService) {
+    public AccountController(Scanner scanner,
+                             ApplicationService applicationService,
+                             AccountTransactionController transactionController) {
         this.scanner = scanner;
         this.applicationService = applicationService;
-        this.accountOperationsController = new AccountTransactionController(scanner, applicationService);
+        this.accountOperationsController = transactionController;
     }
 
-    public void start(Cpf cpf) {
+    public void enterAccount(Cpf cpf) {
         try {
             List<AccountIdentity> accounts =
                     applicationService
@@ -87,7 +90,8 @@ public final class AccountController {
                     ===== CRIAR CONTA =====
                     1 - Conta Corrente
                     2 - Conta Poupança
-                    """);
+                    """
+            );
 
             int option = InputReader.readOption(
                     scanner,
@@ -104,7 +108,12 @@ public final class AccountController {
                     type
             );
 
-            ConsoleMessages.infoLn(account.toString());
+            ConsoleMessages.infoLn(
+                    AccountIdentityFormatter
+                            .format(
+                                    account
+                            )
+            );
 
             ConsoleMessages.success(
                     "Conta criada com sucesso!"

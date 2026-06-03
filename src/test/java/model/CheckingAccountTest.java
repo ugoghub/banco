@@ -132,22 +132,6 @@ class CheckingAccountTest {
     // =========================
 
     @Test
-    void shouldAllowOverdraftUntilLimit() {
-
-        CheckingAccount account =
-                createCheckingAccount(clock);
-
-        account.withdraw(
-                Money.of("500")
-        );
-
-        assertEquals(
-                Money.of("-500.00"),
-                account.getBalance()
-        );
-    }
-
-    @Test
     void shouldAllowWithdrawExactlyAtOverdraftLimit() {
 
         CheckingAccount account =

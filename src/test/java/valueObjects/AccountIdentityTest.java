@@ -170,15 +170,21 @@ class AccountIdentityTest {
     @Test
     void shouldBeEqualWhenValuesAreEqual() {
 
-        assertEquals(accountIdentity, accountIdentity);
+        AccountIdentity sameAccountIdentity =
+                createIdentity("01","123456-1");
+
+        assertEquals(accountIdentity,sameAccountIdentity);
     }
 
     @Test
     void shouldHaveSameHashCodeWhenValuesAreEqual() {
 
+        AccountIdentity sameAccountIdentity =
+                createIdentity("01","123456-1");
+
         assertEquals(
                 accountIdentity.hashCode(),
-                accountIdentity.hashCode()
+                sameAccountIdentity.hashCode()
         );
     }
 

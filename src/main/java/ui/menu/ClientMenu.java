@@ -23,7 +23,7 @@ public final class ClientMenu {
                 6 - Excluir conta cliente
                 0 - Logout
                 """,
-                client.name().toUpperCase()
+                client.name().value().toUpperCase()
         );
     }
 }

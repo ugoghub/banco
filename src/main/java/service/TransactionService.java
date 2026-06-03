@@ -107,7 +107,7 @@ public class TransactionService {
     }
 
     public List<StatementData> getTransactionHistoryByAccountIdentity(AccountIdentity accountIdentity) {
-        UUID accountId = accountService.getAccountByAccountIdentity(accountIdentity).getId();
+        UUID accountId = getAccountWithUpdatedInterest(accountIdentity).getId();
 
         List<Transaction> transactionsByAccountId = transactionRepository.getTransactionsByAccountId(accountId);
 

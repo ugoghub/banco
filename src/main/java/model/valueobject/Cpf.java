@@ -25,7 +25,7 @@ public record Cpf(String value) {
 
     @Override
     public String toString() {
-        return value.replaceFirst("(\\d{3})(\\d{3})(\\d{3})(\\d{2})", "$1.$2.$3-$4");
+        return value;
     }
 
     private static boolean isValidCpf(String cpf) {

@@ -1,6 +1,7 @@
 package ui.controller;
 
 import ui.InputReader;
+import ui.formatter.ClientFormatter;
 import ui.messages.ConsoleMessages;
 import exception.DomainException;
 import model.valueobject.Cpf;
@@ -24,20 +25,7 @@ public final class ClientController {
 
         ConsoleMessages.highlight("== DADOS ==");
 
-        ConsoleMessages.highlight(
-                "Nome: %s",
-                client.name()
-        );
-
-        ConsoleMessages.highlight(
-                "Cpf: %s",
-                client.cpf()
-        );
-
-        ConsoleMessages.highlight(
-                "Email: %s",
-                client.email()
-        );
+        ConsoleMessages.highlight(ClientFormatter.format(client));
     }
 
     public void changeData(Cpf loggedCpf) {

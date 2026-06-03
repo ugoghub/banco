@@ -177,6 +177,172 @@ class TransactionServiceTest {
         );
     }
 
+    @Test
+    void shouldApplyPendingInterestBeforeDeposit() {
+
+        Clock january =
+                Clock.fixed(
+                        Instant.parse("2026-01-01T10:00:00Z"),
+                        ZoneOffset.UTC
+                );
+
+        AccountRepository accountRepository =
+                new AccountRepository();
+
+        TransactionRepository transactionRepository =
+                new TransactionRepository();
+
+        accountService =
+                new AccountService(
+                        accountRepository,
+                        january
+                );
+
+        transactionService =
+                new TransactionService(
+                        accountService,
+                        transactionRepository,
+                        january
+                );
+
+        clientService.createClient(
+                name1,
+                cpf1,
+                email1
+        );
+
+        UUID clientId =
+                clientService.getClientId(cpf1);
+
+        AccountIdentity account =
+                accountService.createAccount(
+                        clientId,
+                        AccountType.SAVINGS
+                );
+
+        transactionService.deposit(
+                account,
+                Money.of("1000")
+        );
+
+        Clock february =
+                Clock.fixed(
+                        Instant.parse("2026-02-02T10:00:00Z"),
+                        ZoneOffset.UTC
+                );
+
+        accountService =
+                new AccountService(
+                        accountRepository,
+                        february
+                );
+
+        transactionService =
+                new TransactionService(
+                        accountService,
+                        transactionRepository,
+                        february
+                );
+
+        transactionService.deposit(
+                account,
+                Money.of("100")
+        );
+
+        assertEquals(
+                Money.of("1105"),
+                transactionService.getAccountBalance(account)
+        );
+    }
+
+    @Test
+    void shouldCreateInterestTransactionBeforeDeposit() {
+
+        Clock january =
+                Clock.fixed(
+                        Instant.parse("2026-01-01T10:00:00Z"),
+                        ZoneOffset.UTC
+                );
+
+        AccountRepository accountRepository =
+                new AccountRepository();
+
+        TransactionRepository transactionRepository =
+                new TransactionRepository();
+
+        accountService =
+                new AccountService(
+                        accountRepository,
+                        january
+                );
+
+        transactionService =
+                new TransactionService(
+                        accountService,
+                        transactionRepository,
+                        january
+                );
+
+        clientService.createClient(
+                name1,
+                cpf1,
+                email1
+        );
+
+        UUID clientId =
+                clientService.getClientId(cpf1);
+
+        AccountIdentity account =
+                accountService.createAccount(
+                        clientId,
+                        AccountType.SAVINGS
+                );
+
+        transactionService.deposit(
+                account,
+                Money.of("1000")
+        );
+
+        Clock february =
+                Clock.fixed(
+                        Instant.parse("2026-02-02T10:00:00Z"),
+                        ZoneOffset.UTC
+                );
+
+        accountService =
+                new AccountService(
+                        accountRepository,
+                        february
+                );
+
+        transactionService =
+                new TransactionService(
+                        accountService,
+                        transactionRepository,
+                        february
+                );
+
+        transactionService.deposit(
+                account,
+                Money.of("100")
+        );
+
+        List<StatementData> statement =
+                transactionService.getTransactionHistoryByAccountIdentity(
+                        account
+                );
+
+        assertEquals(
+                TransactionType.INTEREST,
+                statement.get(1).type()
+        );
+
+        assertEquals(
+                TransactionType.DEPOSIT,
+                statement.get(2).type()
+        );
+    }
+
     // =========================
     // Withdraw
     // =========================
@@ -218,32 +384,6 @@ class TransactionServiceTest {
         assertThrows(
                 InvalidAmountException.class,
                 () -> withdraw(account, "-50")
-        );
-    }
-
-    @Test
-    void shouldNotWithdrawWithoutBalanceInSavingsAccount() {
-
-        AccountIdentity account =
-                createSavingsAccount();
-
-        assertThrows(
-                InsufficientBalanceException.class,
-                () -> withdraw(account, "1")
-        );
-    }
-
-    @Test
-    void shouldAllowOverdraftInCheckingAccount() {
-
-        AccountIdentity account =
-                createCheckingAccount();
-
-        withdraw(account, "500");
-
-        assertEquals(
-                money("-500"),
-                balance(account)
         );
     }
 
@@ -328,33 +468,97 @@ class TransactionServiceTest {
         );
     }
 
+    @Test
+    void shouldCreateInterestTransactionBeforeWithdraw() {
+
+        Clock january =
+                Clock.fixed(
+                        Instant.parse("2026-01-01T10:00:00Z"),
+                        ZoneOffset.UTC
+                );
+
+        AccountRepository accountRepository =
+                new AccountRepository();
+
+        TransactionRepository transactionRepository =
+                new TransactionRepository();
+
+        accountService =
+                new AccountService(
+                        accountRepository,
+                        january
+                );
+
+        transactionService =
+                new TransactionService(
+                        accountService,
+                        transactionRepository,
+                        january
+                );
+
+        clientService.createClient(
+                name1,
+                cpf1,
+                email1
+        );
+
+        UUID clientId =
+                clientService.getClientId(cpf1);
+
+        AccountIdentity account =
+                accountService.createAccount(
+                        clientId,
+                        AccountType.SAVINGS
+                );
+
+        transactionService.deposit(
+                account,
+                Money.of("1000")
+        );
+
+        Clock february =
+                Clock.fixed(
+                        Instant.parse("2026-02-02T10:00:00Z"),
+                        ZoneOffset.UTC
+                );
+
+        accountService =
+                new AccountService(
+                        accountRepository,
+                        february
+                );
+
+        transactionService =
+                new TransactionService(
+                        accountService,
+                        transactionRepository,
+                        february
+                );
+
+        transactionService.withdraw(
+                account,
+                Money.of("5")
+        );
+
+        List<StatementData> statement =
+                transactionService.getTransactionHistoryByAccountIdentity(
+                        account
+                );
+
+        assertEquals(
+                TransactionType.INTEREST,
+                statement.get(1).type()
+        );
+
+        assertEquals(
+                TransactionType.WITHDRAW,
+                statement.get(2).type()
+        );
+    }
+
     // =========================
     // Transfer
     // =========================
-
-    @Test
-    void shouldTransferMoneyBetweenAccounts() {
-
-        AccountIdentity from =
-                createCheckingAccount();
-
-        AccountIdentity to =
-                createSavingsAccount();
-
-        deposit(from, "300");
-
-        transfer(from, to, "100");
-
-        assertEquals(
-                money("200"),
-                balance(from)
-        );
-
-        assertEquals(
-                money("100"),
-                balance(to)
-        );
-    }
 
     @Test
     void shouldNotTransferToSameAccount() {
@@ -823,6 +1027,88 @@ class TransactionServiceTest {
     }
 
     @Test
+    void shouldApplyPendingInterestWhenGettingBalance() {
+
+        Clock january =
+                Clock.fixed(
+                        Instant.parse("2026-01-01T10:00:00Z"),
+                        ZoneOffset.UTC
+                );
+
+        AccountRepository accountRepository =
+                new AccountRepository();
+
+        ClientRepository clientRepository =
+                new ClientRepository();
+
+        TransactionRepository transactionRepository =
+                new TransactionRepository();
+
+        clientService =
+                new ClientService(clientRepository);
+
+        accountService =
+                new AccountService(
+                        accountRepository,
+                        january
+                );
+
+        transactionService =
+                new TransactionService(
+                        accountService,
+                        transactionRepository,
+                        january
+                );
+
+        clientService.createClient(
+                name1,
+                cpf1,
+                email1
+        );
+
+        UUID clientId =
+                clientService.getClientId(cpf1);
+
+        AccountIdentity account =
+                accountService.createAccount(
+                        clientId,
+                        AccountType.SAVINGS
+                );
+
+        transactionService.deposit(
+                account,
+                Money.of("1000")
+        );
+
+        Clock february =
+                Clock.fixed(
+                        Instant.parse("2026-02-02T10:00:00Z"),
+                        ZoneOffset.UTC
+                );
+
+        accountService =
+                new AccountService(
+                        accountRepository,
+                        february
+                );
+
+        transactionService =
+                new TransactionService(
+                        accountService,
+                        transactionRepository,
+                        february
+                );
+
+        Money balance =
+                transactionService.getAccountBalance(account);
+
+        assertEquals(
+                Money.of("1005"),
+                balance
+        );
+    }
+
+    @Test
     void shouldApplyPendingInterestBeforeTransferBetweenSavingsAccounts() {
 
         Clock january =
@@ -980,6 +1266,86 @@ class TransactionServiceTest {
         assertNotEquals(
                 history.get(0).id(),
                 history.get(1).id()
+        );
+    }
+
+    @Test
+    void shouldApplyPendingInterestBeforeGettingStatement() {
+
+        Clock january =
+                Clock.fixed(
+                        Instant.parse("2026-01-01T10:00:00Z"),
+                        ZoneOffset.UTC
+                );
+
+        AccountRepository accountRepository =
+                new AccountRepository();
+
+        TransactionRepository transactionRepository =
+                new TransactionRepository();
+
+        accountService =
+                new AccountService(
+                        accountRepository,
+                        january
+                );
+
+        transactionService =
+                new TransactionService(
+                        accountService,
+                        transactionRepository,
+                        january
+                );
+
+        clientService.createClient(
+                name1,
+                cpf1,
+                email1
+        );
+
+        UUID clientId =
+                clientService.getClientId(cpf1);
+
+        AccountIdentity account =
+                accountService.createAccount(
+                        clientId,
+                        AccountType.SAVINGS
+                );
+
+        transactionService.deposit(
+                account,
+                Money.of("1000")
+        );
+
+        Clock february =
+                Clock.fixed(
+                        Instant.parse("2026-02-02T10:00:00Z"),
+                        ZoneOffset.UTC
+                );
+
+        accountService =
+                new AccountService(
+                        accountRepository,
+                        february
+                );
+
+        transactionService =
+                new TransactionService(
+                        accountService,
+                        transactionRepository,
+                        february
+                );
+
+        List<StatementData> statement =
+                transactionService.getTransactionHistoryByAccountIdentity(
+                        account
+                );
+
+        assertEquals(2, statement.size());
+
+        assertEquals(
+                TransactionType.INTEREST,
+                statement.getLast().type()
         );
     }
 

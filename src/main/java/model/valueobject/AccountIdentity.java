@@ -42,7 +42,12 @@ public record AccountIdentity(String branch, String accountNumber) {
     }
 
     @Override
-    public String toString() {
-        return "Ag: " + branch + " | Conta: " + accountNumber;
+    public String branch() {
+        return branch;
+    }
+
+    @Override
+    public String accountNumber() {
+        return accountNumber;
     }
 }

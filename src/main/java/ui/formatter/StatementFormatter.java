@@ -1,4 +1,4 @@
-package service.formatter;
+package ui.formatter;
 
 import model.valueobject.AccountIdentity;
 import service.dto.StatementData;
@@ -25,7 +25,7 @@ public final class StatementFormatter {
                 """.formatted(
                 statementData.type(),
                 statementData.dateTime().format(FORMATTER),
-                statementData.amount().value(),
+                MoneyFormatter.format(statementData.amount()),
                 formatIdentity(statementData.source()),
                 formatIdentity(statementData.destination()),
                 statementData.id().toString(),
@@ -33,13 +33,13 @@ public final class StatementFormatter {
         );
     }
 
-    private static String formatIdentity(AccountIdentity identity) {
-        if (identity == null) return "-";
+    private static String formatIdentity(AccountIdentity accountIdentity) {
+        if (accountIdentity == null) return "-";
 
-        return identity.branch() + " / " + identity.accountNumber();
+        return AccountIdentityFormatter.format(accountIdentity);
     }
 
-    private static  String formatOperationId(UUID operationId) {
+    private static String formatOperationId(UUID operationId) {
         if (operationId == null) return "-";
 
         return operationId.toString();

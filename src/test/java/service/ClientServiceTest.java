@@ -68,7 +68,7 @@ public class ClientServiceTest {
 
         assertEquals(
                 "Pedro Souza",
-                updatedClient.name()
+                updatedClient.name().value()
         );
     }
 
@@ -97,7 +97,7 @@ public class ClientServiceTest {
 
         assertEquals(
                 "novo@gmail.com",
-                updatedClient.email()
+                updatedClient.email().value()
         );
     }
 

@@ -85,6 +85,10 @@ public final class Money implements Comparable<Money>{
         return new Money(multiply);
     }
 
+    public BigDecimal value() {
+        return value;
+    }
+
     @Override
     public int compareTo(Money other) {
         validateNonNull(other);
@@ -95,10 +99,6 @@ public final class Money implements Comparable<Money>{
         if(obj == null){
             throw new InvalidAmountException("Valor não pode ser null");
         }
-    }
-
-    public BigDecimal value() {
-        return value;
     }
 
     @Override

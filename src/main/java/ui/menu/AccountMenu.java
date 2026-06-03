@@ -1,5 +1,6 @@
 package ui.menu;
 
+import ui.formatter.AccountIdentityFormatter;
 import ui.messages.ConsoleMessages;
 import model.valueobject.AccountIdentity;
 
@@ -21,6 +22,6 @@ public final class AccountMenu {
                 4 - Transferir
                 5 - Extrato
                 0 - Voltar
-                """, accountIdentity);
+                """, AccountIdentityFormatter.format(accountIdentity));
     }
 }

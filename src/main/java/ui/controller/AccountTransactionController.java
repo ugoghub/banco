@@ -5,8 +5,8 @@ import exception.DomainException;
 import model.valueobject.AccountIdentity;
 import model.valueobject.Money;
 import service.dto.StatementData;
-import service.formatter.MoneyFormatter;
-import service.formatter.StatementFormatter;
+import ui.formatter.MoneyFormatter;
+import ui.formatter.StatementFormatter;
 import ui.InputReader;
 import ui.messages.ConsoleMessages;
 
@@ -160,8 +160,7 @@ public final class AccountTransactionController {
             for (StatementData transaction
                     : transactions) {
 
-                ConsoleMessages.highlight(
-                        StatementFormatter.format(transaction)
+                ConsoleMessages.highlight(                        StatementFormatter.format(transaction)
                 );
 
             }

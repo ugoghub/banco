@@ -1,6 +1,7 @@
-package ui.selector;
+package ui.menu;
 
 import ui.InputReader;
+import ui.formatter.AccountIdentityFormatter;
 import ui.messages.ConsoleMessages;
 import exception.NoAccountsFoundException;
 import model.valueobject.AccountIdentity;
@@ -28,7 +29,7 @@ public final class AccountSelector {
             ConsoleMessages.highlight(
                     "%d - %s",
                     i + 1,
-                    accounts.get(i)
+                    AccountIdentityFormatter.format(accounts.get(i))
             );
         }
 

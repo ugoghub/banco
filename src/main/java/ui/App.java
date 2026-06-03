@@ -1,6 +1,7 @@
 package ui;
 
 import ui.controller.AccountController;
+import ui.controller.AccountTransactionController;
 import ui.controller.AuthController;
 import ui.controller.ClientController;
 import ui.menu.ClientMenu;
@@ -19,9 +20,9 @@ public final class App {
     private final Scanner scanner;
     private final ApplicationService applicationService;
 
+    private final AuthController authController;
     private final ClientController clientController;
     private final AccountController accountController;
-    private final AuthController authController;
 
     private Cpf loggedCpf;
 
@@ -38,23 +39,29 @@ public final class App {
                         context.getTransactionService()
                 );
 
+        authController =
+                new AuthController(
+                        scanner,
+                        applicationService
+                );
+
         clientController =
                 new ClientController(
                         scanner,
                         applicationService
                 );
 
+        AccountTransactionController transactionController =
+                new AccountTransactionController(scanner, applicationService);
+
         accountController =
                 new AccountController(
                         scanner,
-                        applicationService
+                        applicationService,
+                        transactionController
                 );
 
-        authController =
-                new AuthController(
-                        scanner,
-                        applicationService
-                );
+
     }
 
     public void start() {
@@ -106,7 +113,7 @@ public final class App {
 
                 case 1 -> accountController.createBankAccount(loggedCpf);
 
-                case 2 -> accountController.start(loggedCpf);
+                case 2 -> accountController.enterAccount(loggedCpf);
 
                 case 3 -> clientController.showData(client);
 

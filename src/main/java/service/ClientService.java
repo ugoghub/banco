@@ -60,7 +60,7 @@ public class ClientService {
     public ClientData getClientData(Cpf cpf) {
         Client client = getClientByCpf(cpf);
 
-        return new ClientData(client.getName().value(), client.getCpf().value(), client.getEmail().value());
+        return new ClientData(client.getName(), client.getCpf(), client.getEmail());
     }
 
     public void delete(UUID clientId) {

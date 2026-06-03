@@ -9,11 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import repository.AccountRepository;
 import repository.ClientRepository;
-import repository.TransactionRepository;
 
 import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,7 +20,6 @@ public class AccountServiceTest {
 
     private ClientService clientService;
     private AccountService accountService;
-    private AccountRepository accountRepository;
 
     private static final Cpf cpf = new Cpf("52998224725");
     private static final PersonName name = new PersonName("Hugo Silva");
@@ -33,7 +29,7 @@ public class AccountServiceTest {
     void setup() {
 
         ClientRepository clientRepository = new ClientRepository();
-        accountRepository = new AccountRepository();
+        AccountRepository accountRepository = new AccountRepository();
 
         clientService =
                 new ClientService(clientRepository);
@@ -270,68 +266,6 @@ public class AccountServiceTest {
                 accountService.getClientAccountsIdentity(clientId);
 
         assertTrue(accounts.isEmpty());
-    }
-
-    @Test
-    void shouldApplyPendingInterestWhenGettingBalance() {
-
-        Clock january =
-                Clock.fixed(
-                        Instant.parse("2026-01-01T10:00:00Z"),
-                        ZoneOffset.UTC
-                );
-
-        accountService =
-                new AccountService(
-                        accountRepository,
-                        january
-                );
-
-        clientService.createClient(
-                name,
-                cpf,
-                email
-        );
-
-        UUID clientId = clientService.getClientId(cpf);
-
-        AccountIdentity accountIdentity =
-                accountService.createAccount(
-                        clientId,
-                        AccountType.SAVINGS
-                );
-
-        Account account =
-                accountService.getAccountByAccountIdentity(accountIdentity);
-
-        account.deposit(Money.of("1000"));
-
-        Clock february =
-                Clock.fixed(
-                        Instant.parse("2026-02-02T10:00:00Z"),
-                        ZoneOffset.UTC
-                );
-
-        accountService =
-                new AccountService(
-                        accountRepository,
-                        february
-                );
-
-        TransactionService transactionService
-                = new TransactionService(
-                accountService,
-                new TransactionRepository(),
-                february
-        );
-
-        Money balance =
-                transactionService.getAccountBalance(accountIdentity);
-
-        assertEquals(
-                Money.of("1005"),
-                balance
-        );
     }
 
     @Test

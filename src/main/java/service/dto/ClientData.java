@@ -1,4 +1,12 @@
 package service.dto;
 
-public record ClientData(String name, String cpf, String email) {
+import model.valueobject.Cpf;
+import model.valueobject.Email;
+import model.valueobject.PersonName;
+
+public record ClientData(
+        PersonName name,
+        Cpf cpf,
+        Email email
+) {
 }
