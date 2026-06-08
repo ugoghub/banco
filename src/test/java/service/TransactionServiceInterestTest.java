@@ -192,7 +192,6 @@ public class TransactionServiceInterestTest {
 
         AccountIdentity account = createSavingsAccountWithInitialBalance();
 
-
         moveTo(february);
 
         transactionService.getAccountBalance(account);

@@ -1,7 +1,7 @@
 package model;
 
 import exception.InsufficientBalanceException;
-import helper.AccountTestFactory;
+import helper.AccountFactory;
 import model.valueobject.Money;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +27,7 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                AccountTestFactory.savings(january);
+                AccountFactory.savings(january);
 
         account.deposit(
                 Money.of("1000")
@@ -71,7 +71,7 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                AccountTestFactory.savings(january);
+                AccountFactory.savings(january);
 
         List<Money> appliedInterests =
                 account.applyPendingInterests(beforeOneMonth);
@@ -95,7 +95,7 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                AccountTestFactory.savings(february);
+                AccountFactory.savings(february);
 
         account.deposit(
                 Money.of("1000")
@@ -122,7 +122,7 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                AccountTestFactory.savings(january);
+                AccountFactory.savings(january);
 
         account.deposit(Money.of("1000"));
 
@@ -170,7 +170,7 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                AccountTestFactory.savings(january);
+                AccountFactory.savings(january);
 
         List<Money> appliedInterests =
                 account.applyPendingInterests(february);
@@ -199,7 +199,7 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                AccountTestFactory.savings(january);
+                AccountFactory.savings(january);
 
         account.deposit(
                 Money.of("1000")
@@ -226,7 +226,7 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                AccountTestFactory.savings(january15);
+                AccountFactory.savings(january15);
 
         account.deposit(Money.of("1000"));
 
@@ -263,7 +263,7 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                AccountTestFactory.savings(january);
+                AccountFactory.savings(january);
 
         Clock april =
                 Clock.fixed(
@@ -296,7 +296,7 @@ public class SavingsAccountTest {
                 );
 
         SavingsAccount account =
-                AccountTestFactory.savings(january);
+                AccountFactory.savings(january);
 
         account.deposit(Money.of("0.01"));
 
@@ -330,7 +330,7 @@ public class SavingsAccountTest {
     void shouldNotAllowNegativeBalance() {
 
         SavingsAccount account =
-                AccountTestFactory.savings(Clock.systemUTC());
+                AccountFactory.savings(Clock.systemUTC());
 
         assertThrows(
                 InsufficientBalanceException.class,

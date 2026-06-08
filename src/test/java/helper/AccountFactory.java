@@ -7,7 +7,10 @@ import model.valueobject.AccountIdentity;
 import java.time.Clock;
 import java.util.UUID;
 
-public final class AccountTestFactory {
+public final class AccountFactory {
+
+    private AccountFactory() {
+    }
 
     public static CheckingAccount checking(Clock clock) {
         return new CheckingAccount(

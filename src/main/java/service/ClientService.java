@@ -18,6 +18,10 @@ public class ClientService {
         this.clientRepository = clientRepository;
     }
 
+    // =========================
+    // Create
+    // =========================
+
     public void createClient(
             PersonName name,
             Cpf cpf,
@@ -68,7 +72,7 @@ public class ClientService {
     }
 
     // =========================
-    // RemoveActions
+    // Delete
     // =========================
 
     public void delete(UUID clientId) {
@@ -110,7 +114,7 @@ public class ClientService {
 
         client.changeEmail(newEmail);
 
-        clientRepository.reindexEmail(
+        clientRepository.updateEmail(
                 oldEmail,
                 client
         );
@@ -119,7 +123,7 @@ public class ClientService {
     }
 
     // =========================
-    // Validate
+    // Validation
     // =========================
 
     private void validateCpfUniqueness(Cpf cpf) {

@@ -4,7 +4,7 @@ import exception.InvalidAccountIdentityException;
 import exception.InvalidAmountException;
 import exception.InvalidClientIdException;
 import exception.InvalidClockException;
-import helper.AccountTestFactory;
+import helper.AccountFactory;
 import model.valueobject.AccountIdentity;
 import model.valueobject.Money;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,7 @@ public class AccountTest {
     void shouldStartWithZeroBalance() {
 
         CheckingAccount account =
-                AccountTestFactory.checking(clock);
+                AccountFactory.checking(clock);
 
         assertEquals(
                 Money.ZERO,
@@ -48,7 +48,7 @@ public class AccountTest {
                 );
 
         SavingsAccount account =
-                AccountTestFactory.savings(fixedClock);
+                AccountFactory.savings(fixedClock);
 
         assertEquals(
                 LocalDateTime.of(
@@ -107,14 +107,14 @@ public class AccountTest {
 
 
     // =========================
-    // RemoveTests
+    // Delete
     // =========================
 
     @Test
     void shouldAllowRemovalWhenBalanceIsZero() {
 
         CheckingAccount account =
-                AccountTestFactory.checking(clock);
+                AccountFactory.checking(clock);
 
         assertTrue(account.canBeRemoved());
     }
@@ -123,7 +123,7 @@ public class AccountTest {
     void shouldNotAllowRemovalWhenBalanceIsNotZero() {
 
         SavingsAccount account =
-                AccountTestFactory.savings(clock);
+                AccountFactory.savings(clock);
 
         account.deposit(Money.of("1"));
 
@@ -134,7 +134,7 @@ public class AccountTest {
     void shouldAllowRemovingAccountAfterReturningToZeroBalance() {
 
         CheckingAccount account =
-                AccountTestFactory.checking(clock);
+                AccountFactory.checking(clock);
 
         account.deposit(
                 Money.of("100")
@@ -157,7 +157,7 @@ public class AccountTest {
     void shouldDepositMoney() {
 
         CheckingAccount account =
-                AccountTestFactory.checking(clock);
+                AccountFactory.checking(clock);
 
         account.deposit(
                 Money.of("100")
@@ -173,7 +173,7 @@ public class AccountTest {
     void shouldNotAllowNegativeDeposit() {
 
         SavingsAccount account =
-                AccountTestFactory.savings(clock);
+                AccountFactory.savings(clock);
 
         assertThrows(
                 InvalidAmountException.class,
@@ -187,7 +187,7 @@ public class AccountTest {
     void shouldNotAllowZeroDeposit() {
 
         CheckingAccount account =
-                AccountTestFactory.checking(clock);
+                AccountFactory.checking(clock);
 
         assertThrows(
                 InvalidAmountException.class,
@@ -203,7 +203,7 @@ public class AccountTest {
     void shouldNotAllowZeroWithdraw() {
 
         SavingsAccount account =
-                AccountTestFactory.savings(clock);
+                AccountFactory.savings(clock);
 
         assertThrows(
                 InvalidAmountException.class,
@@ -217,7 +217,7 @@ public class AccountTest {
     void shouldNotAllowNegativeWithdraw() {
 
         CheckingAccount account =
-                AccountTestFactory.checking(clock);
+                AccountFactory.checking(clock);
 
         assertThrows(
                 InvalidAmountException.class,
@@ -235,7 +235,7 @@ public class AccountTest {
     void shouldWithdrawMoney() {
 
         SavingsAccount account =
-                AccountTestFactory.savings(clock);
+                AccountFactory.savings(clock);
 
         account.deposit(
                 Money.of("100")

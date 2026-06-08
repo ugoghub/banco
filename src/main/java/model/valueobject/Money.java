@@ -95,12 +95,6 @@ public final class Money implements Comparable<Money>{
         return value.compareTo(other.value);
     }
 
-    private static void validateNonNull(Object obj){
-        if(obj == null){
-            throw new InvalidAmountException("Valor não pode ser null");
-        }
-    }
-
     // =========================
     // Equals/Hashcode
     // =========================
@@ -118,5 +112,15 @@ public final class Money implements Comparable<Money>{
     @Override
     public int hashCode() {
         return value.stripTrailingZeros().hashCode();
+    }
+
+    // =========================
+    // Helper
+    // =========================
+
+    private static void validateNonNull(Object obj){
+        if(obj == null){
+            throw new InvalidAmountException("Valor não pode ser null");
+        }
     }
 }

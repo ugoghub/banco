@@ -15,6 +15,10 @@ public class AccountRepository {
         this.accountIdByClientId = new HashMap<>();
     }
 
+    // =========================
+    // Save
+    // =========================
+
     public void save(UUID clientId, Account account){
 
         accountIdByClientId
@@ -51,7 +55,7 @@ public class AccountRepository {
     }
 
     // =========================
-    // exists
+    // Exists
     // =========================
 
     public boolean existsByAccountIdentity(AccountIdentity accountIdentity) {
@@ -73,7 +77,7 @@ public class AccountRepository {
     }
 
     // =========================
-    // RemoveActions
+    // Delete
     // =========================
 
     public void removeAccount(UUID accountId){

@@ -29,8 +29,6 @@ public class TransactionTest {
     @Test
     void shouldCreateDepositTransaction() {
 
-
-
         Clock clock =
                 Clock.systemUTC();
 

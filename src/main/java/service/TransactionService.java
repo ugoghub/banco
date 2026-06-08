@@ -27,6 +27,10 @@ public class TransactionService {
         this.clock = clock;
     }
 
+    // =========================
+    // Transaction
+    // =========================
+
     public void deposit(AccountIdentity accountIdentity,
                         Money value) {
 

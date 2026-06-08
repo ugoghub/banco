@@ -1,7 +1,7 @@
 package model;
 
 import exception.InsufficientBalanceException;
-import helper.AccountTestFactory;
+import helper.AccountFactory;
 import model.valueobject.Money;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +23,7 @@ class CheckingAccountTest {
     void shouldAllowWithdrawExactlyAtOverdraftLimit() {
 
         CheckingAccount account =
-                AccountTestFactory.checking(clock);
+                AccountFactory.checking(clock);
 
         account.withdraw(
                 Money.of("1000")
@@ -39,7 +39,7 @@ class CheckingAccountTest {
     void shouldNotExceedOverdraftLimit() {
 
         CheckingAccount account =
-                AccountTestFactory.checking(clock);
+                AccountFactory.checking(clock);
 
         assertThrows(
                 InsufficientBalanceException.class,
@@ -53,7 +53,7 @@ class CheckingAccountTest {
     void shouldNotExceedOverdraftLimitAfterMultipleWithdraws() {
 
         CheckingAccount account =
-                AccountTestFactory.checking(clock);
+                AccountFactory.checking(clock);
 
         account.withdraw(Money.of("200"));
         account.withdraw(Money.of("200"));
@@ -71,7 +71,7 @@ class CheckingAccountTest {
     void shouldReduceNegativeBalanceAfterDeposit() {
 
         CheckingAccount account =
-                AccountTestFactory.checking(clock);
+                AccountFactory.checking(clock);
 
         account.withdraw(
                 Money.of("500")
@@ -91,7 +91,7 @@ class CheckingAccountTest {
     void shouldRecoverFromNegativeBalance() {
 
         CheckingAccount account =
-                AccountTestFactory.checking(clock);
+                AccountFactory.checking(clock);
 
         account.withdraw(Money.of("500"));
 
@@ -107,7 +107,7 @@ class CheckingAccountTest {
     void shouldAllowWithdrawWhenBalancePlusOverdraftIsEnough() {
 
         CheckingAccount account =
-                AccountTestFactory.checking(clock);
+                AccountFactory.checking(clock);
 
         account.deposit(
                 Money.of("200")

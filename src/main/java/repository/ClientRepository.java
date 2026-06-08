@@ -22,12 +22,20 @@ public class ClientRepository {
         this.clientIdByEmail = new HashMap<>();
     }
 
+    // =========================
+    // Save
+    // =========================
+
     public void save(Client client) {
 
         clientsById.put(client.getId(), client);
         clientIdByCpf.put(client.getCpf(), client.getId());
         clientIdByEmail.put(client.getEmail(), client.getId());
     }
+
+    // =========================
+    // Delete
+    // =========================
 
     public void delete(UUID clientId) {
 
@@ -85,7 +93,11 @@ public class ClientRepository {
         return findById(id);
     }
 
-    public void reindexEmail(
+    // =========================
+    // Update
+    // =========================
+
+    public void updateEmail(
             Email oldEmail,
             Client client
     ) {

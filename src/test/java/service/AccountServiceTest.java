@@ -22,8 +22,8 @@ public class AccountServiceTest {
     private AccountService accountService;
 
     private static final Cpf cpf = new Cpf("52998224725");
-    private static final PersonName name = new PersonName("Hugo Silva");
-    private static final Email email =  new Email("hugo@gmail.com");
+    private static final PersonName name = new PersonName("Pedro Silva");
+    private static final Email email =  new Email("pedro@gmail.com");
 
     @BeforeEach
     void setup() {
@@ -48,19 +48,10 @@ public class AccountServiceTest {
     @Test
     void shouldCreateAccount() {
 
-        clientService.createClient(
-                name,
-                cpf,
-                email
-        );
-
-        UUID clientId = clientService.getClientId(cpf);
+        UUID clientId = createClient();
 
         AccountIdentity account =
-                accountService.createAccount(
-                        clientId,
-                        AccountType.CHECKING
-                );
+                createClientCheckingAccount(clientId);
 
         assertNotNull(account);
     }
@@ -68,19 +59,10 @@ public class AccountServiceTest {
     @Test
     void shouldReturnAccountByIdentity() {
 
-        clientService.createClient(
-                name,
-                cpf,
-                email
-        );
-
-        UUID clientId = clientService.getClientId(cpf);
+        UUID clientId = createClient();
 
         AccountIdentity identity =
-                accountService.createAccount(
-                        clientId,
-                        AccountType.CHECKING
-                );
+                createClientSavingsAccount(clientId);
 
         Account account =
                 accountService.getAccountByAccountIdentity(identity);
@@ -91,33 +73,15 @@ public class AccountServiceTest {
     @Test
     void shouldReturnClientAccounts() {
 
-        clientService.createClient(
-                name,
-                cpf,
-                email
-        );
+        UUID clientId = createClient();
 
-        UUID clientId = clientService.getClientId(cpf);
+        createClientCheckingAccount(clientId);
 
-        accountService.createAccount(
-                clientId,
-                AccountType.CHECKING
-        );
+        createClientSavingsAccount(clientId);
 
-        accountService.createAccount(
-                clientId,
-                AccountType.SAVINGS
-        );
+        createClientSavingsAccount(clientId);
 
-        accountService.createAccount(
-                clientId,
-                AccountType.SAVINGS
-        );
-
-        accountService.createAccount(
-                clientId,
-                AccountType.CHECKING
-        );
+        createClientCheckingAccount(clientId);
 
         List<AccountIdentity> accounts =
                 accountService.getClientAccountsIdentity(clientId);
@@ -128,13 +92,7 @@ public class AccountServiceTest {
     @Test
     void shouldAssociateAccountWithCorrectClient() {
 
-        clientService.createClient(
-                name,
-                cpf,
-                email
-        );
-
-        UUID clientId = clientService.getClientId(cpf);
+        UUID clientId = createClient();
 
         Cpf cpf2 =
                 new Cpf("76887934086");
@@ -148,15 +106,9 @@ public class AccountServiceTest {
         UUID clientId2 = clientService.getClientId(cpf2);
 
         AccountIdentity account1 =
-                accountService.createAccount(
-                        clientId,
-                        AccountType.CHECKING
-                );
+                createClientCheckingAccount(clientId);
 
-        accountService.createAccount(
-                clientId2,
-                AccountType.SAVINGS
-        );
+        createClientSavingsAccount(clientId2);
 
         List<AccountIdentity> accounts =
                 accountService.getClientAccountsIdentity(clientId);
@@ -172,13 +124,7 @@ public class AccountServiceTest {
     @Test
     void shouldReturnEmptyAccountsForNewClient() {
 
-        clientService.createClient(
-                name,
-                cpf,
-                email
-        );
-
-        UUID clientId = clientService.getClientId(cpf);
+        UUID clientId = createClient();
 
         List<AccountIdentity> accounts =
                 accountService.getClientAccountsIdentity(clientId);
@@ -189,29 +135,14 @@ public class AccountServiceTest {
     @Test
     void shouldDetectNonZeroBalanceAmongManyAccounts() {
 
-        clientService.createClient(
-                name,
-                cpf,
-                email
-        );
-
-        UUID clientId = clientService.getClientId(cpf);
+        UUID clientId = createClient();
 
         AccountIdentity checking =
-                accountService.createAccount(
-                        clientId,
-                        AccountType.CHECKING
-                );
+                createClientSavingsAccount(clientId);
 
-        accountService.createAccount(
-                clientId,
-                AccountType.SAVINGS
-        );
+        createClientCheckingAccount(clientId);
 
-        accountService.createAccount(
-                clientId,
-                AccountType.SAVINGS
-        );
+        createClientCheckingAccount(clientId);
 
         Account account =
                 accountService.getAccountByAccountIdentity(checking);
@@ -232,19 +163,10 @@ public class AccountServiceTest {
     @Test
     void shouldNotRemoveAccountWithBalance() {
 
-        clientService.createClient(
-                new PersonName("Hugo Silva"),
-                cpf,
-                new Email("hugo@gmail.com")
-        );
-
-        UUID clientId = clientService.getClientId(cpf);
+        UUID clientId = createClient();
 
         AccountIdentity identity =
-                accountService.createAccount(
-                        clientId,
-                        AccountType.CHECKING
-                );
+                createClientCheckingAccount(clientId);
 
         Account account =
                 accountService.getAccountByAccountIdentity(identity);
@@ -262,19 +184,10 @@ public class AccountServiceTest {
     @Test
     void shouldRemoveAccount() {
 
-        clientService.createClient(
-                name,
-                cpf,
-                email
-        );
-
-        UUID clientId = clientService.getClientId(cpf);
+        UUID clientId = createClient();
 
         AccountIdentity identity =
-                accountService.createAccount(
-                        clientId,
-                        AccountType.CHECKING
-                );
+                createClientSavingsAccount(clientId);
 
         accountService.removeAccount(identity);
 
@@ -288,28 +201,13 @@ public class AccountServiceTest {
     @Test
     void shouldAllowRemovingClientWhenAllAccountsHaveZeroBalance() {
 
-        clientService.createClient(
-                name,
-                cpf,
-                email
-        );
+        UUID clientId = createClient();
 
-        UUID clientId = clientService.getClientId(cpf);
+        createClientSavingsAccount(clientId);
 
-        accountService.createAccount(
-                clientId,
-                AccountType.CHECKING
-        );
+        createClientCheckingAccount(clientId);
 
-        accountService.createAccount(
-                clientId,
-                AccountType.SAVINGS
-        );
-
-        accountService.createAccount(
-                clientId,
-                AccountType.SAVINGS
-        );
+        createClientSavingsAccount(clientId);
 
         assertDoesNotThrow(
                 () -> accountService
@@ -320,25 +218,13 @@ public class AccountServiceTest {
     @Test
     void shouldRemoveAllClientAccounts() {
 
-        clientService.createClient(
-                name,
-                cpf,
-                email
-        );
-
-        UUID clientId = clientService.getClientId(cpf);
+        UUID clientId = createClient();
 
         AccountIdentity first =
-                accountService.createAccount(
-                        clientId,
-                        AccountType.CHECKING
-                );
+                createClientCheckingAccount(clientId);
 
         AccountIdentity second =
-                accountService.createAccount(
-                        clientId,
-                        AccountType.SAVINGS
-                );
+                createClientSavingsAccount(clientId);
 
         accountService.removeClientAccounts(clientId);
 
@@ -386,6 +272,35 @@ public class AccountServiceTest {
         assertThrows(
                 AccountNotFoundException.class,
                 () -> accountService.removeAccount(identity)
+        );
+    }
+
+    // =========================
+    // Helper
+    // =========================
+
+
+    private UUID createClient() {
+        clientService.createClient(
+                name,
+                cpf,
+                email
+        );
+
+        return clientService.getClientId(cpf);
+    }
+
+    private AccountIdentity createClientCheckingAccount(UUID clientId) {
+        return accountService.createAccount(
+                clientId,
+                AccountType.CHECKING
+        );
+    }
+
+    private AccountIdentity createClientSavingsAccount(UUID clientId) {
+        return accountService.createAccount(
+                clientId,
+                AccountType.SAVINGS
         );
     }
 }

@@ -27,6 +27,9 @@ public class AccountService {
         this.clock = clock;
     }
 
+    // =========================
+    // Create
+    // =========================
 
     public AccountIdentity createAccount(UUID clientId, AccountType type) {
 
@@ -81,7 +84,7 @@ public class AccountService {
     }
 
     // =========================
-    // RemoveActions
+    // Delete
     // =========================
 
     public void removeClientAccounts(UUID clientId) {
@@ -101,7 +104,7 @@ public class AccountService {
     }
 
     // =========================
-    // Validate
+    // Validation
     // =========================
 
     public void validateIfAccountsCanBeRemoved(UUID clientId) {
