@@ -41,6 +41,10 @@ public class AccountServiceTest {
                 );
     }
 
+    // =========================
+    // General
+    // =========================
+
     @Test
     void shouldCreateAccount() {
 
@@ -222,7 +226,7 @@ public class AccountServiceTest {
     }
 
     // =========================
-    // RemoveTests
+    // Delete
     // =========================
 
     @Test
@@ -352,7 +356,7 @@ public class AccountServiceTest {
     }
 
     // =========================
-    // shouldThrowTests
+    // Validation
     // =========================
 
     @Test

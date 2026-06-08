@@ -101,6 +101,10 @@ public final class Money implements Comparable<Money>{
         }
     }
 
+    // =========================
+    // Equals/Hashcode
+    // =========================
+
     @Override
     public boolean equals(Object o) {
 

@@ -9,6 +9,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class EmailTest {
 
+    // =========================
+    // General
+    // =========================
+
     @Test
     void shouldCreateValidEmail() {
 
@@ -32,6 +36,22 @@ class EmailTest {
                 email.value()
         );
     }
+
+    @Test
+    void shouldBeEqualAfterNormalization() {
+
+        Email first =
+                createEmail("TESTE@GMAIL.COM");
+
+        Email second =
+                createEmail("teste@gmail.com");
+
+        assertEquals(first, second);
+    }
+
+    // =========================
+    // Validation
+    // =========================
 
     @Test
     void shouldThrowExceptionWhenEmailIsInvalid() {
@@ -97,18 +117,6 @@ class EmailTest {
     }
 
     @Test
-    void shouldBeEqualAfterNormalization() {
-
-        Email first =
-                createEmail("TESTE@GMAIL.COM");
-
-        Email second =
-                createEmail("teste@gmail.com");
-
-        assertEquals(first, second);
-    }
-
-    @Test
     void shouldThrowExceptionWhenEmailContainsInternalSpaces() {
 
         assertThrows(
@@ -116,6 +124,10 @@ class EmailTest {
                 () -> createEmail("tes te@gmail.com")
         );
     }
+
+    // =========================
+    // Helper
+    // =========================
 
     private Email createEmail(String email){
         return new Email(email);

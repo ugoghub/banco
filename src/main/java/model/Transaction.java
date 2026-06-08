@@ -82,7 +82,7 @@ public class Transaction {
     }
 
     // =========================
-    // Validators
+    // Validation
     // =========================
 
     private static void validateState(UUID operationId,

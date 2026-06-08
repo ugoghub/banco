@@ -84,8 +84,10 @@ public class TransactionService {
                 from.getId(),
                 Transaction.transferSent(
                         operationId,
-                        from.getAccountIdentity(), to.getAccountIdentity(),
-                        value, clock
+                        from.getAccountIdentity(),
+                        to.getAccountIdentity(),
+                        value,
+                        clock
                 )
         );
 
@@ -93,8 +95,10 @@ public class TransactionService {
                 to.getId(),
                 Transaction.transferReceived(
                         operationId,
-                        from.getAccountIdentity(), to.getAccountIdentity(),
-                        value, clock
+                        from.getAccountIdentity(),
+                        to.getAccountIdentity(),
+                        value,
+                        clock
                 )
         );
     }

@@ -15,6 +15,11 @@ class AccountIdentityTest {
                     "123456-1"
             );
 
+
+    // =========================
+    // General
+    // =========================
+
     @Test
     void shouldCreateValidIdentity() {
 
@@ -28,6 +33,28 @@ class AccountIdentityTest {
                 identity.accountNumber()
         );
     }
+
+    @Test
+    void shouldAllowLeadingZeros() {
+
+        AccountIdentity identity =
+                createIdentity(
+                        "00",
+                        "000001-1"
+                );
+
+        assertEquals("00", identity.branch());
+
+        assertEquals(
+                "000001-1",
+                identity.accountNumber()
+        );
+    }
+
+
+    // =========================
+    // Validation
+    // =========================
 
     @Test
     void shouldThrowExceptionWhenBranchIsInvalid() {
@@ -150,22 +177,9 @@ class AccountIdentityTest {
         );
     }
 
-    @Test
-    void shouldAllowLeadingZeros() {
-
-        AccountIdentity identity =
-                createIdentity(
-                        "00",
-                        "000001-1"
-                );
-
-        assertEquals("00", identity.branch());
-
-        assertEquals(
-                "000001-1",
-                identity.accountNumber()
-        );
-    }
+    // =========================
+    // Equality
+    // =========================
 
     @Test
     void shouldBeEqualWhenValuesAreEqual() {
@@ -187,6 +201,10 @@ class AccountIdentityTest {
                 sameAccountIdentity.hashCode()
         );
     }
+
+    // =========================
+    // Helper
+    // =========================
 
     private AccountIdentity createIdentity(String branch, String accountNumber){
         return new AccountIdentity(branch, accountNumber);

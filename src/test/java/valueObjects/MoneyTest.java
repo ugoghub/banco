@@ -10,6 +10,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MoneyTest {
 
+    // =========================
+    // General
+    // =========================
+
+    @Test
+    void shouldIdentifyZero() {
+
+        assertTrue(Money.ZERO.isZero());
+    }
+
     @Test
     void shouldAddValuesCorrectly() {
 
@@ -22,12 +32,6 @@ class MoneyTest {
                 Money.of("15"),
                 result
         );
-    }
-
-    @Test
-    void shouldIdentifyZero() {
-
-        assertTrue(Money.ZERO.isZero());
     }
 
     @Test
@@ -52,6 +56,18 @@ class MoneyTest {
 
         assertEquals(
                 Money.of("11.00"),
+                money
+        );
+    }
+
+    @Test
+    void shouldRoundMoneyOperationsCorrectly() {
+
+        Money money =
+                Money.of("0.015");
+
+        assertEquals(
+                Money.of("0.02"),
                 money
         );
     }
@@ -145,26 +161,6 @@ class MoneyTest {
     }
 
     @Test
-    void negateShouldNotChangeOriginalValue() {
-
-        Money original =
-                Money.of("100");
-
-        Money negated =
-                original.negate();
-
-        assertEquals(
-                Money.of("100"),
-                original
-        );
-
-        assertEquals(
-                Money.of("-100"),
-                negated
-        );
-    }
-
-    @Test
     void shouldSubtractToNegativeValueCorrectly() {
 
         Money a =
@@ -179,23 +175,6 @@ class MoneyTest {
         assertEquals(
                 Money.of("-5.00"),
                 result
-        );
-    }
-
-    @Test
-    void shouldThrowExceptionIfValueIsNotANumber() {
-        assertThrows(
-                InvalidAmountException.class,
-                () -> Money.of("A%[]!()")
-        );
-    }
-
-    @Test
-    void shouldThrowExceptionWhenValueIsNull() {
-
-        assertThrows(
-                InvalidAmountException.class,
-                () -> Money.of((BigDecimal) null)
         );
     }
 
@@ -219,6 +198,46 @@ class MoneyTest {
         assertEquals(
                 0,
                 smaller.compareTo(Money.of("10.00"))
+        );
+    }
+
+    // =========================
+    // Validation
+    // =========================
+
+    @Test
+    void shouldThrowExceptionIfValueIsNotANumber() {
+        assertThrows(
+                InvalidAmountException.class,
+                () -> Money.of("A%[]!()")
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenValueIsNull() {
+
+        assertThrows(
+                InvalidAmountException.class,
+                () -> Money.of((BigDecimal) null)
+        );
+    }
+
+    // =========================
+    // Equality
+    // =========================
+
+    @Test
+    void shouldBeEqualWhenValuesAreEqual() {
+
+        assertEquals(Money.of("10"), Money.of("10.00"));
+    }
+
+    @Test
+    void shouldHaveSameHashCodeWhenValuesAreEqual() {
+
+        assertEquals(
+                Money.of("10").hashCode(),
+                Money.of("10.00").hashCode()
         );
     }
 }

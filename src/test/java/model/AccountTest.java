@@ -1,7 +1,11 @@
 package model;
 
+import exception.InvalidAccountIdentityException;
 import exception.InvalidAmountException;
+import exception.InvalidClientIdException;
+import exception.InvalidClockException;
 import helper.AccountTestFactory;
+import model.valueobject.AccountIdentity;
 import model.valueobject.Money;
 import org.junit.jupiter.api.Test;
 
@@ -9,6 +13,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,6 +21,10 @@ public class AccountTest {
 
     private final Clock clock =
             Clock.systemUTC();
+
+    // =========================
+    // General
+    // =========================
 
     @Test
     void shouldStartWithZeroBalance() {
@@ -54,7 +63,51 @@ public class AccountTest {
     }
 
     // =========================
-    // Remove
+    // Validation
+    // =========================
+
+    @Test
+    void shouldThrowExceptionWhenCreatingAccountWithNullClientId() {
+
+        assertThrows(
+                InvalidClientIdException.class,
+                () -> new CheckingAccount(
+                        null,
+                        new AccountIdentity("01", "123456-1"),
+                        Clock.systemUTC()
+                )
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCreatingAccountWithNullAccountIdentity() {
+
+        assertThrows(
+                InvalidAccountIdentityException.class,
+                () -> new CheckingAccount(
+                        UUID.randomUUID(),
+                        null,
+                        Clock.systemUTC()
+                )
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCreatingAccountWithNullClock() {
+
+        assertThrows(
+                InvalidClockException.class,
+                () -> new CheckingAccount(
+                        UUID.randomUUID(),
+                        new AccountIdentity("01", "123456-1"),
+                        null
+                )
+        );
+    }
+
+
+    // =========================
+    // RemoveTests
     // =========================
 
     @Test
@@ -175,7 +228,7 @@ public class AccountTest {
     }
 
     // =========================
-    // Withdraw e Deposit
+    // Balance
     // =========================
 
     @Test

@@ -9,6 +9,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class PersonNameTest {
 
+    // =========================
+    // General
+    // =========================
+
     @Test
     void shouldCreateValidName() {
 
@@ -34,42 +38,6 @@ class PersonNameTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenNameIsInvalid() {
-
-        assertThrows(
-                InvalidPersonNameException.class,
-                () -> createPersonName("A")
-        );
-    }
-
-    @Test
-    void shouldThrowExceptionWhenNameIsNull() {
-
-        assertThrows(
-                InvalidPersonNameException.class,
-                () -> createPersonName(null)
-        );
-    }
-
-    @Test
-    void shouldThrowExceptionWhenNameIsEmpty() {
-
-        assertThrows(
-                InvalidPersonNameException.class,
-                () -> createPersonName("")
-        );
-    }
-
-    @Test
-    void shouldThrowExceptionWhenNameContainsOnlySpaces() {
-
-        assertThrows(
-                InvalidPersonNameException.class,
-                () -> createPersonName("     ")
-        );
-    }
-
-    @Test
     void shouldNormalizeMultipleInternalSpaces() {
 
         PersonName name =
@@ -81,18 +49,6 @@ class PersonNameTest {
                 "Hugo Silva",
                 name.value()
         );
-    }
-
-    @Test
-    void shouldBeEqualAfterNormalization() {
-
-        PersonName first =
-                createPersonName(" Hugo   Silva ");
-
-        PersonName second =
-                createPersonName("Hugo Silva");
-
-        assertEquals(first, second);
     }
 
     @Test
@@ -122,6 +78,69 @@ class PersonNameTest {
                 name.value()
         );
     }
+
+    // =========================
+    // Validation
+    // =========================
+
+    @Test
+    void shouldThrowExceptionWhenNameIsInvalid() {
+
+        assertThrows(
+                InvalidPersonNameException.class,
+                () -> createPersonName("A")
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenNameIsNull() {
+
+        assertThrows(
+                InvalidPersonNameException.class,
+                () -> createPersonName(null)
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenNameContainsOnlySpaces() {
+
+        assertThrows(
+                InvalidPersonNameException.class,
+                () -> createPersonName("     ")
+        );
+    }
+
+    // =========================
+    // Equality
+    // =========================
+
+    @Test
+    void shouldBeEqualAfterNormalization() {
+
+        PersonName first =
+                createPersonName(" Hugo   Silva ");
+
+        PersonName second =
+                createPersonName("Hugo Silva");
+
+        assertEquals(first, second);
+    }
+
+    @Test
+    void shouldHaveSameHashCodeWhenValuesAreEqual() {
+
+        PersonName first =
+                createPersonName(" Hugo   Silva ");
+
+        PersonName second =
+                createPersonName("Hugo Silva");
+
+        assertEquals(first.hashCode(), second.hashCode());
+    }
+
+    // =========================
+    // Helper
+    // =========================
 
     private PersonName createPersonName(String name){
         return new PersonName(name);

@@ -26,6 +26,10 @@ public class ApplicationServiceTest {
                 );
     }
 
+    // =========================
+    // Validation
+    // =========================
+
     @Test
     void shouldThrowExceptionWhenCreatingAccountToNonexistentClient() {
         assertThrows(

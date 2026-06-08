@@ -8,5 +8,4 @@ public record ClientData(
         PersonName name,
         Cpf cpf,
         Email email
-) {
-}
+) {}

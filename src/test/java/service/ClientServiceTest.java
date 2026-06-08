@@ -39,6 +39,10 @@ public class ClientServiceTest {
                 new ClientService(clientRepository);
     }
 
+    // =========================
+    // General
+    // =========================
+
     @Test
     void shouldReturnClientByEmail() {
 
@@ -60,7 +64,7 @@ public class ClientServiceTest {
     }
 
     // =========================
-    // ShouldThrowTests
+    // Validation
     // =========================
 
     @Test
@@ -139,7 +143,7 @@ public class ClientServiceTest {
     }
 
     // =========================
-    // RemoveTests
+    // Delete
     // =========================
 
     @Test
@@ -183,7 +187,7 @@ public class ClientServiceTest {
     }
 
     // =========================
-    // UpdateTests
+    // Update
     // =========================
 
     @Test

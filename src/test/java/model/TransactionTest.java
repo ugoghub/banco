@@ -297,26 +297,6 @@ public class TransactionTest {
     }
 
     @Test
-    void shouldKeepSameOperationIdForTransfer() {
-
-        UUID operationId = UUID.randomUUID();
-
-        Transaction sent =
-                Transaction.transferSent(
-                        operationId,
-                        accountIdentity,
-                        new AccountIdentity("01", "000001-1"),
-                        Money.of("100"),
-                        Clock.systemUTC()
-                );
-
-        assertEquals(
-                operationId,
-                sent.getOperationId()
-        );
-    }
-
-    @Test
     void shouldGenerateDifferentIdsForTransferPair() {
 
         UUID operationId = UUID.randomUUID();
@@ -373,6 +353,53 @@ public class TransactionTest {
                         Money.of("100"),
                         Clock.systemUTC()
                 )
+        );
+    }
+
+    @Test
+    void shouldCreateTransferReceivedTransaction() {
+
+        AccountIdentity from =
+                new AccountIdentity(
+                        "01",
+                        "123456-1"
+                );
+
+        AccountIdentity to =
+                new AccountIdentity(
+                        "01",
+                        "000001-1"
+                );
+
+        UUID operationId = UUID.randomUUID();
+
+        Transaction transaction =
+                Transaction.transferReceived(
+                        operationId,
+                        from,
+                        to,
+                        Money.of("100"),
+                        Clock.systemUTC()
+                );
+
+        assertEquals(
+                TransactionType.TRANSFER_RECEIVED,
+                transaction.getType()
+        );
+
+        assertEquals(
+                from,
+                transaction.getSourceIdentity()
+        );
+
+        assertEquals(
+                to,
+                transaction.getDestinationIdentity()
+        );
+
+        assertEquals(
+                operationId,
+                transaction.getOperationId()
         );
     }
 }

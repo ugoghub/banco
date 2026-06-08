@@ -9,6 +9,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CpfTest {
 
+    // =========================
+    // General
+    // =========================
+
     @Test
     void shouldCreateValidCpf() {
 
@@ -18,20 +22,24 @@ class CpfTest {
     }
 
     @Test
+    void shouldRemoveCpfFormatting() {
+
+        Cpf cpf = createCpf("529.982.247-25");
+
+        assertEquals("52998224725", cpf.value());
+    }
+
+    // =========================
+    // Validation
+    // =========================
+
+    @Test
     void shouldThrowExceptionWhenCpfIsInvalid() {
 
         assertThrows(
                 InvalidCpfException.class,
                 () -> createCpf("123")
         );
-    }
-
-    @Test
-    void shouldRemoveCpfFormatting() {
-
-        Cpf cpf = createCpf("529.982.247-25");
-
-        assertEquals("52998224725", cpf.value());
     }
 
     @Test
@@ -79,6 +87,11 @@ class CpfTest {
         );
     }
 
+
+    // =========================
+    // Equality
+    // =========================
+
     @Test
     void shouldBeEqualWhenCpfValuesAreEqual() {
 
@@ -90,6 +103,22 @@ class CpfTest {
 
         assertEquals(first, second);
     }
+
+    @Test
+    void shouldHaveSameHashCodeWhenValuesAreEqual() {
+
+        Cpf first =
+                createCpf("52998224725");
+
+        Cpf second =
+                createCpf("529.982.247-25");
+
+        assertEquals(first.hashCode(), second.hashCode());
+    }
+
+    // =========================
+    // Helper
+    // =========================
 
     private Cpf createCpf(String cpf){
         return new Cpf(cpf);

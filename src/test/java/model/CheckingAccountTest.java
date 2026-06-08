@@ -16,7 +16,7 @@ class CheckingAccountTest {
             Clock.systemUTC();
 
     // =========================
-    // OverDraftLimit
+    // OverdraftLimit
     // =========================
 
     @Test
@@ -66,10 +66,6 @@ class CheckingAccountTest {
                 )
         );
     }
-
-    // =========================
-    // NegativeBalance
-    // =========================
 
     @Test
     void shouldReduceNegativeBalanceAfterDeposit() {
