@@ -402,6 +402,8 @@ public class TransactionServiceInterestTest {
 
     private void moveTo(Clock clock) {
 
+        //avança relogio do sistema
+
         accountService =
                 new AccountService(
                         accountRepository,

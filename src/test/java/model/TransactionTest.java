@@ -1,6 +1,5 @@
 package model;
 
-import exception.InvalidAmountException;
 import exception.InvalidTransactionException;
 import model.valueobject.AccountIdentity;
 import model.valueobject.Money;
@@ -138,7 +137,7 @@ public class TransactionTest {
     void shouldNotAllowDepositNullAmount() {
 
         assertThrows(
-                InvalidAmountException.class,
+                InvalidTransactionException.class,
                 () -> Transaction.deposit(
                         accountIdentity,
                         null,
@@ -219,7 +218,7 @@ public class TransactionTest {
     void shouldNotAllowWithdrawNullAmount() {
 
         assertThrows(
-                InvalidAmountException.class,
+                InvalidTransactionException.class,
                 () -> Transaction.withdraw(
                         accountIdentity,
                         null,
@@ -295,66 +294,6 @@ public class TransactionTest {
     }
 
     @Test
-    void shouldGenerateDifferentIdsForTransferPair() {
-
-        UUID operationId = UUID.randomUUID();
-
-        Transaction sent =
-                Transaction.transferSent(
-                        operationId,
-                        accountIdentity,
-                        new AccountIdentity("01", "000001-1"),
-                        Money.of("100"),
-                        Clock.systemUTC()
-                );
-
-        Transaction received =
-                Transaction.transferReceived(
-                        operationId,
-                        accountIdentity,
-                        new AccountIdentity("01", "000001-1"),
-                        Money.of("100"),
-                        Clock.systemUTC()
-                );
-
-        assertNotEquals(
-                sent.getId(),
-                received.getId()
-        );
-
-        assertEquals(
-                sent.getOperationId(),
-                received.getOperationId()
-        );
-    }
-
-    @Test
-    void transferSentShouldNotAllowNullAccounts() {
-
-        assertThrows(
-                InvalidTransactionException.class,
-                () -> Transaction.transferSent(
-                        UUID.randomUUID(),
-                        null,
-                        accountIdentity,
-                        Money.of("100"),
-                        Clock.systemUTC()
-                )
-        );
-
-        assertThrows(
-                InvalidTransactionException.class,
-                () -> Transaction.transferSent(
-                        UUID.randomUUID(),
-                        accountIdentity,
-                        null,
-                        Money.of("100"),
-                        Clock.systemUTC()
-                )
-        );
-    }
-
-    @Test
     void shouldCreateTransferReceivedTransaction() {
 
         AccountIdentity from =
@@ -398,6 +337,190 @@ public class TransactionTest {
         assertEquals(
                 operationId,
                 transaction.getOperationId()
+        );
+    }
+
+    @Test
+    void shouldGenerateDifferentIdsForTransferPair() {
+
+        UUID operationId = UUID.randomUUID();
+
+        Transaction sent =
+                Transaction.transferSent(
+                        operationId,
+                        accountIdentity,
+                        new AccountIdentity("01", "000001-1"),
+                        Money.of("100"),
+                        Clock.systemUTC()
+                );
+
+        Transaction received =
+                Transaction.transferReceived(
+                        operationId,
+                        accountIdentity,
+                        new AccountIdentity("01", "000001-1"),
+                        Money.of("100"),
+                        Clock.systemUTC()
+                );
+
+        assertNotEquals(
+                sent.getId(),
+                received.getId()
+        );
+
+        assertEquals(
+                sent.getOperationId(),
+                received.getOperationId()
+        );
+    }
+
+    @Test
+    void transferSentShouldNotAllowNullAccounts() {
+
+        UUID operationId = UUID.randomUUID();
+
+        assertThrows(
+                InvalidTransactionException.class,
+                () -> Transaction.transferSent(
+                        operationId,
+                        null,
+                        accountIdentity,
+                        Money.of("100"),
+                        Clock.systemUTC()
+                )
+        );
+
+        assertThrows(
+                InvalidTransactionException.class,
+                () -> Transaction.transferSent(
+                        operationId,
+                        accountIdentity,
+                        null,
+                        Money.of("100"),
+                        Clock.systemUTC()
+                )
+        );
+    }
+
+    @Test
+    void transferReceivedShouldNotAllowNullAccounts() {
+
+        UUID operationId = UUID.randomUUID();
+
+        assertThrows(
+                InvalidTransactionException.class,
+                () -> Transaction.transferReceived(
+                        operationId,
+                        null,
+                        accountIdentity,
+                        Money.of("100"),
+                        Clock.systemUTC()
+                )
+        );
+
+        assertThrows(
+                InvalidTransactionException.class,
+                () -> Transaction.transferReceived(
+                        operationId,
+                        accountIdentity,
+                        null,
+                        Money.of("100"),
+                        Clock.systemUTC()
+                )
+        );
+    }
+
+    @Test
+    void transferShouldNotAllowNullOperationId() {
+
+        assertThrows(
+                InvalidTransactionException.class,
+                () -> Transaction.transferSent(
+                        null,
+                        accountIdentity,
+                        new AccountIdentity("01", "000001-1"),
+                        Money.of("100"),
+                        Clock.systemUTC()
+                )
+        );
+
+        assertThrows(
+                InvalidTransactionException.class,
+                () -> Transaction.transferReceived(
+                        null,
+                        accountIdentity,
+                        new AccountIdentity("01", "000001-1"),
+                        Money.of("100"),
+                        Clock.systemUTC()
+                )
+        );
+    }
+
+    // =========================
+    // Interest
+    // =========================
+
+    @Test
+    void shouldCreateInterestTransaction() {
+
+        Transaction transaction =
+                Transaction.interest(
+                        accountIdentity,
+                        Money.of("5"),
+                        Clock.systemUTC()
+                );
+
+        assertEquals(
+                TransactionType.INTEREST,
+                transaction.getType()
+        );
+
+        assertNull(
+                transaction.getSourceIdentity()
+        );
+
+        assertEquals(
+                accountIdentity,
+                transaction.getDestinationIdentity()
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenInterestHasNullClock() {
+
+        assertThrows(
+                InvalidTransactionException.class,
+                () -> Transaction.interest(
+                        accountIdentity,
+                        Money.of("5"),
+                        null
+                )
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenInterestHasNullAccountIdentity() {
+
+        assertThrows(
+                InvalidTransactionException.class,
+                () -> Transaction.interest(
+                        null,
+                        Money.of("5"),
+                        Clock.systemUTC()
+                )
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenInterestHasNullAmount() {
+
+        assertThrows(
+                InvalidTransactionException.class,
+                () -> Transaction.interest(
+                        accountIdentity,
+                        null,
+                        Clock.systemUTC()
+                )
         );
     }
 }

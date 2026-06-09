@@ -61,7 +61,7 @@ class MoneyTest {
     }
 
     @Test
-    void shouldRoundMoneyOperationsCorrectly() {
+    void shouldRoundHalfEvenValuesCorrectly() {
 
         Money money =
                 Money.of("0.015");
@@ -122,6 +122,21 @@ class MoneyTest {
 
         assertEquals(
                 Money.of("25.00"),
+                result
+        );
+    }
+
+    @Test
+    void shouldRoundMultiplicationResult() {
+
+        Money result =
+                Money.of("10")
+                        .multiplyByRate(
+                                new BigDecimal("0.333")
+                        );
+
+        assertEquals(
+                Money.of("3.33"),
                 result
         );
     }
@@ -218,6 +233,39 @@ class MoneyTest {
         assertThrows(
                 InvalidAmountException.class,
                 () -> money.add(null)
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenTryingToSubtractNullValue() {
+
+        Money money = Money.of("100");
+
+        assertThrows(
+                InvalidAmountException.class,
+                () -> money.subtract(null)
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenTryingToMultiplyNullValue() {
+
+        Money money = Money.of("100");
+
+        assertThrows(
+                InvalidAmountException.class,
+                () -> money.multiplyByRate(null)
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenTryingToCompareNullValue() {
+
+        Money money = Money.of("100");
+
+        assertThrows(
+                InvalidAmountException.class,
+                () -> money.compareTo(null)
         );
     }
 

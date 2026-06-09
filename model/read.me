@@ -1,0 +1,334 @@
+# Domain Model
+
+Este módulo concentra o núcleo de negócio do sistema bancário.
+
+A camada de domínio é responsável por representar entidades, regras de negócio e invariantes do sistema, permanecendo desacoplada de persistência, interface de usuário e detalhes de infraestrutura.
+
+---
+
+## Objetivos
+
+* Centralizar regras de negócio.
+* Garantir consistência do estado das entidades.
+* Proteger invariantes através de validações explícitas.
+* Manter baixo acoplamento com outras camadas.
+* Favorecer testabilidade e evolução do domínio.
+
+---
+
+# Entidades
+
+## Client
+
+Representa um cliente do banco.
+
+### Responsabilidades
+
+* Armazenar dados cadastrais.
+* Permitir alteração de nome.
+* Permitir alteração de e-mail.
+* Preservar identidade através de um UUID único.
+
+### Atributos
+
+| Campo | Tipo       |
+| ----- | ---------- |
+| id    | UUID       |
+| name  | PersonName |
+| cpf   | Cpf        |
+| email | Email      |
+
+### Regras
+
+* Nome não pode ser nulo.
+* CPF não pode ser nulo.
+* E-mail não pode ser nulo.
+* CPF é imutável após criação.
+* Identidade da entidade é definida pelo UUID.
+
+---
+
+## Account
+
+Classe abstrata que representa uma conta bancária.
+
+### Responsabilidades
+
+* Gerenciar saldo.
+* Realizar depósitos.
+* Realizar saques.
+* Garantir limites operacionais.
+* Definir regras básicas compartilhadas por todas as contas.
+
+### Atributos
+
+| Campo           | Tipo            |
+| --------------- | --------------- |
+| id              | UUID            |
+| clientId        | UUID            |
+| accountIdentity | AccountIdentity |
+| creationTime    | LocalDateTime   |
+| balance         | Money           |
+
+### Regras
+
+* Saldo inicial é zero.
+* Depósitos exigem valor positivo.
+* Saques exigem valor positivo.
+* O saldo nunca pode ficar abaixo do limite permitido pela conta.
+* Uma conta só pode ser removida quando o saldo for zero.
+
+---
+
+## CheckingAccount
+
+Implementação de conta corrente.
+
+### Regra específica
+
+Possui limite especial (overdraft).
+
+Limite configurado:
+
+1000.00
+
+### Exemplo
+
+Saldo atual:
+
+0.00
+
+Saque permitido:
+
+1000.00
+
+Saldo resultante:
+
+-1000.00
+
+---
+
+## SavingsAccount
+
+Implementação de conta poupança.
+
+### Regras específicas
+
+* Não permite saldo negativo.
+* Possui rendimento mensal.
+* Juros compostos.
+* Juros são aplicados de forma acumulada quando necessário.
+
+### Taxa
+
+0.5% ao mês
+
+### Aplicação de rendimento
+
+O método:
+
+```java
+applyPendingInterests(...)
+```
+
+aplica automaticamente todos os meses pendentes.
+
+Exemplo:
+
+Conta criada em janeiro.
+
+Último acesso em julho.
+
+Ao atualizar a conta:
+
+* janeiro → fevereiro
+* fevereiro → março
+* março → abril
+* abril → maio
+* maio → junho
+* junho → julho
+
+Todos os rendimentos são processados.
+
+---
+
+## Transaction
+
+Representa um evento financeiro ocorrido no sistema.
+
+### Responsabilidades
+
+* Registrar movimentações.
+* Preservar histórico financeiro.
+* Garantir consistência do tipo da operação.
+
+### Atributos
+
+| Campo               | Tipo            |
+| ------------------- | --------------- |
+| id                  | UUID            |
+| operationId         | UUID            |
+| type                | TransactionType |
+| amount              | Money           |
+| sourceIdentity      | AccountIdentity |
+| destinationIdentity | AccountIdentity |
+| dateTime            | LocalDateTime   |
+
+---
+
+# Tipos de Transação
+
+## Deposit
+
+Possui:
+
+* destino
+
+Não possui:
+
+* origem
+
+---
+
+## Withdraw
+
+Possui:
+
+* origem
+
+Não possui:
+
+* destino
+
+---
+
+## Transfer Sent
+
+Representa saída de transferência.
+
+Possui:
+
+* origem
+* destino
+* operationId
+
+---
+
+## Transfer Received
+
+Representa entrada de transferência.
+
+Possui:
+
+* origem
+* destino
+* operationId
+
+---
+
+## Interest
+
+Representa rendimento de poupança.
+
+Possui:
+
+* destino
+
+Não possui:
+
+* origem
+
+---
+
+# Enumerations
+
+## AccountType
+
+Tipos de conta suportados.
+
+* CHECKING
+* SAVINGS
+
+---
+
+## TransactionType
+
+Tipos de movimentação suportados.
+
+* DEPOSIT
+* WITHDRAW
+* TRANSFER_SENT
+* TRANSFER_RECEIVED
+* INTEREST
+
+---
+
+# Princípios Aplicados
+
+## Rich Domain Model
+
+As entidades possuem comportamento e regras próprias.
+
+Exemplos:
+
+* deposit()
+* withdraw()
+* applyPendingInterests()
+
+---
+
+## Encapsulamento
+
+O estado interno só pode ser alterado através de operações válidas.
+
+---
+
+## Polimorfismo
+
+Account define comportamento comum.
+
+CheckingAccount e SavingsAccount implementam regras específicas.
+
+---
+
+## Invariantes de Negócio
+
+O domínio protege automaticamente regras críticas:
+
+* saldo não pode violar limites
+* depósitos precisam ser positivos
+* saques precisam ser positivos
+* transferências exigem origem e destino válidos
+* rendimentos exigem conta válida
+
+---
+
+## Imutabilidade Parcial
+
+Entidades possuem identidade fixa.
+
+Objetos de valor utilizados pelo domínio são imutáveis.
+
+---
+
+## Fail Fast
+
+Estados inválidos são rejeitados imediatamente através de exceções de domínio.
+
+---
+
+# Testes
+
+O domínio é coberto por testes unitários que validam:
+
+* criação de entidades
+* depósitos
+* saques
+* transferências
+* rendimentos
+* limites de conta corrente
+* restrições de poupança
+* consistência de transações
+* invariantes de negócio
+
+O objetivo é garantir que toda regra crítica do domínio esteja protegida por testes automatizados.

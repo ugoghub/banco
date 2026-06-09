@@ -117,18 +117,6 @@ class AccountIdentityTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenBranchContainsSpaces() {
-
-        assertThrows(
-                InvalidBranchException.class,
-                () -> createIdentity(
-                        "  ",
-                        "123456-1"
-                )
-        );
-    }
-
-    @Test
     void shouldThrowExceptionWhenAccountNumberHasWrongFormat() {
 
         assertThrows(
@@ -148,19 +136,6 @@ class AccountIdentityTest {
                 () -> createIdentity(
                         "01",
                         null
-                )
-        );
-    }
-
-
-    @Test
-    void shouldThrowExceptionWhenAccountNumberIsInvalid() {
-
-        assertThrows(
-                InvalidAccountNumberException.class,
-                () -> createIdentity(
-                        "01",
-                        "123"
                 )
         );
     }

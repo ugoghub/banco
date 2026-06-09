@@ -14,8 +14,7 @@ import service.dto.ClientData;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ClientServiceTest {
 
@@ -61,6 +60,21 @@ public class ClientServiceTest {
                 cpf,
                 found
         );
+    }
+
+    @Test
+    void shouldReturnClientIdByCpf() {
+
+        clientService.createClient(
+                name,
+                cpf,
+                email
+        );
+
+        UUID clientId =
+                clientService.getClientId(cpf);
+
+        assertNotNull(clientId);
     }
 
     // =========================

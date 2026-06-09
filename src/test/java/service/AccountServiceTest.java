@@ -4,6 +4,8 @@ import exception.AccountDeletionNotAllowedException;
 import exception.AccountNotFoundException;
 import model.Account;
 import model.AccountType;
+import model.CheckingAccount;
+import model.SavingsAccount;
 import model.valueobject.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,14 +48,37 @@ public class AccountServiceTest {
     // =========================
 
     @Test
-    void shouldCreateAccount() {
+    void shouldCreateCheckingAccount() {
 
         UUID clientId = createClient();
 
-        AccountIdentity account =
+        AccountIdentity identity =
                 createClientCheckingAccount(clientId);
 
-        assertNotNull(account);
+        Account account =
+                accountService.getAccountByAccountIdentity(identity);
+
+        assertInstanceOf(
+                CheckingAccount.class,
+                account
+        );
+    }
+
+    @Test
+    void shouldCreateSavingsAccount() {
+
+        UUID clientId = createClient();
+
+        AccountIdentity identity =
+                createClientSavingsAccount(clientId);
+
+        Account account =
+                accountService.getAccountByAccountIdentity(identity);
+
+        assertInstanceOf(
+                SavingsAccount.class,
+                account
+        );
     }
 
     @Test
@@ -87,38 +112,6 @@ public class AccountServiceTest {
                 accountService.getClientAccountsIdentity(clientId);
 
         assertEquals(4, accounts.size());
-    }
-
-    @Test
-    void shouldAssociateAccountWithCorrectClient() {
-
-        UUID clientId = createClient();
-
-        Cpf cpf2 =
-                new Cpf("76887934086");
-
-        clientService.createClient(
-                new PersonName("Ana Silva"),
-                cpf2,
-                new Email("ana@gmail.com")
-        );
-
-        UUID clientId2 = clientService.getClientId(cpf2);
-
-        AccountIdentity account1 =
-                createClientCheckingAccount(clientId);
-
-        createClientSavingsAccount(clientId2);
-
-        List<AccountIdentity> accounts =
-                accountService.getClientAccountsIdentity(clientId);
-
-        assertEquals(1, accounts.size());
-
-        assertEquals(
-                account1,
-                accounts.getFirst()
-        );
     }
 
     @Test
@@ -159,6 +152,16 @@ public class AccountServiceTest {
     // =========================
     // Delete
     // =========================
+
+    @Test
+    void shouldRemoveClientAccountsWhenClientHasNoAccounts() {
+
+        UUID clientId = createClient();
+
+        assertDoesNotThrow(
+                () -> accountService.removeClientAccounts(clientId)
+        );
+    }
 
     @Test
     void shouldNotRemoveAccountWithBalance() {

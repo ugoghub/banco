@@ -1,0 +1,397 @@
+# BankLite
+
+Sistema bancário desenvolvido em Java puro com foco em modelagem orientada a objetos, arquitetura em camadas, regras de negócio e testes automatizados.
+
+O projeto foi criado como estudo prático de desenvolvimento backend, priorizando qualidade de código, separação de responsabilidades e construção de um domínio rico antes da introdução de frameworks ou persistência externa.
+
+## Objetivos
+
+Este projeto tem como foco praticar:
+
+* Programação Orientada a Objetos
+* Modelagem de Domínio
+* Arquitetura em Camadas
+* SOLID
+* Testes Unitários
+* Regras de Negócio
+* Refatoração e Evolução de Código
+
+## Escopo
+
+O projeto utiliza apenas Java e bibliotecas de teste.
+
+Sem:
+
+* Spring Boot
+* Banco de dados
+* REST APIs
+* Frameworks de persistência
+
+O objetivo é concentrar o aprendizado nos fundamentos da linguagem e da arquitetura.
+
+---
+
+## Funcionalidades
+
+### Clientes
+
+* Cadastro de clientes
+* Alteração de nome
+* Alteração de e-mail
+* Remoção de clientes
+
+### Contas
+
+* Conta Corrente
+* Conta Poupança
+* Associação de múltiplas contas a um cliente
+* Remoção de contas
+
+### Operações Bancárias
+
+* Depósitos
+* Saques
+* Transferências
+* Consulta de saldo
+* Extrato de movimentações
+
+### Conta Corrente
+
+* Limite de cheque especial
+
+### Conta Poupança
+
+* Juros compostos mensais
+* Aplicação automática de rendimentos pendentes
+* Registro dos rendimentos no histórico de transações
+
+---
+
+## Conceitos Aplicados
+
+### Programação Orientada a Objetos
+
+* Encapsulamento
+* Herança
+* Polimorfismo
+* Composição
+* Entidades ricas
+
+### Modelagem de Domínio
+
+* Rich Domain Model
+* Value Objects
+* Regras de negócio centralizadas no domínio
+* Invariantes de negócio
+
+### Arquitetura
+
+* Layered Architecture
+* Repository Pattern
+* Service Layer
+* DTOs
+* Dependency Injection manual
+* Factory Pattern
+
+### Qualidade de Código
+
+* SOLID
+* Imutabilidade
+* Exceções customizadas de domínio
+* Separação de responsabilidades
+* Refatoração contínua
+
+### Java
+
+* Records
+* UUID
+* BigDecimal
+* Optional
+* Streams
+* LocalDateTime
+* Clock
+* Collections.unmodifiableList
+* Functional Interfaces
+
+### Testes
+
+* JUnit 5
+* Testes unitários
+* Testes de regras de negócio
+* Testes de cenários limite
+* Testes de invariantes
+
+O projeto possui mais de 200 testes unitários desenvolvidos com JUnit 5.
+
+Os testes cobrem:
+
+- Value Objects
+- Regras de negócio das contas
+- Depósitos, saques e transferências
+- Juros compostos da conta poupança
+- Histórico transacional
+- Validações de domínio
+- Casos de erro e edge cases
+- Services e fluxos de aplicação
+
+---
+
+## Arquitetura
+
+Estrutura simplificada:
+
+```text
+src/main/java
+├── application
+├── model
+├── service
+├── repository
+├── exception
+├── helper
+└── ui
+```
+
+### application
+
+Orquestra os serviços da aplicação.
+
+### model
+
+Contém entidades, enums e regras centrais do domínio.
+
+### valueobject
+
+Objetos imutáveis responsáveis por representar conceitos do domínio.
+
+Exemplos:
+
+* Money
+* Email
+* Cpf
+* PersonName
+* AccountIdentity
+
+### service
+
+Implementa os casos de uso da aplicação.
+
+### repository
+
+Persistência em memória.
+
+### exception
+
+Exceções específicas de domínio.
+
+### ui
+
+Interface de linha de comando.
+
+---
+
+## Regras de Negócio
+
+### Conta Corrente
+
+* Permite saldo negativo até o limite de cheque especial.
+* Não permite ultrapassar o limite definido.
+
+### Conta Poupança
+
+* Não permite saldo negativo.
+* Possui rendimento mensal composto.
+* Juros pendentes são aplicados automaticamente antes de operações relevantes.
+
+### Transferências
+
+* Não permitem origem e destino iguais.
+* Geram duas transações:
+
+  * TRANSFER_SENT
+  * TRANSFER_RECEIVED
+* Ambas compartilham o mesmo operationId.
+
+### Histórico
+
+* Todas as movimentações ficam registradas.
+* Rendimentos da poupança também aparecem no extrato.
+
+---
+
+## Tecnologias
+
+* Java
+* Maven
+* JUnit 5
+* JaCoCo
+* GitHub Actions
+
+---
+
+## Executando o Projeto
+
+```bash
+mvn clean compile
+```
+
+Executar aplicação:
+
+```bash
+mvn exec:java
+```
+
+---
+
+## Executando os Testes
+
+```bash
+mvn test
+```
+
+---
+
+## Cobertura de Testes
+
+O projeto possui mais de 200 testes unitários e utiliza JaCoCo para análise de cobertura.
+
+Gerar relatório:
+
+```bash
+mvn clean test
+```
+
+O relatório será gerado em:
+
+```text
+target/site/jacoco/index.html
+```
+
+---
+
+## Integração Contínua
+
+O projeto utiliza GitHub Actions para:
+
+* Build automático
+* Execução dos testes
+* Verificação da integridade do código
+
+---
+
+## Exemplos de Uso
+
+### Criar cliente
+
+```java
+applicationService.createClient(
+    new PersonName("Pedro Silva"),
+    new Cpf("52998224725"),
+    new Email("pedro@gmail.com")
+);
+```
+
+### Criar conta
+
+```java
+applicationService.createAccount(
+    cpf,
+    AccountType.CHECKING
+);
+```
+
+### Transferência
+
+```java
+applicationService.transfer(
+    sourceAccount,
+    destinationAccount,
+    Money.of("100")
+);
+```
+
+---
+
+## Próximos Passos
+
+Possíveis evoluções futuras:
+
+* Persistência com banco de dados
+* API REST
+* Spring Boot
+* Logs estruturados
+* Docker
+* Testes de integração
+* Relatórios financeiros
+* Controle de autenticação e autorização
+* Eventos de domínio
+
+---
+
+## Autor
+
+Projeto desenvolvido para estudo de arquitetura, orientação a objetos e modelagem de domínio utilizando Java.
+
+
+Entidades ricas (Rich Domain Model)
+
+As entidades não são apenas containers de dados.
+
+Exemplos:
+
+Account.deposit()
+Account.withdraw()
+
+SavingsAccount.applyPendingInterests()
+
+Client.changeEmail()
+Client.changeName()
+
+A regra de negócio vive dentro do domínio.
+
+Imutabilidade parcial
+
+Você protege informações que não devem mudar:
+
+Client.id
+Client.cpf
+
+Account.id
+Account.clientId
+Account.accountIdentity
+Account.creationTime
+
+Transaction.id
+Transaction.operationId
+Transaction.dateTime
+
+Enquanto permite alterar apenas o que faz sentido.
+
+Clock Injection
+
+A presença de:
+
+Clock
+
+em Account e Transaction é um diferencial importante para documentação.
+
+Você pode criar uma seção chamada:
+
+Testabilidade
+
+e explicar que o sistema não depende diretamente de:
+
+LocalDateTime.now()
+
+permitindo testes determinísticos de:
+
+criação de contas;
+transações;
+rendimento da poupança.
+
+
+    ****************
+    Para um primeiro README, isso já passa uma imagem muito profissional.
+     Depois você pode complementar com um diagrama simples da arquitetura e uma imagem do relatório do JaCoCo,
+      que costumam ter um impacto visual enorme no GitHub.
+
+    ********************************************

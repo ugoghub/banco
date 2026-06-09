@@ -1,0 +1,332 @@
+# Domain Model
+
+## Visão Geral
+
+O BankLite é um sistema bancário desenvolvido em Java puro com foco em modelagem de domínio, orientação a objetos e regras de negócio.
+
+O domínio é composto por três conceitos centrais:
+
+* Clientes
+* Contas bancárias
+* Transações
+
+O objetivo principal é garantir a consistência das operações financeiras e preservar o histórico de movimentações realizadas no sistema.
+
+---
+
+# Cliente
+
+Um cliente representa uma pessoa cadastrada no sistema.
+
+Cada cliente possui:
+
+* Identificador único (UUID)
+* Nome
+* CPF
+* E-mail
+
+## Regras de negócio
+
+* CPF é obrigatório.
+* Nome é obrigatório.
+* E-mail é obrigatório.
+* CPF não pode ser alterado após a criação.
+* O identificador interno não pode ser alterado.
+* Nome pode ser atualizado.
+* E-mail pode ser atualizado.
+
+## Identidade
+
+A identidade técnica do cliente é um UUID.
+
+O CPF é tratado como identificador de negócio (Business Key).
+
+---
+
+# Conta Bancária
+
+Uma conta representa um instrumento financeiro associado a um único cliente.
+
+Toda conta possui:
+
+* Identificador único (UUID)
+* Cliente proprietário
+* Agência e número da conta
+* Data de criação
+* Saldo
+
+## Operações disponíveis
+
+* Depósito
+* Saque
+
+Cada tipo de conta define suas próprias regras de saldo.
+
+---
+
+# Conta Corrente
+
+A conta corrente permite utilização de limite especial (overdraft).
+
+## Regras de negócio
+
+* Pode possuir saldo negativo.
+* Limite mínimo permitido: R$ -1.000,00.
+* Saques que ultrapassem esse limite são bloqueados.
+
+### Exemplo
+
+Saldo atual:
+
+R$ 100,00
+
+Saque:
+
+R$ 1.050,00
+
+Saldo final:
+
+R$ -950,00
+
+Operação permitida.
+
+---
+
+Saldo atual:
+
+R$ 100,00
+
+Saque:
+
+R$ 1.101,00
+
+Saldo final:
+
+R$ -1.001,00
+
+Operação negada.
+
+---
+
+# Conta Poupança
+
+A conta poupança possui rendimento automático mensal.
+
+## Regras de negócio
+
+* Não permite saldo negativo.
+* Possui rendimento de 0,5% ao mês.
+* Juros são compostos.
+* Juros são aplicados apenas quando existe saldo positivo.
+
+### Exemplo
+
+Saldo:
+
+R$ 1.000,00
+
+Após 1 mês:
+
+R$ 1.005,00
+
+Após 2 meses:
+
+R$ 1.010,03
+
+Após 3 meses:
+
+R$ 1.015,08
+
+---
+
+## Aplicação tardia de juros
+
+O sistema não depende de tarefas agendadas.
+
+Quando uma conta poupança permanece sem movimentação por vários meses, os rendimentos pendentes são calculados e aplicados automaticamente na próxima operação.
+
+Exemplos:
+
+* Consulta de saldo
+* Depósito
+* Saque
+* Transferência
+* Consulta de extrato
+
+Dessa forma o saldo permanece consistente independentemente do tempo sem movimentação.
+
+---
+
+# Transações
+
+Uma transação representa um evento financeiro registrado no histórico do sistema.
+
+Toda movimentação gera uma ou mais transações.
+
+## Objetivos
+
+* Auditoria
+* Rastreabilidade
+* Histórico de movimentações
+* Reconciliação de operações
+
+---
+
+# Tipos de Transação
+
+## Depósito
+
+Representa entrada de dinheiro em uma conta.
+
+Características:
+
+* Possui conta destino.
+* Não possui conta origem.
+
+---
+
+## Saque
+
+Representa retirada de dinheiro de uma conta.
+
+Características:
+
+* Possui conta origem.
+* Não possui conta destino.
+
+---
+
+## Transferência Enviada
+
+Representa a saída de recursos da conta remetente.
+
+Características:
+
+* Possui origem.
+* Possui destino.
+
+---
+
+## Transferência Recebida
+
+Representa a entrada de recursos na conta destinatária.
+
+Características:
+
+* Possui origem.
+* Possui destino.
+
+---
+
+## Rendimento
+
+Representa juros gerados automaticamente por contas poupança.
+
+Características:
+
+* Possui conta destino.
+* Não possui conta origem.
+
+---
+
+# Transferências
+
+Uma transferência gera duas transações distintas.
+
+## Conta remetente
+
+Recebe:
+
+TRANSFER_SENT
+
+## Conta destinatária
+
+Recebe:
+
+TRANSFER_RECEIVED
+
+---
+
+## OperationId
+
+As duas transações compartilham um mesmo identificador de operação.
+
+Isso permite relacionar os dois registros pertencentes à mesma transferência.
+
+Exemplo:
+
+Transferência
+
+├── Transaction (TRANSFER_SENT)
+
+└── Transaction (TRANSFER_RECEIVED)
+
+OperationId = compartilhado
+
+---
+
+# Remoção de Contas
+
+Uma conta só pode ser removida quando o saldo for igual a zero.
+
+## Regras
+
+Permitido:
+
+Saldo = R$ 0,00
+
+Não permitido:
+
+Saldo > R$ 0,00
+
+Saldo < R$ 0,00
+
+---
+
+# Remoção de Clientes
+
+Um cliente só pode ser removido quando todas as suas contas puderem ser removidas.
+
+Consequentemente:
+
+* Todas as contas devem possuir saldo zero.
+* Nenhuma conta pode permanecer vinculada ao cliente.
+
+---
+
+# Invariantes do Domínio
+
+As seguintes regras devem ser sempre verdadeiras:
+
+## Cliente
+
+* CPF obrigatório.
+* Nome obrigatório.
+* E-mail obrigatório.
+
+## Conta
+
+* Cliente obrigatório.
+* Identidade da conta obrigatória.
+* Saldo nunca pode ficar abaixo do limite permitido pelo tipo de conta.
+
+## Conta Corrente
+
+* Saldo mínimo permitido: R$ -1.000,00.
+
+## Conta Poupança
+
+* Saldo mínimo permitido: R$ 0,00.
+
+## Transações
+
+* Tipo obrigatório.
+* Valor obrigatório.
+* Valor maior que zero.
+* Estrutura compatível com o tipo de transação.
+
+## Transferências
+
+* Conta origem obrigatória.
+* Conta destino obrigatória.
+* OperationId obrigatório.

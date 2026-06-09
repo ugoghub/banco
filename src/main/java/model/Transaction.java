@@ -1,7 +1,5 @@
 package model;
 
-import exception.InvalidAmountException;
-import exception.InvalidClockException;
 import exception.InvalidTransactionException;
 import model.valueobject.AccountIdentity;
 import model.valueobject.Money;
@@ -32,7 +30,7 @@ public class Transaction {
         validateAmount(amount);
 
         if(clock == null) {
-            throw new InvalidClockException("Horário inválido");
+            throw new InvalidTransactionException("Horário inválido");
         }
 
         this.id = UUID.randomUUID();
@@ -147,7 +145,7 @@ public class Transaction {
     private static void validateAmount(Money amount) {
 
         if(amount == null){
-            throw new InvalidAmountException("Valor não pode ser null");
+            throw new InvalidTransactionException("Valor não pode ser null");
         }
 
         if (amount.isNegativeOrZero()) {

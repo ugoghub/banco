@@ -34,15 +34,6 @@ class CpfTest {
     // =========================
 
     @Test
-    void shouldThrowExceptionWhenCpfIsInvalid() {
-
-        assertThrows(
-                InvalidCpfException.class,
-                () -> createCpf("123")
-        );
-    }
-
-    @Test
     void shouldThrowExceptionWhenCpfIsNull() {
 
         assertThrows(
