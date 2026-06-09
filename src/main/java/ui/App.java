@@ -11,6 +11,7 @@ import application.ApplicationContext;
 import model.valueobject.Cpf;
 import application.ApplicationService;
 import service.dto.ClientData;
+import ui.util.InputReader;
 
 import java.time.Clock;
 import java.util.Scanner;
@@ -27,6 +28,7 @@ public final class App {
     private Cpf loggedCpf;
 
     public App() {
+
         this.scanner = new Scanner(System.in);
 
         ApplicationContext context =
@@ -60,8 +62,6 @@ public final class App {
                         applicationService,
                         transactionController
                 );
-
-
     }
 
     public void start() {

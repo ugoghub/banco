@@ -453,3 +453,6 @@ e savingsAccount fica com testes de aplicação de juros + 1 teste de nao permit
 historico de transação permanece mesmo apos conta ser removida.
 
 <<------------------------------------>>
+
+package UI nao foi testado.
+package Application contem poucos testes de busca por dados inexistentes

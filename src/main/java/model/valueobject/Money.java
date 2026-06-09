@@ -48,21 +48,15 @@ public final class Money implements Comparable<Money>{
     }
 
     public boolean isZero(){
-        return value.compareTo(BigDecimal.ZERO) == 0;
+        return compareTo(Money.ZERO) == 0;
     }
 
     public boolean isNegativeOrZero(){
-        return value.compareTo(BigDecimal.ZERO) <= 0;
+        return compareTo(Money.ZERO) <= 0;
     }
 
     public boolean isGreaterThan(Money other){
-        validateNonNull(other);
-        return value.compareTo(other.value) > 0;
-    }
-
-    public boolean isEqual(Money other){
-        validateNonNull(other);
-        return value.compareTo(other.value) == 0;
+        return compareTo(other) > 0;
     }
 
     public Money add(Money other) {

@@ -152,7 +152,7 @@ public class AccountServiceTest {
         assertThrows(
                 AccountDeletionNotAllowedException.class,
                 () -> accountService
-                        .validateIfAccountsCanBeRemoved(clientId)
+                        .ensureClientAccountsCanBeRemoved(clientId)
         );
     }
 
@@ -211,7 +211,7 @@ public class AccountServiceTest {
 
         assertDoesNotThrow(
                 () -> accountService
-                        .validateIfAccountsCanBeRemoved(clientId)
+                        .ensureClientAccountsCanBeRemoved(clientId)
         );
     }
 

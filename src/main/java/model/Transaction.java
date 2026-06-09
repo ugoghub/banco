@@ -27,7 +27,7 @@ public class Transaction {
                         AccountIdentity destinationIdentity,
                         Clock clock) {
 
-        validateState(operationId, type, sourceIdentity, destinationIdentity);
+        validateTransactionState(operationId, type, sourceIdentity, destinationIdentity);
 
         validateAmount(amount);
 
@@ -85,10 +85,10 @@ public class Transaction {
     // Validation
     // =========================
 
-    private static void validateState(UUID operationId,
-                                      TransactionType type,
-                                      AccountIdentity sourceIdentity,
-                                      AccountIdentity destinationIdentity) {
+    private static void validateTransactionState(UUID operationId,
+                                                 TransactionType type,
+                                                 AccountIdentity sourceIdentity,
+                                                 AccountIdentity destinationIdentity) {
         //validação defensiva
 
         if(type == null){

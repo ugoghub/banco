@@ -25,9 +25,4 @@ public record Email(String value) {
             throw new InvalidEmailException("Email inválido");
         }
     }
-
-    @Override
-    public String toString() {
-        return value;
-    }
 }

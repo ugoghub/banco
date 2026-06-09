@@ -1,8 +1,10 @@
 package ui.formatter;
 
 import model.valueobject.AccountIdentity;
+import model.valueobject.Money;
 import service.dto.StatementData;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
@@ -24,12 +26,12 @@ public final class StatementFormatter {
                 Operação: %s
                 """.formatted(
                 statementData.type(),
-                statementData.dateTime().format(FORMATTER),
-                MoneyFormatter.format(statementData.amount()),
+                formatDate(statementData.dateTime()),
+                formatMoney(statementData.amount()),
                 formatIdentity(statementData.source()),
                 formatIdentity(statementData.destination()),
-                statementData.id().toString(),
-                formatOperationId(statementData.operationId())
+                formatId(statementData.id()),
+                formatId(statementData.operationId())
         );
     }
 
@@ -39,9 +41,17 @@ public final class StatementFormatter {
         return AccountIdentityFormatter.format(accountIdentity);
     }
 
-    private static String formatOperationId(UUID operationId) {
-        if (operationId == null) return "-";
+    private static String formatId(UUID id) {
+        if (id == null) return "-";
 
-        return operationId.toString();
+        return id.toString();
+    }
+
+    private static String formatMoney(Money money) {
+        return MoneyFormatter.format(money);
+    }
+
+    private static String formatDate(LocalDateTime date) {
+        return date.format(FORMATTER);
     }
 }

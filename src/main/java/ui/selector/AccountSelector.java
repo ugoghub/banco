@@ -1,6 +1,6 @@
-package ui.menu;
+package ui.selector;
 
-import ui.InputReader;
+import ui.util.InputReader;
 import ui.formatter.AccountIdentityFormatter;
 import ui.messages.ConsoleMessages;
 import exception.NoAccountsFoundException;

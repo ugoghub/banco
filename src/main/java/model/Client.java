@@ -1,5 +1,6 @@
 package model;
 
+import exception.*;
 import model.valueobject.Cpf;
 import model.valueobject.Email;
 import model.valueobject.PersonName;
@@ -16,6 +17,18 @@ public class Client {
     public Client(PersonName name,
                   Cpf cpf,
                   Email email) {
+
+        if(name == null){
+            throw new InvalidPersonNameException("Nome não pode ser null");
+        }
+        if(cpf == null){
+            throw new InvalidCpfException(
+                    "CPF inválido"
+            );
+        }
+        if (email == null) {
+            throw new InvalidEmailException("Email inválido");
+        }
 
         this.id = UUID.randomUUID();
         this.name = name;

@@ -42,7 +42,7 @@ public class ApplicationService {
 
         UUID clientId = clientService.getClientId(cpf);
 
-        accountService.validateIfAccountsCanBeRemoved(clientId);
+        accountService.ensureClientAccountsCanBeRemoved(clientId);
         accountService.removeClientAccounts(clientId);
         clientService.delete(clientId);
     }
@@ -59,7 +59,9 @@ public class ApplicationService {
         return clientService.changeEmail(cpf, email);
     }
 
-    public Cpf getCpfByEmail(Email email) { return clientService.getCpfByEmail(email); }
+    public Cpf getCpfByEmail(Email email) {
+        return clientService.getCpfByEmail(email);
+    }
 
     // =========================
     // Account

@@ -9,7 +9,7 @@ import service.TransactionService;
 
 import java.time.Clock;
 
-public class ApplicationContext {
+public final class ApplicationContext {
 
     private final ClientService clientService;
     private final AccountService accountService;

@@ -110,18 +110,6 @@ class MoneyTest {
     }
 
     @Test
-    void shouldIdentifyEqualValues() {
-
-        Money a =
-                Money.of("10");
-
-        Money b =
-                Money.of("10.00");
-
-        assertTrue(a.isEqual(b));
-    }
-
-    @Test
     void shouldMultiplyValuesCorrectly() {
 
         Money money =
@@ -222,6 +210,17 @@ class MoneyTest {
         );
     }
 
+    @Test
+    void shouldThrowExceptionWhenTryingToAddNullValue() {
+
+        Money money = Money.of("100");
+
+        assertThrows(
+                InvalidAmountException.class,
+                () -> money.add(null)
+        );
+    }
+
     // =========================
     // Equality
     // =========================
@@ -229,7 +228,13 @@ class MoneyTest {
     @Test
     void shouldBeEqualWhenValuesAreEqual() {
 
-        assertEquals(Money.of("10"), Money.of("10.00"));
+        Money a =
+                Money.of("10");
+
+        Money b =
+                Money.of(new BigDecimal("10.00"));
+
+        assertEquals(a, b);
     }
 
     @Test

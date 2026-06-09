@@ -121,18 +121,11 @@ public class TransactionService {
     public List<StatementData> getTransactionHistoryByAccountIdentity(AccountIdentity accountIdentity) {
         UUID accountId = getAccountWithUpdatedInterest(accountIdentity).getId();
 
-        List<Transaction> transactionsByAccountId = transactionRepository.getTransactionsByAccountId(accountId);
+        List<Transaction> transactionsByAccountId = transactionRepository.findByAccountId(accountId);
 
         return transactionsByAccountId.stream()
-                .map(t -> new StatementData(
-                        t.getType(),
-                        t.getDateTime(),
-                        t.getSourceIdentity(),
-                        t.getDestinationIdentity(),
-                        t.getAmount(),
-                        t.getId(),
-                        t.getOperationId()
-                )).toList();
+                .map(this::toStatementData)
+                .toList();
     }
 
     // =========================
@@ -175,5 +168,21 @@ public class TransactionService {
         applyPendingInterest(account);
 
         return account;
+    }
+
+    // =========================
+    // Helper
+    // =========================
+
+    private StatementData toStatementData(Transaction t) {
+        return new StatementData(
+                t.getType(),
+                t.getDateTime(),
+                t.getSourceIdentity(),
+                t.getDestinationIdentity(),
+                t.getAmount(),
+                t.getId(),
+                t.getOperationId()
+        );
     }
 }

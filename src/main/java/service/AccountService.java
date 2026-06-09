@@ -39,9 +39,9 @@ public class AccountService {
 
             accountIdentity = AccountIdentityFactory.generate();
 
-        } while (accountRepository.existsByAccountIdentity(accountIdentity));
+        } while (accountRepository.existsByAccountIdentity(accountIdentity)); // garante unicidade do AccountIdentity
 
-        Account account =
+         final Account account =
                 switch (type) {
                     case CHECKING ->
                             new CheckingAccount(
@@ -107,7 +107,7 @@ public class AccountService {
     // Validation
     // =========================
 
-    public void validateIfAccountsCanBeRemoved(UUID clientId) {
+    public void ensureClientAccountsCanBeRemoved(UUID clientId) {
 
         boolean hasNonZeroBalance =
                 accountRepository

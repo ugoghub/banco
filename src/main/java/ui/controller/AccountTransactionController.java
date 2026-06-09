@@ -7,7 +7,7 @@ import model.valueobject.Money;
 import service.dto.StatementData;
 import ui.formatter.MoneyFormatter;
 import ui.formatter.StatementFormatter;
-import ui.InputReader;
+import ui.util.InputReader;
 import ui.messages.ConsoleMessages;
 
 import java.util.List;
@@ -66,9 +66,7 @@ public final class AccountTransactionController {
 
             ConsoleMessages.success("Saque Realizado!");
 
-        } catch (
-                DomainException e
-        ) {
+        } catch (DomainException e) {
             ConsoleMessages.error(e);
         }
     }
@@ -81,11 +79,9 @@ public final class AccountTransactionController {
 
             Money accountBalance = applicationService.getAccountBalance(accountIdentity);
 
-            String formatted = MoneyFormatter.format(accountBalance);
-
             ConsoleMessages.highlight(
                     "Saldo: "
-                            + formatted
+                            + MoneyFormatter.format(accountBalance)
                     );
 
         } catch (DomainException e) {
@@ -103,14 +99,14 @@ public final class AccountTransactionController {
                     InputReader.readValidated(
                             scanner,
                             "Agência destino: ",
-                            s -> s
+                            String::valueOf
                     );
 
             String number =
                     InputReader.readValidated(
                             scanner,
                             "Conta destino: ",
-                            s -> s
+                            String::valueOf
                     );
 
             AccountIdentity to =

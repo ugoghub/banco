@@ -23,11 +23,6 @@ public record Cpf(String value) {
 
     }
 
-    @Override
-    public String toString() {
-        return value;
-    }
-
     private static boolean isValidCpf(String cpf) {
 
         if (cpf.matches("(\\d)\\1{10}")) return false;

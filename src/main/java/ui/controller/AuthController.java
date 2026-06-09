@@ -1,6 +1,6 @@
 package ui.controller;
 
-import ui.InputReader;
+import ui.util.InputReader;
 import ui.messages.ConsoleMessages;
 import exception.DomainException;
 import model.valueobject.Cpf;

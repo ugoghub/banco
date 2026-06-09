@@ -2,7 +2,7 @@ package ui.formatter;
 
 import service.dto.ClientData;
 
-public class ClientFormatter {
+public final class ClientFormatter {
     private ClientFormatter() {
     }
 
@@ -12,9 +12,9 @@ public class ClientFormatter {
                 CPF: %s
                 Email: %s
                 """.formatted(
-                clientData.name(),
+                clientData.name().value(),
                 CpfFormatter.format(clientData.cpf()),
-                clientData.email()
+                clientData.email().value()
         );
     }
 }

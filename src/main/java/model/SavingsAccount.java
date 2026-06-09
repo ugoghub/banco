@@ -50,7 +50,7 @@ public class SavingsAccount extends Account {
 
         while (isTimeToApplyInterest(clock)) {
 
-            if (!getBalance().isZero()) {
+            if (getBalance().isGreaterThan(Money.ZERO)) {
 
                 Money interest =
                         getBalance().multiplyByRate(INTEREST_RATE);

@@ -17,7 +17,7 @@ public class TransactionRepository {
                 .add(transaction);
     }
 
-    public List<Transaction> getTransactionsByAccountId(UUID accountId){
+    public List<Transaction> findByAccountId(UUID accountId){
         return List.copyOf(
                 transactionsByAccountId.getOrDefault(
                         accountId,

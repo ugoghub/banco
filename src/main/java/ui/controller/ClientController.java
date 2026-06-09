@@ -1,6 +1,6 @@
 package ui.controller;
 
-import ui.InputReader;
+import ui.util.InputReader;
 import ui.formatter.ClientFormatter;
 import ui.messages.ConsoleMessages;
 import exception.DomainException;
@@ -46,48 +46,9 @@ public final class ClientController {
             );
 
             switch (option) {
+                case 1 -> changeName(loggedCpf);
 
-                case 1 -> {
-
-                    PersonName personName =
-                            InputReader.readValidated(
-                                    scanner,
-                                    "Digite o novo nome: ",
-                                    PersonName::new
-                            );
-
-                    PersonName newName =
-                            applicationService.changeName(
-                                    loggedCpf,
-                                    personName
-                            );
-
-                    ConsoleMessages.success(
-                            "Nome alterado para %s com sucesso",
-                            newName
-                    );
-                }
-
-                case 2 -> {
-
-                    Email email =
-                            InputReader.readValidated(
-                                    scanner,
-                                    "Digite o novo email: ",
-                                    Email::new
-                            );
-
-                    Email newEmail =
-                            applicationService.changeEmail(
-                                    loggedCpf,
-                                    email
-                            );
-
-                    ConsoleMessages.success(
-                            "Email alterado para %s com sucesso%n",
-                            newEmail
-                    );
-                }
+                case 2 -> changeEmail(loggedCpf);
             }
 
         } catch (DomainException e) {
@@ -113,5 +74,51 @@ public final class ClientController {
             ConsoleMessages.error(e);
             return false;
         }
+    }
+
+    // =========================
+    // Helpers
+    // =========================
+
+    private void changeName(Cpf cpf) {
+
+        PersonName personName =
+                InputReader.readValidated(
+                        scanner,
+                        "Digite o novo nome: ",
+                        PersonName::new
+                );
+
+        PersonName newName =
+                applicationService.changeName(
+                        cpf,
+                        personName
+                );
+
+        ConsoleMessages.success(
+                "Nome alterado para %s com sucesso",
+                newName
+        );
+    }
+
+    private void changeEmail(Cpf cpf) {
+
+        Email email =
+                InputReader.readValidated(
+                        scanner,
+                        "Digite o novo email: ",
+                        Email::new
+                );
+
+        Email newEmail =
+                applicationService.changeEmail(
+                        cpf,
+                        email
+                );
+
+        ConsoleMessages.success(
+                "Email alterado para %s com sucesso",
+                newEmail
+        );
     }
 }

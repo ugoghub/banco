@@ -22,7 +22,11 @@ public record AccountIdentity(String branch, String accountNumber) {
             throw new InvalidBranchException("Agência inválida");
         }
 
-        if (!accountNumber.matches("\\d{6}-\\d")  || !isValidDigit(accountNumber.replace("-", ""))) {
+        String digits = accountNumber.replace("-", "");
+
+        if (!accountNumber.matches("\\d{6}-\\d")
+                || !isValidDigit(digits)) {
+
             throw new InvalidAccountNumberException("Número da conta inválido");
         }
     }
@@ -39,15 +43,5 @@ public record AccountIdentity(String branch, String accountNumber) {
         int expectedDigit = sum % 10;
 
         return expectedDigit == digit;
-    }
-
-    @Override
-    public String branch() {
-        return branch;
-    }
-
-    @Override
-    public String accountNumber() {
-        return accountNumber;
     }
 }

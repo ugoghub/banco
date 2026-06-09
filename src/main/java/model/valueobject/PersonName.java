@@ -19,11 +19,5 @@ public record PersonName(String value) {
                     "Nome inválido"
             );
         }
-
-    }
-
-    @Override
-    public String toString() {
-        return value;
     }
 }

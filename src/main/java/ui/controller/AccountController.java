@@ -1,10 +1,10 @@
 package ui.controller;
 
-import ui.InputReader;
+import ui.util.InputReader;
 import ui.formatter.AccountIdentityFormatter;
 import ui.menu.AccountMenu;
 import ui.messages.ConsoleMessages;
-import ui.menu.AccountSelector;
+import ui.selector.AccountSelector;
 import exception.DomainException;
 import model.AccountType;
 import model.valueobject.AccountIdentity;
@@ -18,7 +18,7 @@ public final class AccountController {
 
     private final ApplicationService applicationService;
     private final Scanner scanner;
-    private final AccountTransactionController accountOperationsController;
+    private final AccountTransactionController transactionController;
 
 
     public AccountController(Scanner scanner,
@@ -26,7 +26,7 @@ public final class AccountController {
                              AccountTransactionController transactionController) {
         this.scanner = scanner;
         this.applicationService = applicationService;
-        this.accountOperationsController = transactionController;
+        this.transactionController = transactionController;
     }
 
     public void enterAccount(Cpf cpf) {
@@ -54,23 +54,23 @@ public final class AccountController {
 
             switch (option) {
 
-                case 1 -> accountOperationsController.deposit(
+                case 1 -> transactionController.deposit(
                         accountIdentity
                 );
 
-                case 2 -> accountOperationsController.withdraw(
+                case 2 -> transactionController.withdraw(
                         accountIdentity
                 );
 
-                case 3 -> accountOperationsController.showBalance(
+                case 3 -> transactionController.showBalance(
                         accountIdentity
                 );
 
-                case 4 -> accountOperationsController.transfer(
+                case 4 -> transactionController.transfer(
                         accountIdentity
                 );
 
-                case 5 -> accountOperationsController.statement(
+                case 5 -> transactionController.statement(
                         accountIdentity
                 );
 

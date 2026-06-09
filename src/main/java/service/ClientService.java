@@ -14,6 +14,9 @@ public class ClientService {
 
     private final ClientRepository clientRepository;
 
+    private static final String CLIENT_NOT_FOUND =
+            "Cliente não encontrado";;
+
     public ClientService(ClientRepository clientRepository) {
         this.clientRepository = clientRepository;
     }
@@ -46,16 +49,17 @@ public class ClientService {
                 .findByCpf(cpf)
                 .orElseThrow(() ->
                         new ClientNotFoundException(
-                                "Cliente não encontrado"
+                                CLIENT_NOT_FOUND
                         ));
     }
 
     public Cpf getCpfByEmail(Email email) {
+
         return clientRepository
                 .findByEmail(email)
                 .orElseThrow(() ->
                         new ClientNotFoundException(
-                                "Cliente não encontrado"
+                                CLIENT_NOT_FOUND
                         )
                 )
                 .getCpf();
@@ -66,6 +70,7 @@ public class ClientService {
     }
 
     public ClientData getClientData(Cpf cpf) {
+
         Client client = getClientByCpf(cpf);
 
         return new ClientData(client.getName(), client.getCpf(), client.getEmail());
@@ -76,7 +81,8 @@ public class ClientService {
     // =========================
 
     public void delete(UUID clientId) {
-        if(!clientRepository.existsById(clientId)) throw new ClientNotFoundException("Cliente não encontrado");
+
+        if (!clientRepository.existsById(clientId)) throw new ClientNotFoundException(CLIENT_NOT_FOUND);
 
         clientRepository.delete(clientId);
     }
@@ -92,7 +98,7 @@ public class ClientService {
 
         Client client = getClientByCpf(cpf);
 
-        if(client.hasSameName(newName)) throw new InvalidClientChangeException("Novo nome é igual ao nome atual");
+        if (client.hasSameName(newName)) throw new InvalidClientChangeException("Novo nome é igual ao nome atual");
 
         client.changeName(newName);
 
@@ -106,7 +112,7 @@ public class ClientService {
 
         Client client = getClientByCpf(cpf);
 
-        if(client.hasSameEmail(newEmail)) throw new InvalidClientChangeException("Novo email é igual ao email atual");
+        if (client.hasSameEmail(newEmail)) throw new InvalidClientChangeException("Novo email é igual ao email atual");
 
         validateEmailUniqueness(newEmail);
 
