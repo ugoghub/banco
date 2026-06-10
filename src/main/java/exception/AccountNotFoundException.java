@@ -1,6 +1,6 @@
 package exception;
 
-public class AccountNotFoundException extends DomainException {
+public class AccountNotFoundException extends NotFoundException {
     public AccountNotFoundException(String message) {
         super(message);
     }

@@ -1,6 +1,6 @@
 package exception;
 
-public class CpfAlreadyExistsException extends DomainException {
+public class CpfAlreadyExistsException extends BusinessRuleException {
     public CpfAlreadyExistsException(String message) {
         super(message);
     }

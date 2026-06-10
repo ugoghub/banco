@@ -1,6 +1,6 @@
 package exception;
 
-public class InvalidClientIdException extends DomainException{
+public class InvalidClientIdException extends ValidationException{
     public InvalidClientIdException(String message) {
         super(message);
     }
