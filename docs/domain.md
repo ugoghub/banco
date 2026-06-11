@@ -235,6 +235,8 @@ A separação entre validação, regras de negócio e recursos inexistentes perm
 
 Essa estrutura segue os princípios de Domain-Driven Design, onde exceções representam falhas relevantes do domínio e não apenas erros técnicos da plataforma.
 
+---
+
 # Value Objects
 
 Os Value Objects representam conceitos do domínio que não possuem identidade própria e são definidos exclusivamente pelos seus valores.
@@ -483,13 +485,16 @@ Com isso, entidades e serviços podem assumir que os dados recebidos já estão 
 ---
 
 # Padrões e Estratégias de Domínio
+
 ## Template Method na Hierarquia de Contas
 
 A classe Account define o comportamento comum compartilhado por todos os tipos de conta, centralizando regras de depósito, saque, validação de valores e gerenciamento de saldo.
 
 Em vez de permitir que cada conta implemente completamente sua lógica de movimentação, a classe abstrata controla o fluxo principal e delega apenas as regras específicas para as subclasses.
 
-### Estrutura
+---
+
+## Estrutura
 
 A classe Account implementa:
 
@@ -507,7 +512,9 @@ protected abstract Money minimumAllowedBalance();
 
 Esse método define qual o saldo mínimo permitido para cada tipo de conta.
 
-### Implementações
+---
+
+## Implementações
 ### CheckingAccount
 
 Permite utilização de limite especial.
@@ -538,18 +545,25 @@ Saldo mínimo permitido:
 
 0,00
 
+---
+
 ## Benefícios
 * elimina duplicação de lógica de saque e depósito;
 * garante comportamento consistente entre contas;
 * mantém regras específicas isoladas nas subclasses;
 * facilita criação de novos tipos de conta.
-* Aplicação Preguiçosa (Lazy) de Juros
+
+---
+
+## Aplicação Preguiçosa (Lazy) de Juros
 
 A conta poupança utiliza uma estratégia de aplicação preguiçosa de juros (Lazy Interest Application).
 
 Nessa abordagem, os rendimentos não são processados automaticamente por agendadores ou tarefas periódicas.
 
 Em vez disso, os juros são calculados apenas quando a conta é acessada.
+
+---
 
 ## Motivação
 
@@ -560,6 +574,8 @@ Uma implementação tradicional exigiria:
 * infraestrutura adicional para agendamento.
 
 Como o projeto é focado em domínio e regras de negócio, foi adotada uma abordagem mais simples e desacoplada.
+
+---
 
 ## Funcionamento
 
@@ -591,7 +607,9 @@ Março → Abril
 ```
 Os três meses de rendimento são aplicados retroativamente.
 
-### Juros Acumulados Retroativos
+---
+
+## Juros Acumulados Retroativos
 
 A implementação garante que nenhum rendimento seja perdido mesmo após longos períodos sem movimentação.
 ```text
@@ -609,7 +627,10 @@ Todos os 24 rendimentos pendentes serão processados.
 
 Isso mantém o saldo consistente com o tempo transcorrido.
 ```
-### Atualização Automática ao Acessar a Conta
+
+---
+
+## Atualização Automática ao Acessar a Conta
 
 Os juros são aplicados automaticamente antes das operações relevantes.
 
@@ -636,7 +657,9 @@ Saldo atualizado
 ↓
 Retorna saldo correto
 ```
-### Registro dos Rendimentos no Extrato
+---
+
+## Registro dos Rendimentos no Extrato
 
 Além de atualizar o saldo, os rendimentos geram transações reais no histórico.
 
@@ -650,8 +673,10 @@ Isso garante que:
 * os rendimentos apareçam no extrato;
 * exista rastreabilidade completa das aplicações de juros.
 
+---
+
 ## Benefícios da Abordagem
-Simplicidade
+### Simplicidade
 
 Não exige:
 
@@ -669,6 +694,8 @@ Somente contas efetivamente acessadas precisam processar juros.
 ### Desacoplamento
 
 A lógica permanece inteiramente dentro do domínio, sem dependência de infraestrutura externa.
+
+---
 
 # Entidades
 
@@ -1218,6 +1245,8 @@ As seguintes regras devem ser sempre verdadeiras:
 * Toda conta pertence a um cliente.
 * Todo histórico financeiro é representado por transações.
 * Nenhum rendimento pode ser perdido mesmo após longos períodos sem movimentação.
+
+---
 
 # Princípios de Modelagem Utilizados
 
