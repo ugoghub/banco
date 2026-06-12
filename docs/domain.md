@@ -967,6 +967,8 @@ Valores:
 * TRANSFER_RECEIVED
 * INTEREST
 
+---
+
 # Agregados e Regras de Negócio do Domínio
 
 Esta seção descreve como as entidades e Value Objects se relacionam conceitualmente dentro do domínio bancário.

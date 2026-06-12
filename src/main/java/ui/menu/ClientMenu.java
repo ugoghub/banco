@@ -16,11 +16,11 @@ public final class ClientMenu {
                 Bem vindo(a), %s
 
                 1 - Criar conta bancária
-                2 - Acessar conta
-                3 - Mostrar dados da conta
-                4 - Alterar dados da conta
+                2 - Acessar conta bancária
+                3 - Mostrar meus dados
+                4 - Alterar meus dados
                 5 - Excluir conta bancária
-                6 - Excluir conta cliente
+                6 - Excluir minha conta
                 0 - Logout
                 """,
                 client.name().value().toUpperCase()

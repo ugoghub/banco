@@ -1,6 +1,6 @@
 # Banco Digital Java
 
-Sistema bancário desenvolvido em Java com foco em boas práticas de modelagem orientada a objetos, separação de responsabilidades e aplicação de conceitos de Domain-Driven Design (DDD).
+Sistema bancário desenvolvido em Java com foco em boas práticas de modelagem orientada a objetos, separação de responsabilidades e aplicação de conceitos de Domain-Driven Design (DDD) — simplified approach.
 
 O projeto simula operações bancárias reais, incluindo gerenciamento de clientes, contas correntes, contas poupança, depósitos, saques, transferências e cálculo automático de rendimentos.
 
@@ -9,7 +9,7 @@ O projeto simula operações bancárias reais, incluindo gerenciamento de client
 Este projeto foi desenvolvido com o objetivo de praticar e demonstrar conhecimentos em:
 
 * Programação Orientada a Objetos (POO);
-* Domain-Driven Design (DDD);
+* Domain-Driven Design (DDD) — abordagem simplificada;
 * Value Objects;
 * Entidades de Domínio;
 * Service Layer;
@@ -38,8 +38,8 @@ O foco principal está na consistência do domínio e na organização da arquit
 * Entities
 * Value Objects
 * Domain Exceptions
-* Business Rule Encapsulation
-* Immutability
+* Encapsulamento de Regras de Negócio
+* Imutabilidade
 * DTOs (Data Transfer Objects)
 
 ## Padrões Utilizados
@@ -51,10 +51,10 @@ O foco principal está na consistência do domínio e na organização da arquit
 ## Qualidade de Código
 
 * Unit Testing with JUnit 5
-* Refactoring
-* Defensive Programming
+* Refatoração
+* Programação Defensiva
 * Explicit Validation
-* Testability
+* Testabilidade
 
 ## Tecnologias e Ferramentas
 
@@ -119,24 +119,16 @@ O foco principal está na consistência do domínio e na organização da arquit
 O sistema foi desenvolvido utilizando uma arquitetura em camadas, buscando separar responsabilidades e manter o domínio desacoplado de detalhes de infraestrutura.
 
 ```text
-UI
+UI Layer
  │
  ▼
-Application Service
- │
- ├── ClientService
- ├── AccountService
- └── TransactionService
+Application Layer
  │
  ▼
-Domain
- │
- ├── Entities
- ├── Value Objects
- └── Business Rules
- │
- ▼
-Repositories (In Memory)
+Service Layer
+ ├──────────────┐
+ ▼              ▼
+Domain      Repositories
 ```
 
 ## Camadas
@@ -229,7 +221,7 @@ src
 │   ├── SavingsAccount
 │   ├── Client
 │   ├── Transaction
-│   └── ...
+│   └── Enums
 │
 ├── model/valueobject
 │   ├── Money
@@ -237,13 +229,16 @@ src
 │   ├── Email
 │   ├── PersonName
 │   ├── AccountIdentity
-│   └── ...
+│   └── AccountIdentityGenerator
 │
 ├── service
-│   ├── ApplicationService
 │   ├── ClientService
 │   ├── AccountService
 │   └── TransactionService
+│
+├── application
+│    ├── ApplicationService
+│    └── ApplicationContext
 │
 ├── repository
 │   ├── ClientRepository
@@ -251,13 +246,16 @@ src
 │   └── TransactionRepository
 │
 ├── ui
+│   ├── controller
+│   ├── formatter
+│   ├── menu
+│   ├── messages
+│   ├── selector
+│   ├── util
 │   ├── App
-│   ├── Menus
-│   └── InputReader
+│   └── Main
 │
 ├── exception
-│
-└── helper
 ```
 
 ---
@@ -462,12 +460,15 @@ Os testes cobrem:
 * SavingsAccount;
 * Transaction.
 
+## Application
+
+* ApplicationService.
+
 ## Services
 
 * ClientService;
 * AccountService;
 * TransactionService;
-* ApplicationService.
 
 ## Regras de Negócio
 

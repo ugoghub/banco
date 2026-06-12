@@ -1,0 +1,107 @@
+service.md
+accountService valida conta?
+
+Regras Aplicadas
+O serviço garante:
+
+geração de AccountIdentity único;
+validação de conta existente;
+remoção apenas quando permitido;
+validação de contas vinculadas ao cliente.
+
+DTOs nao aparecem no READ.me
+
+----------------------------------------------------------------------------------
+
+ui.md
+
+Estrutura Geral
+A camada é composta pelos seguintes elementos:
+
+App
+Controller(s)
+InputReader
+MenuRenderer
+**faltando pacotes***
+
+nao cita sobre formatters ou consoleMessages
+
+----------------------------------------------------------------------------------
+
+foto do jacoco
+
+----------------------------------------------------------------------------------
+
+documentar que juros sao aplicados baseados na data de nascimento da conta.
+
+testing.md
+
+ausência de erros de arredondamento em operações sucessivas;
+tem testes disso?
+
+TransactionInterestServiceTest
+Uma das responsabilidades introduzidas pela refatoração foi tornar os rendimentos visíveis no extrato bancário.
+
+
+Componentes de infraestrutura, como repositórios, classes de inicialização da aplicação e a camada de interface com o usuário (UI), não fazem parte da suíte de testes atual.
+na verdade os repositorios meio que sao testados com os services.
+
+-------------------------------------------------------------------------------------
+
+architecture.md
+
+Representa o núcleo do sistema. //remover so isso
+
+Responsável por:
+
+regras de negócio;
+validações de domínio;
+invariantes;
+entidades;
+value objects;
+comportamento financeiro;
+políticas de negócio.
+O domínio não possui dependência de:
+
+UI;
+Application;
+Services;
+Repositories;
+frameworks externos.
+Todas as regras críticas do sistema estão concentradas nesta camada.
+
+-------------------------------------------------------------------------
+
+garantir que os diagramas da estrutura da arquitetura esta consistente em todos os arquivos.
+exemplo:
+UI
+ │
+ ▼
+Application
+ │
+ ▼
+Services
+ │
+ ▼
+Repositories
+
+────────────────────
+
+Domain
+
+---------------------------------------------------------------------------------------
+
+talvez tirar controller da Ui seria bom
+
+---------------------------------------------------------------------------------------------
+
+Benefícios
+A interface pode capturar categorias inteiras de erro:
+
+catch (ValidationException e)
+ou
+
+catch (BusinessRuleException e)
+sem depender de implementações específicas.
+
+**********retirar catch (BusinessRuleException e)
