@@ -1,6 +1,6 @@
 # Banco Digital Java
 
-Sistema bancário desenvolvido em Java com foco em boas práticas de modelagem orientada a objetos, separação de responsabilidades e aplicação de conceitos de Domain-Driven Design (DDD) — simplified approach.
+Sistema bancário desenvolvido em Java com foco em boas práticas de modelagem orientada a objetos, separação de responsabilidades e aplicação de conceitos de Domain-Driven Design (DDD) — abordagem simplificada.
 
 O projeto simula operações bancárias reais, incluindo gerenciamento de clientes, contas correntes, contas poupança, depósitos, saques, transferências e cálculo automático de rendimentos.
 
@@ -12,8 +12,7 @@ Este projeto foi desenvolvido com o objetivo de praticar e demonstrar conhecimen
 * Domain-Driven Design (DDD) — abordagem simplificada;
 * Value Objects;
 * Entidades de Domínio;
-* Service Layer;
-* Application Layer;
+* Arquitetura em Camadas
 * Testes automatizados com JUnit 5;
 * Separação de responsabilidades;
 * Modelagem de regras de negócio.
@@ -26,34 +25,37 @@ O foco principal está na consistência do domínio e na organização da arquit
 
 ## Arquitetura e Design
 
-* Object-Oriented Programming (OOP)
+* Programação Orientada a Objetos (POO)
 * Domain-Driven Design (DDD) — abordagem simplificada
-* Layered Architecture
-* Rich Domain Model
-* SOLID Principles
-* Separation of Responsibilities
+* Arquitetura em Camadas
+* Modelo de Domínio Rico
+* Princípios SOLID
+* Separação de Responsabilidades
 
 ## Modelagem de Domínio
 
-* Entities
+* Entidades
 * Value Objects
-* Domain Exceptions
+* Exceções de Domínio
 * Encapsulamento de Regras de Negócio
 * Imutabilidade
-* DTOs (Data Transfer Objects)
+
+## Comunicação entre Camadas
+
+* DTOs (Objetos de Transferência de Dados)
 
 ## Padrões Utilizados
 
-* Repository Pattern
-* Service Layer Pattern
-* In-Memory Repositories
+* Repository Pattern (Padrão de Repositório)
+* Service Layer Pattern (Padrão de Camada de Serviço)
+* Repositórios em Memória
 
 ## Qualidade de Código
 
-* Unit Testing with JUnit 5
+* Testes Unitários com JUnit 5
 * Refatoração
 * Programação Defensiva
-* Explicit Validation
+* Validações Explícitas
 * Testabilidade
 
 ## Tecnologias e Ferramentas
@@ -112,6 +114,72 @@ O foco principal está na consistência do domínio e na organização da arquit
 * Transferências recebidas;
 * Rendimentos da poupança.
 
+## Modelo de Transações
+
+Todas as movimentações financeiras são registradas através da entidade `Transaction`.
+
+Os tipos de transação disponíveis são:
+
+* Depósito (DEPOSIT)
+* Saque (WITHDRAW)
+* Transferência Enviada (TRANSFER_SENT)
+* Transferência Recebida (TRANSFER_RECEIVED)
+* Rendimento (INTEREST)
+
+### Transferências
+
+Uma transferência gera duas transações independentes:
+
+* uma transação de envio (`TRANSFER_SENT`);
+* uma transação de recebimento (`TRANSFER_RECEIVED`).
+
+As duas transações possuem identificadores próprios, mas compartilham o mesmo `operationId`, permitindo rastrear toda a operação.
+
+### Rendimentos
+
+Os rendimentos da conta poupança são registrados através de transações do tipo `INTEREST`.
+
+Dessa forma, todas as alterações de saldo ficam registradas no histórico da conta.
+
+## Aplicação de Juros por Competência
+
+Cada conta poupança possui sua própria data de aniversário, definida pela data de criação da conta.
+
+Os rendimentos mensais vencem sempre nessa data.
+
+Exemplo:
+
+Conta criada em 15/01
+
+* 15/02 → primeiro rendimento disponível;
+* 15/03 → segundo rendimento disponível;
+* 15/04 → terceiro rendimento disponível.
+
+O sistema utiliza uma estratégia de aplicação tardia (*Lazy Interest Application*).
+
+Os juros não são processados continuamente nem aplicados automaticamente na data de vencimento. Em vez disso, os rendimentos pendentes são calculados e aplicados quando ocorre alguma operação que exige atualização da conta, como:
+
+* consulta de saldo;
+* consulta de extrato;
+* depósitos;
+* saques;
+* transferências.
+
+Dessa forma, mesmo que o cliente permaneça longos períodos sem movimentar a conta, todos os rendimentos pendentes serão calculados corretamente na próxima atualização.
+
+Exemplo:
+
+Conta criada em 15/01
+
+* 15/02 → rendimento disponível;
+* 15/03 → rendimento disponível;
+* 15/04 → rendimento disponível;
+* 20/04 → cliente acessa a conta.
+
+Ao acessar a conta em 20/04, o sistema identifica todos os rendimentos pendentes, aplica os juros acumulados e atualiza o saldo da conta de forma consistente.
+
+As transações de rendimento são registradas no momento em que a atualização ocorre, utilizando a data e hora atuais da aplicação. Entretanto, o cálculo dos juros considera corretamente todos os períodos pendentes desde a última atualização da conta.
+
 ---
 
 # Arquitetura
@@ -119,16 +187,20 @@ O foco principal está na consistência do domínio e na organização da arquit
 O sistema foi desenvolvido utilizando uma arquitetura em camadas, buscando separar responsabilidades e manter o domínio desacoplado de detalhes de infraestrutura.
 
 ```text
-UI Layer
- │
- ▼
-Application Layer
- │
- ▼
-Service Layer
- ├──────────────┐
- ▼              ▼
-Domain      Repositories
+Interface de Usuário (UI)
+    │
+    ▼
+Camada de Aplicação
+(ApplicationService)
+    │
+    ▼
+Camada de Serviço
+ ├── ClientService
+ ├── AccountService
+ └── TransactionService
+    │
+    ├── Domínio
+    └── Repositórios
 ```
 
 ## Camadas
@@ -148,7 +220,7 @@ A camada de UI não contém regras de negócio.
 
 ---
 
-### Application Layer
+### Camada de Aplicação
 
 Representada pela classe `ApplicationService`.
 
@@ -160,11 +232,17 @@ Responsável por:
 
 A UI nunca acessa diretamente os serviços internos.
 
+O ApplicationService atua como fachada da aplicação, concentrando os casos de uso consumidos pela camada de UI.
+
 ---
 
-### Service Layer
+### Camada de Serviço
 
 Contém os serviços responsáveis pela execução das operações do sistema.
+
+Os serviços não concentram as regras de negócio principais do sistema.
+
+As regras pertencem ao domínio e às entidades. Os serviços são responsáveis por coordenar operações, validar fluxos e interagir com os repositórios.
 
 #### ClientService
 
@@ -196,9 +274,11 @@ Responsável por:
 
 ---
 
-### Domain Layer
+### Domínio
 
 Contém toda a regra de negócio do sistema.
+
+O domínio é composto por entidades, value objects e regras de negócio.
 
 O domínio não depende de:
 
@@ -221,7 +301,8 @@ src
 │   ├── SavingsAccount
 │   ├── Client
 │   ├── Transaction
-│   └── Enums
+│   ├── AccountType
+│   └── TransactionType
 │
 ├── model/valueobject
 │   ├── Money
@@ -297,6 +378,26 @@ Benefícios:
 
 ---
 
+## Uso de DTOs
+
+A comunicação entre as camadas da aplicação não expõe diretamente entidades do domínio.
+
+Para transferência de dados são utilizados DTOs (Data Transfer Objects), representados através de records imutáveis.
+
+Exemplos:
+
+* `ClientData`
+* `StatementData`
+
+Benefícios:
+
+* desacoplamento entre camadas;
+* exposição controlada de informações;
+* redução de dependências entre UI e domínio;
+* maior clareza na comunicação entre serviços e aplicação.
+
+---
+
 ## Injeção de Clock
 
 O sistema utiliza `java.time.Clock` em vez de acessar diretamente o horário do sistema.
@@ -304,8 +405,8 @@ O sistema utiliza `java.time.Clock` em vez de acessar diretamente o horário do 
 Benefícios:
 
 * testes determinísticos;
-* simulação de passagem de tempo;
-* validação do cálculo de juros mensais.
+* simulação de datas futuras para validação de rendimentos;
+* validação de regras dependentes de tempo, como o cálculo de juros da poupança;
 
 ---
 
@@ -453,22 +554,22 @@ Os testes cobrem:
 * PersonName;
 * AccountIdentity.
 
-## Entities
+## Entidades
 
 * Client;
 * CheckingAccount;
 * SavingsAccount;
 * Transaction.
 
-## Application
+## Camada de Aplicação
 
-* ApplicationService.
+* ApplicationService
 
-## Services
+## Camada de Serviços
 
-* ClientService;
-* AccountService;
-* TransactionService;
+* ClientService
+* AccountService
+* TransactionService
 
 ## Regras de Negócio
 
@@ -512,7 +613,7 @@ Possíveis evoluções para o projeto:
 ## Arquitetura
 
 * separação em módulos Maven;
-* introdução de interfaces para repositories;
+* Persistência desacoplada através de interfaces de repositório;
 * implementação de injeção de dependência.
 
 ## API

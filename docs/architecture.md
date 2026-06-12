@@ -8,11 +8,10 @@ A estrutura foi projetada para permitir que as regras de negócio permaneçam co
 
 A arquitetura segue os princípios de:
 
-* Separation of Concerns (SoC);
-* Single Responsibility Principle (SRP);
-* Dependency Inversion;
+* Separação de Responsabilidades (SoC);
+* Princípio da Responsabilidade Única (SRP);
 * Encapsulamento de regras de negócio;
-* Rich Domain Model.
+* Modelo de Domínio Rico.
 
 ---
 
@@ -33,23 +32,24 @@ A arquitetura foi construída com os seguintes objetivos:
 
 A aplicação está organizada nas seguintes camadas:
 
-             UI
-              │
-              ▼
-        Application
-              │
-              ▼
-          Services
-              │
-              ▼
-        Repositories
+```text
+Interface de Usuário (UI)
+    │
+    ▼
+Camada de Aplicação
+(ApplicationService)
+    │
+    ▼
+Camada de Serviço
+ ├── ClientService
+ ├── AccountService
+ └── TransactionService
+    │
+    ├── Domínio
+    └── Repositórios
+```
 
-─────────────────────────
-
-            Domain
-      (núcleo do sistema)
-
-Cada camada possui responsabilidades específicas e depende apenas das camadas inferiores.
+Cada camada possui responsabilidades específicas e acessa apenas os componentes necessários para cumprir sua função, respeitando a direção definida das dependências.
 
 ### UI
 
@@ -75,9 +75,10 @@ Não contém regras de domínio.
 
 Responsável por:
 
-* executar operações do sistema
-* aplicar regras de aplicação
-* coordenar entidades
+* executar operações do sistema;
+* coordenar entidades de domínio;
+* interagir com os repositórios;
+* garantir a consistência das operações de negócio.
 
 ### Repositories
 
@@ -87,8 +88,6 @@ Responsável por:
 * fornecer consultas
 
 ### Domain
-
-Representa o núcleo do sistema.
 
 Responsável por:
 
@@ -152,7 +151,7 @@ A camada de aplicação pode acessar:
 
 * Services;
 * DTOs;
-* objetos de domínio.
+* tipos expostos pelos serviços.
 
 A camada de aplicação atua como fachada do sistema, centralizando os casos de uso disponíveis para a interface.
 
@@ -185,7 +184,7 @@ Não deve conter:
 
 O domínio representa o núcleo do sistema.
 
-Não possui dependência de:
+O domínio não possui dependência de:
 
 * UI;
 * Application;
@@ -202,20 +201,20 @@ Todas as regras de negócio permanecem isoladas nesta camada.
 A direção das dependências pode ser representada da seguinte forma:
 
 ```text
-UI
- │
- ▼
-Application
- │
- ▼
-Services
- │
- ▼
-Repositories
-
-────────────────────
-
-Domain
+Interface de Usuário (UI)
+    │
+    ▼
+Camada de Aplicação
+(ApplicationService)
+    │
+    ▼
+Camada de Serviço
+ ├── ClientService
+ ├── AccountService
+ └── TransactionService
+    │
+    ├── Domínio
+    └── Repositórios
 ```
 
 O domínio permanece independente, sendo utilizado pelas demais camadas sem conhecê-las.
@@ -253,11 +252,8 @@ ApplicationService
    ▼
 Service
    │
-   ▼
-Entidade do Domínio
-   │
-   ▼
-Repository
+   ├── Domínio
+   └── Repositórios
 ```
 
 Exemplo:
@@ -277,6 +273,7 @@ TransactionService.deposit(...)
 Account.deposit(...)
         │
         ▼
+Persistência da transação
 TransactionRepository.save(...)
 ```
 
@@ -285,6 +282,14 @@ A interface nunca manipula entidades diretamente.
 Todo acesso ao domínio ocorre através da camada de aplicação.
 
 ---
+
+## Papel do ApplicationService
+
+O ApplicationService atua como fachada da aplicação.
+
+Seu objetivo é fornecer uma interface única para os casos de uso consumidos pela camada de UI.
+
+Ele não contém regras de negócio nem lógica de persistência, sendo responsável apenas por coordenar os serviços internos e expor operações de alto nível para a interface.
 
 ## Application Context
 
@@ -448,7 +453,7 @@ AccountRepository
 TransactionRepository
 ```
 
-Cada repositório possui responsabilidade exclusiva sobre seu respectivo agregado.
+Cada repositório possui responsabilidade exclusiva sobre um conjunto específico de dados do domínio.
 
 ---
 
@@ -479,6 +484,8 @@ Essa abordagem proporciona:
 ## Estratégia de DTOs
 
 O sistema utiliza Data Transfer Objects (DTOs) para comunicação entre as camadas.
+
+Os DTOs são implementados utilizando records imutáveis do Java.
 
 Os DTOs evitam a exposição direta das entidades de domínio para camadas superiores.
 
@@ -551,14 +558,9 @@ Essa organização permite:
 
 A interface pode capturar categorias inteiras de erro:
 
-```java
-catch (ValidationException e)
+
 ```
-
-ou
-
-```java
-catch (BusinessRuleException e)
+catch (ValidationException e)
 ```
 
 sem depender de implementações específicas.
@@ -589,7 +591,7 @@ Todos os componentes recebem suas dependências via construtor.
 
 Exemplo:
 
-```java
+```
 TransactionService(
     accountService,
     transactionRepository,

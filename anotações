@@ -32,8 +32,6 @@ foto do jacoco
 
 ----------------------------------------------------------------------------------
 
-documentar que juros sao aplicados baseados na data de nascimento da conta.
-
 testing.md
 
 ausência de erros de arredondamento em operações sucessivas;
@@ -47,28 +45,6 @@ Componentes de infraestrutura, como repositórios, classes de inicialização da
 na verdade os repositorios meio que sao testados com os services.
 
 -------------------------------------------------------------------------------------
-
-architecture.md
-
-Representa o núcleo do sistema. //remover so isso
-
-Responsável por:
-
-regras de negócio;
-validações de domínio;
-invariantes;
-entidades;
-value objects;
-comportamento financeiro;
-políticas de negócio.
-O domínio não possui dependência de:
-
-UI;
-Application;
-Services;
-Repositories;
-frameworks externos.
-Todas as regras críticas do sistema estão concentradas nesta camada.
 
 -------------------------------------------------------------------------
 
@@ -93,15 +69,4 @@ Domain
 
 talvez tirar controller da Ui seria bom
 
----------------------------------------------------------------------------------------------
-
-Benefícios
-A interface pode capturar categorias inteiras de erro:
-
-catch (ValidationException e)
-ou
-
-catch (BusinessRuleException e)
-sem depender de implementações específicas.
-
-**********retirar catch (BusinessRuleException e)
+-------------------------------------------------------------------------------------------
