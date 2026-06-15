@@ -63,6 +63,15 @@ Os tipos de transação suportados são:
 
 As transações não alteram saldo diretamente. Elas atuam como registro histórico das operações executadas pelas contas.
 
+Todas as transações possuem:
+
+- identificador único;
+- data e hora de registro;
+- tipo;
+- valor monetário.
+
+Transferências compartilham um operationId comum.
+
 ---
 
 ## Relacionamento Entre os Conceitos
@@ -81,7 +90,7 @@ Cliente
            └── Transações
 ```
 
-Um cliente pode possuir múltiplas contas.
+Um cliente pode possuir múltiplas contas correntes e/ou poupança.
 
 Cada conta mantém seu próprio saldo e seu próprio histórico de transações.
 
@@ -212,7 +221,7 @@ São situações em que os dados são válidos, mas a operação solicitada não
 
 Representa a tentativa de acesso a recursos inexistentes.
 
-É utilizada pelos services quando uma entidade esperada não pode ser localizada nos repositórios.
+É normalmente lançada pela camada de serviço quando uma entidade esperada não pode ser localizada nos repositórios.
 
 ### Exceções
 
@@ -257,7 +266,7 @@ Representa a identificação pública de uma conta bancária.
 * validar o formato da agência;
 * validar o formato do número da conta;
 * validar o dígito verificador da conta;
-* representar unicamente uma conta dentro do sistema.
+* representar a identidade pública de uma conta dentro do sistema.
 
 ### Regras
 
@@ -287,7 +296,7 @@ Conta:   123456-1
 
 ---
 
-## AccountIdentityFactory
+## AccountIdentityGenerator
 
 Responsável pela geração automática de novas identidades de conta.
 
@@ -477,7 +486,7 @@ O uso de Value Objects permite:
 * validação centralizada;
 * eliminação de estados inválidos;
 * redução de código defensivo em serviços e entidades;
-* comparações por valor naturalmente suportadas pelos `record`;
+* comparações baseadas em valor, implementadas pelos próprios Value Objects.
 * maior clareza semântica das regras de negócio.
 
 Com isso, entidades e serviços podem assumir que os dados recebidos já estão válidos, simplificando significativamente a lógica do domínio.
@@ -561,7 +570,7 @@ A conta poupança utiliza uma estratégia de aplicação preguiçosa de juros (L
 
 Nessa abordagem, os rendimentos não são processados automaticamente por agendadores ou tarefas periódicas.
 
-Em vez disso, os juros são calculados apenas quando a conta é acessada.
+Em vez disso, os juros são calculados e aplicados quando a conta participa de uma operação que exige atualização de seu estado.
 
 ---
 
@@ -630,7 +639,7 @@ Isso mantém o saldo consistente com o tempo transcorrido.
 
 ---
 
-## Atualização Automática ao Acessar a Conta
+## Atualização Automática Antes das Operações
 
 Os juros são aplicados automaticamente antes das operações relevantes.
 
@@ -683,7 +692,8 @@ Não exige:
 * schedulers;
 * cron jobs;
 * processamento periódico.
-* Consistência
+
+### Consistência
 
 O saldo sempre reflete todos os rendimentos acumulados.
 
@@ -700,7 +710,7 @@ A lógica permanece inteiramente dentro do domínio, sem dependência de infraes
 # Entidades
 
 * As entidades representam os principais conceitos do domínio bancário.
-* Diferentemente dos Value Objects, possuem identidade própria e ciclo de vida independente, sendo reconhecidas por um identificador único (UUID).
+* As entidades possuem identidade própria e são distinguidas por um identificador único, independentemente de seus atributos.
 
 ---
 
@@ -827,7 +837,7 @@ Herda de `Account`.
 
 ### Responsabilidades
 
-* Aplicar rendimentos mensais automaticamente.
+* Calcular e disponibilizar rendimentos mensais automaticamente.
 * Controlar a data da última aplicação de juros.
 
 ### Atributos adicionais
@@ -842,7 +852,7 @@ Herda de `Account`.
 * Possui rendimento mensal de 0,5%.
 * Juros são aplicados apenas sobre saldo positivo.
 * Caso vários meses tenham passado sem movimentação, todos os rendimentos pendentes são aplicados de uma única vez.
-* Cada aplicação de juros gera um valor de rendimento que posteriormente será transformado em transação pelo Service Layer.
+* Cada aplicação de juros gera um valor de rendimento que posteriormente será transformado em transação pela Camada de Serviço.
 
 ### Exemplo
 
@@ -856,7 +866,7 @@ Rendimento mensal:
 
 Juro aplicado:
 
-R$ 5,00
+0,5% de 1000 = 5
 
 Novo saldo:
 
@@ -912,7 +922,7 @@ Uma transação é imutável após sua criação.
 
 * Deve possuir conta origem.
 * Deve possuir conta destino.
-* Deve possuir um `operationId`.
+* Deve compartilhar o mesmo operationId entre TRANSFER_SENT e TRANSFER_RECEIVED.
 
 #### Rendimento
 
@@ -977,7 +987,7 @@ O objetivo é explicar as fronteiras de responsabilidade e as regras que governa
 
 ---
 
-# Agregado Cliente
+# Estrutura da Entidade Client
 
 O agregado Cliente é composto por:
 
@@ -1010,9 +1020,9 @@ Todas as alterações devem ocorrer através dos métodos expostos pela própria
 
 ---
 
-# Agregado Conta
+# Estrutura da Entidade Account
 
-O agregado Conta é composto por:
+A estrutura interna é composta por:
 
 ```text
 Account
@@ -1078,9 +1088,9 @@ Isso reduz acoplamento e simplifica persistência.
 
 ---
 
-# Agregado Transação
+# Estrutura da Entidade Transaction
 
-O agregado de transação é composto por:
+A estrutura da transação é composta por:
 
 ```text
 Transaction
@@ -1136,7 +1146,7 @@ Destino: conta
 
 # Relacionamento Conta → Transação
 
-Uma conta possui várias transações associadas ao seu histórico.
+Uma conta pode possuir várias transações registradas em seu histórico.
 
 ```text
 Account
@@ -1178,6 +1188,8 @@ operationId
 ```
 
 Isso permite rastrear uma operação completa de transferência.
+
+As duas transações são criadas de forma atômica pelo TransactionService, garantindo consistência entre origem e destino.
 
 Exemplo:
 
@@ -1225,7 +1237,7 @@ As seguintes regras devem ser sempre verdadeiras:
 ### Conta
 
 * Saldo nunca ultrapassa o limite permitido.
-* Conta removível apenas com saldo zero.
+* Conta só pode ser removida quando seu saldo for zero.
 
 ### Conta Corrente
 
@@ -1260,7 +1272,7 @@ Esta seção descreve os principais princípios adotados durante a modelagem do 
 
 Uma das principais diretrizes do projeto é que as regras de negócio pertencem às próprias entidades do domínio.
 
-Ao invés de concentrar validações e comportamentos em services, cada entidade é responsável por proteger sua própria consistência interna.
+Ao invés de concentrar validações e comportamentos na Camada de Serviço, cada entidade é responsável por proteger sua própria consistência interna.
 
 Exemplos:
 
@@ -1314,7 +1326,7 @@ Benefícios:
 
 ### Serviços de Domínio
 
-Os services coordenam operações entre entidades sem armazenar estado.
+A camada de Serviço coordena operações entre entidades sem armazenar estado.
 
 Exemplos:
 
@@ -1340,7 +1352,7 @@ account.withdraw(amount);
 savingsAccount.applyPendingInterests(clock);
 ```
 
-Em vez de possuir objetos anêmicos e concentrar toda lógica em services, o comportamento permanece próximo dos dados que ele manipula.
+Em vez de possuir objetos anêmicos e concentrar toda lógica na camada de serviço, o comportamento permanece próximo dos dados que ele manipula.
 
 ---
 
@@ -1418,9 +1430,8 @@ As entidades não possuem qualquer conhecimento sobre repositórios.
 Nenhuma entidade conhece:
 
 ```
-Repository
-Service
-Database
+Repositórios
+Serviços
 ```
 
 Exemplo:
@@ -1447,7 +1458,7 @@ SavingsAccount.applyPendingInterests()
 
 ### Registro histórico
 
-Executado pelos services.
+Executado pela camada de serviço.
 
 Exemplo:
 
@@ -1458,7 +1469,7 @@ TransactionService
 Assim:
 
 - a conta calcula juros;
-- o service registra movimentações;
+- o serviço registra movimentações;
 - o domínio permanece desacoplado da persistência.
 
 ---

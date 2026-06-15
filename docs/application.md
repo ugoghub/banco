@@ -107,7 +107,7 @@ Operações relacionadas ao gerenciamento de clientes.
 
 Exemplos:
 
-```java
+```
 createClient(...)
 removeClient(...)
 changeName(...)
@@ -123,7 +123,7 @@ Operações relacionadas à abertura e encerramento de contas.
 
 Exemplos:
 
-```java
+```
 createAccount(...)
 removeAccount(...)
 getClientAccountsIdentity(...)
@@ -137,7 +137,7 @@ Operações financeiras do sistema.
 
 Exemplos:
 
-```java
+```
 deposit(...)
 withdraw(...)
 transfer(...)
@@ -153,7 +153,7 @@ Em alguns casos de uso, o ApplicationService precisa coordenar múltiplos servi�
 
 Exemplo:
 
-```java
+```
 removeClient(...)
 ```
 

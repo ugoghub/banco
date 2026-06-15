@@ -522,7 +522,7 @@ Exemplo de utilização:
 6. Consultar saldo;
 7. Consultar extrato;
 8. Remover contas sem saldo;
-9. Remover clientes sem contas.
+9. Remover clientes com todas as contas sem saldo.
 
 ---
 

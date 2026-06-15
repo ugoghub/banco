@@ -51,7 +51,7 @@ Camada de Serviço
 
 Cada camada possui responsabilidades específicas e acessa apenas os componentes necessários para cumprir sua função, respeitando a direção definida das dependências.
 
-### UI
+### Interface de Usuário
 
 Responsável por:
 
@@ -62,16 +62,17 @@ Responsável por:
 
 Não possui regras de negócio.
 
-### Application
+### Camada de Aplicação
 
 Responsável por:
 
-* coordenar casos de uso
-* integrar múltiplos serviços
+* expor os casos de uso da aplicação;
+* coordenar serviços internos;
+* servir como fachada para a camada de UI.
 
 Não contém regras de domínio.
 
-### Services
+### Camada de Serviço
 
 Responsável por:
 
@@ -79,15 +80,16 @@ Responsável por:
 * coordenar entidades de domínio;
 * interagir com os repositórios;
 * garantir a consistência das operações de negócio.
+* orquestrar regras que envolvem múltiplas entidades;
 
-### Repositories
+### Repositórios
 
 Responsável por:
 
 * armazenar dados em memória
 * fornecer consultas
 
-### Domain
+### Domínio
 
 Responsável por:
 
@@ -108,6 +110,7 @@ O domínio não possui dependência de:
 * frameworks externos.
 
 Todas as regras críticas do sistema estão concentradas nesta camada.
+As entidades do domínio são responsáveis por proteger seus próprios invariantes e encapsular as regras de negócio relacionadas ao seu estado.
 
 ---
 
@@ -131,7 +134,7 @@ O domínio é utilizado por todas as camadas, mas não possui conhecimento sobre
 
 ### Regras de Dependência
 
-#### UI
+#### Interface de Usuário
 
 A camada de interface pode acessar:
 
@@ -145,7 +148,7 @@ A camada de interface não deve acessar:
 
 ---
 
-#### Application
+#### Camada de Aplicação
 
 A camada de aplicação pode acessar:
 
@@ -157,7 +160,7 @@ A camada de aplicação atua como fachada do sistema, centralizando os casos de 
 
 ---
 
-#### Services
+#### Camada de Serviço
 
 A camada de serviços pode acessar:
 
@@ -168,7 +171,7 @@ Os serviços são responsáveis por coordenar operações que envolvem múltipla
 
 ---
 
-#### Repositories
+#### Repositórios
 
 A camada de repositórios é responsável apenas pelo armazenamento e recuperação de dados.
 
@@ -180,19 +183,9 @@ Não deve conter:
 
 ---
 
-#### Domain
+#### Domínio
 
-O domínio representa o núcleo do sistema.
-
-O domínio não possui dependência de:
-
-* UI;
-* Application;
-* Services;
-* Repositories;
-* frameworks externos.
-
-Todas as regras de negócio permanecem isoladas nesta camada.
+O domínio representa o núcleo do sistema e concentra todas as regras de negócio. Nenhuma outra camada é conhecida por ele.
 
 ---
 
@@ -209,9 +202,6 @@ Camada de Aplicação
     │
     ▼
 Camada de Serviço
- ├── ClientService
- ├── AccountService
- └── TransactionService
     │
     ├── Domínio
     └── Repositórios
@@ -315,7 +305,7 @@ Isso reduz acoplamento e facilita futuras alterações na infraestrutura.
 
 Durante a inicialização são criados:
 
-#### Repositories
+#### Repositórios
 
 ```text
 ClientRepository
@@ -327,7 +317,7 @@ Responsáveis pelo armazenamento dos dados em memória.
 
 ---
 
-#### Services
+#### Camada de Serviço
 
 ```text
 ClientService
@@ -339,7 +329,7 @@ Responsáveis pela execução das regras de aplicação e coordenação das oper
 
 ---
 
-#### Application Layer
+#### Camada de Aplicação
 
 ```text
 ApplicationService
@@ -406,7 +396,6 @@ O mesmo `Clock` é compartilhado entre os componentes que dependem de operaçõe
 
 Atualmente ele é utilizado principalmente por:
 
-* `Account`;
 * `SavingsAccount`;
 * `Transaction`;
 * `TransactionService`.
@@ -487,7 +476,7 @@ O sistema utiliza Data Transfer Objects (DTOs) para comunicação entre as camad
 
 Os DTOs são implementados utilizando records imutáveis do Java.
 
-Os DTOs evitam a exposição direta das entidades de domínio para camadas superiores.
+Os DTOs são utilizados principalmente como contratos de saída da camada de aplicação, evitando que entidades do domínio sejam expostas diretamente para a UI.
 
 ### DTOs Existentes
 
@@ -579,9 +568,9 @@ O uso de `Clock` permite controlar o tempo durante os testes.
 
 Isso possibilita validar cenários como:
 
-* rendimento da poupança;
+* cálculo de rendimentos pendentes da poupança;
 * passagem de meses;
-* datas de transações.
+* geração de transações dependentes de data e hora.
 
 ---
 
@@ -627,7 +616,7 @@ Substituição dos repositórios em memória por:
 * MySQL;
 * MongoDB.
 
-Sem alterações significativas nas regras de domínio.
+Sem alterações significativas nas entidades e regras de domínio.
 
 ---
 
