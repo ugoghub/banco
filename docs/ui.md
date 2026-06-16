@@ -65,7 +65,7 @@ Fluxo simplificado:
 Usuário
    │
    ▼
-App
+  App
    │
    ▼
 Controller
@@ -185,11 +185,11 @@ Centralizar a exibição das opções disponíveis.
 Exemplo:
 
 ```text
-1 - Criar cliente
-2 - Abrir conta
-3 - Depositar
-4 - Transferir
-0 - Sair
+1 - Criar conta bancária
+2 - Acessar conta bancária
+3 - Mostrar meus dados
+4 - Alterar meus dados
+5 - Excluir conta bancária
 ```
 
 ---
@@ -223,9 +223,8 @@ ApplicationService
    │
    ▼
 Serviços
-   │
-   ▼
-Domínio
+   ├── Domínio
+   └── Repositórios
 ```
 
 Após a execução:

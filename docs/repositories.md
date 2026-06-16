@@ -8,7 +8,7 @@ Atualmente a persistência é realizada inteiramente em memória através de col
 
 Os repositórios atuam como uma abstração de acesso aos dados, permitindo que as demais camadas não tenham conhecimento sobre a estrutura utilizada para armazenamento.
 
-Assim, os repositórios acumulam simultaneamente as responsabilidades de abstração e armazenamento em memória.
+Os repositórios acumulam simultaneamente as responsabilidades de abstração e armazenamento em memória.
 
 ---
 
@@ -92,7 +92,6 @@ Email → UUID
 Os índices são mantidos sincronizados com o mapa principal durante operações de inclusão, atualização e remoção.
 
 Essa abordagem evita duplicação de dados e permite buscas rápidas.
-
 
 ---
 

@@ -9,23 +9,6 @@ validação de conta existente;
 remoção apenas quando permitido;
 validação de contas vinculadas ao cliente.
 
-DTOs nao aparecem no READ.me
-
-----------------------------------------------------------------------------------
-
-ui.md
-
-Estrutura Geral
-A camada é composta pelos seguintes elementos:
-
-App
-Controller(s)
-InputReader
-MenuRenderer
-**faltando pacotes***
-
-nao cita sobre formatters ou consoleMessages
-
 ----------------------------------------------------------------------------------
 
 foto do jacoco
@@ -39,34 +22,3 @@ tem testes disso?
 
 TransactionInterestServiceTest
 Uma das responsabilidades introduzidas pela refatoração foi tornar os rendimentos visíveis no extrato bancário.
-
-
-Componentes de infraestrutura, como repositórios, classes de inicialização da aplicação e a camada de interface com o usuário (UI), não fazem parte da suíte de testes atual.
-na verdade os repositorios meio que sao testados com os services.
-
--------------------------------------------------------------------------------------
-
--------------------------------------------------------------------------
-
-garantir que os diagramas da estrutura da arquitetura esta consistente em todos os arquivos.
-exemplo:
-UI
- │
- ▼
-Application
- │
- ▼
-Services
- │
- ▼
-Repositories
-
-────────────────────
-
-Domain
-
----------------------------------------------------------------------------------------
-
-talvez tirar controller da Ui seria bom
-
--------------------------------------------------------------------------------------------

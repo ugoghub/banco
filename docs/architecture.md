@@ -41,9 +41,6 @@ Camada de Aplicação
     │
     ▼
 Camada de Serviço
- ├── ClientService
- ├── AccountService
- └── TransactionService
     │
     ├── Domínio
     └── Repositórios
@@ -55,6 +52,7 @@ Cada camada possui responsabilidades específicas e acessa apenas os componentes
 
 Responsável por:
 
+* interagir com o usuário
 * menus
 * entrada de dados
 * formatação
@@ -68,7 +66,7 @@ Responsável por:
 
 * expor os casos de uso da aplicação;
 * coordenar serviços internos;
-* servir como fachada para a camada de UI.
+* servir como fachada para a camada de interface.
 
 Não contém regras de domínio.
 
@@ -103,10 +101,10 @@ Responsável por:
 
 O domínio não possui dependência de:
 
-* UI;
-* Application;
-* Services;
-* Repositories;
+* Interface de Usuário;
+* Camada de Aplicação;
+* Camada de Serviços;
+* Repositórios;
 * frameworks externos.
 
 Todas as regras críticas do sistema estão concentradas nesta camada.
@@ -119,16 +117,14 @@ As entidades do domínio são responsáveis por proteger seus próprios invarian
 As dependências do sistema seguem uma direção única, evitando acoplamento desnecessário entre as partes da aplicação.
 
 ```text
-UI
+Interface de Usuário (UI)
  ↓
-Application
+Camada de Aplicação
  ↓
-Services
- ├── Domain
- └── Repositories
+Serviços
+ ├── Domínio
+ └── Repositórios
 ```
-
-O domínio é utilizado por todas as camadas, mas não possui conhecimento sobre nenhuma delas.
 
 ---
 
@@ -138,7 +134,7 @@ O domínio é utilizado por todas as camadas, mas não possui conhecimento sobre
 
 A camada de interface pode acessar:
 
-* Application
+* Camada de Aplicação
 
 A camada de interface não deve acessar:
 
@@ -207,8 +203,6 @@ Camada de Serviço
     └── Repositórios
 ```
 
-O domínio permanece independente, sendo utilizado pelas demais camadas sem conhecê-las.
-
 ---
 
 ### Benefícios da Estrutura
@@ -272,14 +266,6 @@ A interface nunca manipula entidades diretamente.
 Todo acesso ao domínio ocorre através da camada de aplicação.
 
 ---
-
-## Papel do ApplicationService
-
-O ApplicationService atua como fachada da aplicação.
-
-Seu objetivo é fornecer uma interface única para os casos de uso consumidos pela camada de UI.
-
-Ele não contém regras de negócio nem lógica de persistência, sendo responsável apenas por coordenar os serviços internos e expor operações de alto nível para a interface.
 
 ## Application Context
 
@@ -376,32 +362,6 @@ Após a criação dos serviços, eles são injetados no `ApplicationService`.
 
 ---
 
-### Uso do Clock
-
-O sistema recebe uma instância de `Clock` durante a construção do contexto:
-
-```java
-ApplicationContext context =
-        new ApplicationContext(clock);
-```
-
-Essa abordagem permite:
-
-* controle determinístico do tempo;
-* testes automatizados mais previsíveis;
-* simulação de passagem de tempo;
-* desacoplamento de `LocalDateTime.now()`.
-
-O mesmo `Clock` é compartilhado entre os componentes que dependem de operações temporais.
-
-Atualmente ele é utilizado principalmente por:
-
-* `SavingsAccount`;
-* `Transaction`;
-* `TransactionService`.
-
----
-
 ### Benefícios
 
 A utilização de um Composition Root manual proporciona:
@@ -425,6 +385,38 @@ Foi escolhido um mecanismo manual de composição porque:
 * permite compreender explicitamente o fluxo de criação dos objetos.
 
 Essa abordagem segue os mesmos princípios utilizados por frameworks como Spring, porém de forma simplificada e transparente.
+
+## Papel do ApplicationService
+
+O ApplicationService atua como fachada da aplicação.
+
+Seu objetivo é fornecer uma interface única para os casos de uso consumidos pela camada de UI.
+
+Ele não contém regras de negócio nem lógica de persistência, sendo responsável apenas por coordenar os serviços internos e expor operações de alto nível para a interface.
+
+## Uso do Clock
+
+O sistema recebe uma instância de `Clock` durante a construção do contexto:
+
+```java
+ApplicationContext context =
+        new ApplicationContext(clock);
+```
+
+Essa abordagem permite:
+
+* controle determinístico do tempo;
+* testes automatizados mais previsíveis;
+* simulação de passagem de tempo;
+* desacoplamento de `LocalDateTime.now()`.
+
+O mesmo `Clock` é compartilhado entre os componentes que dependem de operações temporais.
+
+Atualmente ele é utilizado principalmente por:
+
+* `SavingsAccount`;
+* `Transaction`;
+* `TransactionService`.
 
 ---
 
