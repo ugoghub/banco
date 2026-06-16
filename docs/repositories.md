@@ -1,4 +1,4 @@
-# Repository Layer
+# Camada de Repositórios
 
 ## Visão Geral
 
@@ -7,6 +7,8 @@ A camada de repositórios é responsável pelo armazenamento e recuperação dos
 Atualmente a persistência é realizada inteiramente em memória através de coleções Java.
 
 Os repositórios atuam como uma abstração de acesso aos dados, permitindo que as demais camadas não tenham conhecimento sobre a estrutura utilizada para armazenamento.
+
+Assim, os repositórios acumulam simultaneamente as responsabilidades de abstração e armazenamento em memória.
 
 ---
 
@@ -87,7 +89,10 @@ Cpf   → UUID
 Email → UUID
 ```
 
+Os índices são mantidos sincronizados com o mapa principal durante operações de inclusão, atualização e remoção.
+
 Essa abordagem evita duplicação de dados e permite buscas rápidas.
+
 
 ---
 
@@ -267,7 +272,7 @@ Exemplos de regras que NÃO pertencem aos repositórios:
 * email duplicado;
 * remoção de contas com saldo.
 
-Essas responsabilidades pertencem às camadas superiores.
+Essas validações são executadas pelos serviços da aplicação utilizando os dados fornecidos pelos repositórios.
 
 ---
 

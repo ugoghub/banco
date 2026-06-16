@@ -1,6 +1,6 @@
-# Testing
+# Testes
 
-## Overview
+## Visão Geral
 
 Este documento descreve a estratégia de testes adotada no projeto Banco Digital e os cenários validados pela suíte automatizada.
 
@@ -206,11 +206,11 @@ A suíte de testes garante que:
 
 ---
 
-# Entities
+# Entidades
 
 As entidades representam as regras de negócio centrais do domínio bancário. Os testes desta camada validam criação de objetos, operações financeiras, regras de remoção de contas, limites operacionais e aplicação de juros.
 
-## Client
+## Cliente
 
 A entidade `Client` representa o titular de contas bancárias dentro do sistema.
 
@@ -243,7 +243,7 @@ As regras específicas de validação de nome, CPF e e-mail são delegadas aos r
 
 ---
 
-## Account
+## Conta
 
 A classe abstrata `Account` concentra o comportamento comum entre contas correntes e contas poupança.
 
@@ -287,7 +287,7 @@ Os testes verificam que:
 
 ---
 
-## CheckingAccount
+## ContaCorrente
 
 A entidade `CheckingAccount` implementa o comportamento específico da conta corrente, incluindo suporte a limite de cheque especial.
 
@@ -309,7 +309,7 @@ Também é validado que:
 
 ---
 
-## SavingsAccount
+## ContaPoupança
 
 A entidade `SavingsAccount` implementa as regras de rendimento mensal da conta poupança.
 
@@ -354,7 +354,7 @@ Por se tratar de uma conta poupança:
 
 ---
 
-## Transaction
+## Transação
 
 A entidade `Transaction` representa o registro imutável de uma movimentação financeira realizada no sistema.
 
@@ -425,7 +425,8 @@ A entidade rejeita tentativas de criação de transações inválidas, incluindo
 
 * contas nulas;
 * valores nulos;
-* valores iguais ou inferiores a zero quando aplicável;
+* valores iguais a zero;
+* valores negativos;;
 * `Clock` nulo;
 * `operationId` nulo em transferências.
 
@@ -433,7 +434,7 @@ Essas validações garantem que apenas movimentações consistentes possam ser r
 
 ---
 
-# Service Layer Tests
+# Testes da Camada de Serviço
 
 Os testes da camada de serviços validam os casos de uso da aplicação e garantem a correta coordenação entre entidades, repositórios e regras de negócio.
 
@@ -480,7 +481,7 @@ A remoção de contas é validada considerando as regras de negócio do domínio
 O serviço também valida se um cliente pode ter todas as suas contas removidas:
 
 * clientes sem contas podem ser removidos;
-* clientes cujas contas possuem saldo zerado podem ser removidos;
+* * clientes cujas contas possuem saldo exatamente igual a zero podem ser removidos;
 * clientes que possuem qualquer conta com saldo positivo ou negativo não podem ser removidos.
 
 ### Validações
@@ -521,9 +522,10 @@ As operações de alteração cadastral são validadas através dos seguintes ce
 
 * alteração de nome;
 * alteração de e-mail;
-* persistência correta dos novos dados;
-* rejeição de alteração para o mesmo nome já cadastrado;
-* rejeição de alteração para o mesmo e-mail já cadastrado.
+* atualização correta dos dados armazenados no repositório;
+* rejeição de alteração para o mesmo nome atual do cliente.
+* rejeição de alteração para o mesmo email atual do cliente.
+* rejeição de alteração para um email já utilizado por outro cliente.
 
 Também é validado que, após a alteração do e-mail, o endereço antigo deixa de ser utilizado como chave de busca.
 
@@ -618,8 +620,14 @@ Os testes verificam:
 * validação da existência da conta de destino.
 
 Também são validados cenários relacionados à consistência transacional.
+ 
+#### Consistência da Transferência
 
-#### Atomicidade
+Os testes garantem que:
+
+* o crédito só ocorre após o débito ser concluído com sucesso;
+* falhas durante as validações impedem qualquer movimentação;
+* os saldos permanecem inalterados quando a operação é rejeitada.
 
 Os testes garantem que:
 
@@ -636,7 +644,7 @@ O serviço é responsável pela criação e manutenção do extrato financeiro d
 Os testes verificam:
 
 * retorno de histórico vazio para contas sem movimentação;
-* preservação da ordem cronológica das transações;
+* preservação da ordem de registro das transações;
 * geração de identificadores únicos para cada registro;
 * criação correta de transações de depósito;
 * criação correta de transações de saque;
@@ -690,7 +698,7 @@ Também são verificados cenários onde a operação não deve gerar registros:
 
 * transferência rejeitada por saldo insuficiente;
 * transferência para conta inexistente;
-* falha antes da conclusão da operação.
+* falha durante as validações da operação.
 
 Nesses casos, o histórico permanece inalterado, garantindo consistência entre o estado financeiro e os registros armazenados.
 
@@ -712,7 +720,7 @@ Enquanto os testes da entidade `SavingsAccount` garantem o cálculo correto dos 
 
 ### Aplicação automática de juros
 
-Os testes garantem que juros pendentes sejam processados automaticamente antes de qualquer operação financeira relevante.
+Os testes garantem que juros pendentes sejam processados automaticamente antes de qualquer operação que dependa do estado atualizado da conta.
 
 São verificados os seguintes cenários:
 
@@ -813,8 +821,11 @@ Em conjunto, os testes desta classe asseguram que:
 * todas as aplicações de juros sejam auditáveis através do histórico;
 * saldos e extratos permaneçam sincronizados;
 * contas poupança mantenham consistência mesmo após longos períodos sem movimentação.
+* rendimentos sejam registrados no histórico antes das operações que dispararam sua aplicação.
 
 ---
+
+# Testes da Camada de Aplicação
 
 ## ApplicationServiceTest
 
@@ -888,6 +899,7 @@ Esses cenários validam operações financeiras ponta a ponta através da camada
 Os testes garantem que:
 
 * clientes sem contas possam ser removidos;
+* clientes cujas contas estejam aptas para remoção possam ser removidos.
 * o processo seja concluído sem lançamento de exceções quando todas as regras forem satisfeitas.
 
 ### Validações
@@ -1002,8 +1014,12 @@ A suíte atual fornece cobertura para os seguintes componentes:
 
 # Observações
 
-Componentes de infraestrutura, como repositórios, classes de inicialização da aplicação e a camada de interface com o usuário (UI), não fazem parte da suíte de testes atual.
+Componentes de infraestrutura não possuem atualmente suítes de testes dedicadas.
 
-O foco dos testes está concentrado na validação das regras de negócio, na consistência das operações financeiras e no comportamento dos serviços, que representam o núcleo funcional da aplicação.
+Os repositórios são exercitados indiretamente pelos testes das camadas de serviço e aplicação, já que essas suítes utilizam as implementações reais em memória para armazenar e recuperar dados durante a execução dos cenários.
+
+Por outro lado, componentes como a camada de interface com o usuário (UI) e as classes de inicialização da aplicação não fazem parte da suíte de testes atual.
+
+O foco dos testes está concentrado na validação das regras de negócio, na consistência das operações financeiras e na integração entre os serviços e o domínio, que representam o núcleo funcional da aplicação.
 
 Dessa forma, a cobertura existente garante que os principais fluxos e invariantes do domínio bancário sejam exercitados e validados de maneira confiável.

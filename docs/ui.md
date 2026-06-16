@@ -1,4 +1,4 @@
-# UI Layer
+# Interface de Usuário (UI)
 
 ## Visão Geral
 
@@ -8,7 +8,7 @@ Seu objetivo é receber entradas, apresentar informações e encaminhar solicita
 
 Toda regra de negócio permanece fora da interface.
 
-A UI atua apenas como um mecanismo de comunicação entre o usuário e os casos de uso disponíveis.
+A Interface atua apenas como um mecanismo de comunicação entre o usuário e os casos de uso disponíveis.
 
 ---
 
@@ -23,7 +23,7 @@ A camada de interface é responsável por:
 * apresentar resultados;
 * encaminhar operações para a camada de aplicação.
 
-Não é responsabilidade da UI:
+Não é responsabilidade da interface:
 
 * executar regras de negócio;
 * acessar repositórios;
@@ -38,9 +38,12 @@ A camada é composta pelos seguintes elementos:
 
 ```text
 App
-Controller(s)
+Controllers
 InputReader
-MenuRenderer
+Menus
+Formatters
+ConsoleMessages
+Selector
 ```
 
 ---
@@ -79,22 +82,23 @@ Cada controller é responsável por um conjunto específico de operações.
 Exemplo conceitual:
 
 ```text
+AuthController
+
 ClientController
 
 AccountController
 
-TransactionController
+AccountTransactionController
 ```
 
 ---
 
 ### Responsabilidades
 
-* coletar dados do usuário;
-* converter entradas em Value Objects;
-* chamar ApplicationService;
+* solicitar dados ao InputReader;
+* encaminhar operações para o ApplicationService;
 * apresentar resultados;
-* exibir mensagens de erro.
+* exibir mensagens de erro;
 
 ---
 
@@ -168,7 +172,7 @@ Essa abordagem melhora a experiência de uso e evita propagação de entradas in
 
 ---
 
-## MenuRenderer
+## Menu
 
 Responsável exclusivamente pela apresentação visual dos menus.
 
@@ -205,34 +209,40 @@ A separação entre exibição e controle permite:
 Uma operação típica segue o fluxo abaixo:
 
 ```text
+Fluxo de entrada
+
 Usuário
    │
    ▼
 Controller
    │
-   ▼
-InputReader
+   ├── InputReader
    │
    ▼
 ApplicationService
    │
    ▼
-Service Layer
+Serviços
    │
    ▼
-Domain
+Domínio
 ```
 
 Após a execução:
 
 ```text
+Fluxo de saída
+
 Resultado
    │
    ▼
-Controller
+ApplicationService
    │
    ▼
-MenuRenderer
+Controllers
+   │
+   ▼
+Interface (Formatação / Mensagens)
    │
    ▼
 Usuário
@@ -253,7 +263,7 @@ InsufficientBalanceException
 "Saldo insuficiente"
 ```
 
-A UI não tenta corrigir erros de domínio.
+A interface não tenta corrigir erros de domínio.
 
 Ela apenas apresenta a mensagem adequada ao usuário.
 
@@ -261,7 +271,7 @@ Ela apenas apresenta a mensagem adequada ao usuário.
 
 ## Conversão para Value Objects
 
-A interface nunca envia dados primitivos diretamente para os serviços quando existe um Value Object correspondente.
+A interface converte entradas em Value Objects antes de encaminhar a operação para o ApplicationService.
 
 Exemplo:
 
@@ -288,19 +298,19 @@ Isso garante que todas as validações ocorram antes da execução dos casos de 
 
 ## Dependências
 
-A camada de UI depende apenas da camada de aplicação.
+A interface depende apenas da camada de aplicação.
 
 ```text
-UI
+Camada de Interface
  │
  ▼
-Application Layer
+Camada de Aplicação
 ```
 
 Ela não possui acesso direto a:
 
-* Services;
-* Repositories;
+* Camada de Serviço;
+* Repositórios;
 * Entidades;
 * Estruturas internas do domínio.
 
@@ -314,7 +324,7 @@ A organização atual proporciona:
 * baixo acoplamento;
 * facilidade de manutenção;
 * melhor legibilidade;
-* reaproveitamento da camada Application;
+* reaproveitamento da camada de aplicação;
 * possibilidade futura de substituir a interface sem alterar regras de negócio.
 
 A arquitetura permite que a interface de console seja substituída futuramente por:

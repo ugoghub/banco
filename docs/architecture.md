@@ -124,8 +124,8 @@ UI
 Application
  ↓
 Services
- ↓
-Repositories
+ ├── Domain
+ └── Repositories
 ```
 
 O domínio é utilizado por todas as camadas, mas não possui conhecimento sobre nenhuma delas.
@@ -142,8 +142,8 @@ A camada de interface pode acessar:
 
 A camada de interface não deve acessar:
 
-* Services diretamente;
-* Repositories;
+* Serviços diretamente;
+* Repositórios;
 * detalhes internos das entidades.
 
 ---
@@ -152,7 +152,7 @@ A camada de interface não deve acessar:
 
 A camada de aplicação pode acessar:
 
-* Services;
+* Serviços;
 * DTOs;
 * tipos expostos pelos serviços.
 
@@ -164,8 +164,8 @@ A camada de aplicação atua como fachada do sistema, centralizando os casos de 
 
 A camada de serviços pode acessar:
 
-* Domain;
-* Repositories.
+* Domínio;
+* Repositórios.
 
 Os serviços são responsáveis por coordenar operações que envolvem múltiplas entidades ou múltiplos repositórios.
 

@@ -1,4 +1,4 @@
-# Application Layer
+# Camada de Aplicação
 
 ## Visão Geral
 
@@ -8,7 +8,7 @@ Seu principal objetivo é fornecer uma API simples e estável para que a camada 
 
 Esta camada não contém regras de negócio.
 
-Toda lógica de domínio permanece concentrada nas entidades e serviços especializados.
+As regras de domínio permanecem concentradas nas entidades e Value Objects, enquanto os serviços coordenam os fluxos de aplicação e a interação com os repositórios.
 
 ---
 
@@ -18,7 +18,7 @@ A camada de aplicação é responsável por:
 
 * expor casos de uso do sistema;
 * coordenar chamadas entre múltiplos serviços;
-* servir como ponto único de entrada para a UI;
+* servir como ponto único de entrada para a Interface de Usuário;
 * reduzir acoplamento entre interface e serviços;
 * simplificar o acesso às operações da aplicação.
 
@@ -51,9 +51,9 @@ Atua como Composition Root do sistema.
 Durante sua inicialização são criados:
 
 ```text
-Repositories
+Repositórios
     ↓
-Services
+Camada de serviço
     ↓
 ApplicationService
 ```
@@ -77,6 +77,8 @@ Representa a fachada principal da aplicação.
 
 Toda interação da interface com o sistema ocorre através desta classe.
 
+O ApplicationService atua como um Facade sobre os serviços internos da aplicação.
+
 Exemplo:
 
 ```text
@@ -84,16 +86,16 @@ UI
  ↓
 ApplicationService
  ↓
-Services
+Camada de Serviço
 ```
 
 Isso impede que a interface acesse diretamente:
 
-* ClientService;
-* AccountService;
-* TransactionService;
-* Repositories;
-* Entidades.
+* Services;
+* Repositórios;
+* Entidades de negócio.
+
+A interface pode utilizar Value Objects para validar entradas antes da execução dos casos de uso.
 
 ---
 
@@ -160,11 +162,13 @@ removeClient(...)
 Fluxo simplificado:
 
 ```text
-ClientService
-       ↓
-AccountService
-       ↓
-ClientService
+ApplicationService
+      │
+      ├── ClientService
+      │
+      ├── AccountService
+      │
+      └── ClientService
 ```
 
 Passos executados:
@@ -184,7 +188,7 @@ A coordenação ocorre na camada de aplicação, mantendo cada serviço focado e
 Exemplo de uma transferência:
 
 ```text
-UI
+Interface de Usuário
  │
  ▼
 ApplicationService.transfer(...)
@@ -208,7 +212,7 @@ A camada de aplicação apenas encaminha a solicitação para os serviços respo
 
 A existência do ApplicationService proporciona:
 
-* menor acoplamento da UI;
+* menor acoplamento da Interface de Usuário;
 * centralização dos casos de uso;
 * simplificação da interface pública do sistema;
 * maior flexibilidade para mudanças internas;

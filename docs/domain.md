@@ -1144,7 +1144,7 @@ Destino: conta
 
 ---
 
-# Relacionamento Conta → Transação
+# Relacionamento Conceitual Conta → Transação
 
 Uma conta pode possuir várias transações registradas em seu histórico.
 

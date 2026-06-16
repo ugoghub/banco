@@ -1,10 +1,10 @@
-# Service Layer
+# Camada de Serviços
 
 ## Visão Geral
 
 A camada de serviços é responsável por coordenar operações da aplicação e executar casos de uso que envolvem múltiplas entidades ou múltiplos repositórios.
 
-Ela atua como intermediária entre a camada de aplicação e o domínio.
+Ela atua como intermediária entre a camada de aplicação, o domínio e os repositórios.
 
 Enquanto as entidades concentram as regras de negócio fundamentais, os serviços são responsáveis por orquestrar essas regras dentro dos fluxos da aplicação.
 
@@ -70,13 +70,20 @@ ClientRepository
 
 ### Principais Casos de Uso
 
-```java
-createClient(...)
-delete(...)
-changeName(...)
-changeEmail(...)
-getClientData(...)
-getCpfByEmail(...)
+```
+import model.valueobject.PersonName;
+
+createClient(...);
+
+delete(...);
+
+changeName(...);
+
+changeEmail(...);
+
+getClientData(...);
+
+getCpfByEmail(...);
 ```
 
 ---
@@ -94,7 +101,7 @@ Durante as operações o serviço garante:
 
 ## AccountService
 
-Responsável pela administração das contas bancárias.
+Responsável pelo ciclo de vida das contas bancárias.
 
 ### Responsabilidades
 
@@ -116,7 +123,7 @@ AccountRepository
 
 ### Principais Casos de Uso
 
-```java
+```
 createAccount(...)
 removeAccount(...)
 removeClientAccounts(...)
@@ -130,9 +137,9 @@ getClientAccountsIdentity(...)
 
 O serviço garante:
 
-* geração de AccountIdentity único;
+* garantia de unicidade do AccountIdentity.
 * validação de conta existente;
-* remoção apenas quando permitido;
+* encerramento de contas apenas quando permitido;
 * validação de contas vinculadas ao cliente.
 
 ---
@@ -141,7 +148,7 @@ O serviço garante:
 
 A criação de contas utiliza a fábrica:
 
-```java
+```
 AccountIdentityFactory
 ```
 
@@ -183,7 +190,7 @@ Clock
 
 ### Principais Casos de Uso
 
-```java
+```
 deposit(...)
 withdraw(...)
 transfer(...)
@@ -229,13 +236,13 @@ Os juros são aplicados automaticamente antes de:
 
 Após a aplicação dos rendimentos:
 
-```java
+```
 SavingsAccount.applyPendingInterests(...)
 ```
 
 os juros retornados são convertidos em:
 
-```java
+```
 Transaction.interest(...)
 ```
 
