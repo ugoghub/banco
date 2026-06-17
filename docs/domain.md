@@ -8,6 +8,8 @@ O objetivo principal do domínio é garantir que operações financeiras sejam e
 
 A modelagem foi construída seguindo princípios de orientação a objetos e conceitos de Domain-Driven Design (DDD), concentrando as regras de negócio dentro das entidades e Value Objects do domínio.
 
+O domínio também utiliza uma hierarquia própria de exceções para representar violações de regras de negócio, erros de validação e recursos inexistentes.
+
 ---
 
 ## Conceitos Principais
@@ -25,7 +27,7 @@ Cada cliente possui:
 * CPF;
 * email.
 
-Um cliente pode possuir uma ou mais contas bancárias.
+Um cliente pode possuir nenhuma, uma ou várias contas bancárias.
 
 ---
 
@@ -43,7 +45,9 @@ Toda conta:
 * pertence a exatamente um cliente;
 * possui uma identidade bancária única;
 * mantém seu próprio saldo;
-* registra suas movimentações através de transações.
+* possui um histórico de movimentações representado por transações registradas pelo sistema.
+
+O comportamento bancário comum é centralizado na entidade abstrata Account, enquanto regras específicas são implementadas pelas especializações CheckingAccount e SavingsAccount.
 
 ---
 
@@ -70,7 +74,7 @@ Todas as transações possuem:
 - tipo;
 - valor monetário.
 
-Transferências compartilham um operationId comum.
+Apenas transações de transferência utilizam um operationId, permitindo correlacionar os registros de envio e recebimento da mesma operação.
 
 ---
 
@@ -81,13 +85,15 @@ O relacionamento entre os principais elementos do domínio pode ser representado
 ```text
 Cliente
    │
-   ├── Conta Corrente
-   │       │
-   │       └── Transações
-   │
-   └── Conta Poupança
-           │
-           └── Transações
+   └── Contas (0..*)
+            │
+            ├── CheckingAccount
+            │         │
+            │         └── Transações
+            │
+            └── SavingsAccount
+                      │
+                      └── Transações
 ```
 
 Um cliente pode possuir múltiplas contas correntes e/ou poupança.
@@ -106,7 +112,6 @@ O domínio é responsável por:
 * controlar saldo das contas;
 * impedir operações inválidas;
 * calcular rendimentos da poupança;
-* registrar movimentações financeiras;
 * garantir consistência entre clientes, contas e transações.
 
 Aspectos relacionados a interface, persistência e orquestração de casos de uso são tratados em camadas externas e não fazem parte das responsabilidades do domínio.
@@ -282,6 +287,13 @@ Número da conta:
 * não pode ser nulo;
 * o dígito verificador é calculado pela soma dos dígitos da conta módulo 10.
 
+### Normalização
+
+Antes da validação:
+
+* espaços externos são removidos da agência;
+* espaços externos são removidos do número da conta.
+
 ### Exemplo de Conta Válida
 
 ```text
@@ -296,7 +308,7 @@ Conta:   123456-1
 
 ---
 
-## AccountIdentityGenerator
+## AccountIdentityFactory
 
 Responsável pela geração automática de novas identidades de conta.
 
@@ -308,9 +320,8 @@ Responsável pela geração automática de novas identidades de conta.
 
 ### Observações
 
-A fábrica apenas gera identidades válidas.
-
-A garantia de unicidade é responsabilidade do `AccountService`, que consulta o repositório antes de persistir uma nova conta.
+A fábrica gera apenas valores válidos para agência e número da conta.
+A verificação de unicidade da identidade bancária é responsabilidade da camada de serviço, que pode consultar o repositório antes da criação definitiva da conta.
 
 ---
 
@@ -333,7 +344,7 @@ Representa o CPF de um cliente.
 
 ### Regras
 
-* deve possuir 11 dígitos;
+* deve representar exatamente 11 dígitos válidos;
 * não pode ser nulo;
 * não pode conter todos os dígitos iguais;
 * deve possuir dígitos verificadores válidos.
@@ -370,6 +381,7 @@ Representa o endereço de email do cliente.
 * não pode ser nulo;
 * deve possuir formato válido;
 * deve conter usuário e domínio.
+* deve possuir uma extensão de domínio válida.
 
 ### Normalização
 
@@ -407,6 +419,32 @@ Representa valores monetários do sistema.
 * imutável;
 * utiliza escala fixa de 2 casas decimais;
 * utiliza arredondamento `HALF_EVEN`.
+
+#### Money como "final class"
+
+# ATENÇÂO 
+faltou citar o construtor que é privado record construtor obrigatoriamente publico
+
+Money foi implementado como uma classe final imutável em vez de um record.
+
+Apesar de representar um valor, o objeto encapsula comportamento de domínio relevante, incluindo operações monetárias, regras de arredondamento, comparações e lógica própria de igualdade baseada em valor financeiro.
+
+Essa abordagem evita o uso direto de BigDecimal nas regras de negócio e centraliza toda a lógica monetária em um único objeto.
+
+#### Comparação
+
+Money implementa Comparable<Money>, permitindo ordenação e comparação direta entre valores monetários.
+
+#### Igualdade
+
+A igualdade é baseada no valor monetário e não na representação interna do BigDecimal.
+
+Exemplo:
+
+100.0
+100.00
+
+são considerados equivalentes.
 
 ### Operações disponíveis
 
@@ -479,15 +517,15 @@ Exemplo:
 
 ---
 
-## Benefícios da abordagem
+## Benefícios dos Value Objects
 
 O uso de Value Objects permite:
 
 * validação centralizada;
 * eliminação de estados inválidos;
 * redução de código defensivo em serviços e entidades;
-* comparações baseadas em valor, implementadas pelos próprios Value Objects.
-* maior clareza semântica das regras de negócio.
+* comparações baseadas em valor, implementadas pelos próprios Value Objects;
+* maior clareza semântica das regras de negócio;
 
 Com isso, entidades e serviços podem assumir que os dados recebidos já estão válidos, simplificando significativamente a lógica do domínio.
 
@@ -513,7 +551,7 @@ A classe Account implementa:
 * atualização de saldo;
 * regra de exclusão da conta.
 
-As subclasses precisam fornecer apenas a implementação do método:
+Atualmente as subclasses precisam fornecer apenas a implementação do método:
 
 ```text
 protected abstract Money minimumAllowedBalance();
@@ -527,6 +565,13 @@ Esse método define qual o saldo mínimo permitido para cada tipo de conta.
 ### CheckingAccount
 
 Permite utilização de limite especial.
+
+```text
+private static final Money OVERDRAFT_LIMIT =
+        Money.of("1000");
+```
+
+O limite é definido internamente pela constante OVERDRAFT_LIMIT.
 
 ```text
 @Override
@@ -595,7 +640,8 @@ private LocalDateTime lastInterestAppliedAt;
 
 Esse atributo registra a última data considerada para aplicação de rendimento.
 
-Sempre que a conta é acessada pelo sistema, ocorre a verificação de meses pendentes.
+Sempre que a conta participa de uma operação coordenada pelo TransactionService, ocorre a verificação de meses pendentes.
+
 ```text
 Exemplo:
 
@@ -621,6 +667,9 @@ Os três meses de rendimento são aplicados retroativamente.
 ## Juros Acumulados Retroativos
 
 A implementação garante que nenhum rendimento seja perdido mesmo após longos períodos sem movimentação.
+
+Os juros são aplicados utilizando capitalização composta, pois cada rendimento passa a integrar o saldo utilizado no cálculo dos períodos seguintes.
+
 ```text
 Exemplo:
 
@@ -633,9 +682,9 @@ Conta sem movimentação:
 Ao acessar a conta novamente:
 
 Todos os 24 rendimentos pendentes serão processados.
+```
 
 Isso mantém o saldo consistente com o tempo transcorrido.
-```
 
 ---
 
@@ -682,6 +731,10 @@ Isso garante que:
 * os rendimentos apareçam no extrato;
 * exista rastreabilidade completa das aplicações de juros.
 
+SavingsAccount permanece responsável apenas pelo cálculo dos rendimentos.
+
+A criação das transações de rendimento permanece centralizada no TransactionService, preservando a separação entre regras de domínio e persistência do histórico.
+
 ---
 
 ## Benefícios da Abordagem
@@ -703,7 +756,9 @@ Somente contas efetivamente acessadas precisam processar juros.
 
 ### Desacoplamento
 
-A lógica permanece inteiramente dentro do domínio, sem dependência de infraestrutura externa.
+### Desacoplamento
+
+O cálculo dos rendimentos permanece no domínio (SavingsAccount), enquanto a coordenação da aplicação automática e o registro do histórico ficam centralizados no TransactionService, sem dependência de infraestrutura externa.
 
 ---
 
@@ -741,7 +796,7 @@ Representa um cliente cadastrado no sistema.
 * Email não pode ser nulo.
 * CPF é imutável após criação.
 * O cliente pode alterar nome e email.
-* Alterações somente são aplicadas através dos métodos de domínio.
+* Alterações são realizadas através dos métodos de domínio utilizando Value Objects previamente validados.
 
 ### Identidade
 
@@ -760,8 +815,7 @@ Serve como base para os diferentes tipos de conta do sistema.
 * Armazenar saldo.
 * Realizar depósitos.
 * Realizar saques.
-* Controlar limites de saldo permitidos.
-* Garantir validação de valores monetários.
+* Garantir que o saldo nunca fique abaixo do limite permitido pela implementação concreta.
 * Manter informações de identificação da conta.
 
 ### Atributos
@@ -808,7 +862,7 @@ Herda de `Account`.
 
 ### Regras de negócio
 
-* Possui limite negativo de R$ 1.000,00.
+* Permite utilização de cheque especial de até R$ 1.000,00.
 * O saldo mínimo permitido é -R$ 1.000,00.
 
 ### Exemplo
@@ -850,9 +904,10 @@ Herda de `Account`.
 
 * Não permite saldo negativo.
 * Possui rendimento mensal de 0,5%.
+* Os juros são aplicados sobre o saldo atualizado da conta, produzindo efeito de capitalização composta ao longo do tempo.
 * Juros são aplicados apenas sobre saldo positivo.
 * Caso vários meses tenham passado sem movimentação, todos os rendimentos pendentes são aplicados de uma única vez.
-* Cada aplicação de juros gera um valor de rendimento que posteriormente será transformado em transação pela Camada de Serviço.
+* O domínio não cria transações diretamente. O método applyPendingInterests() retorna os rendimentos calculados e a criação das transações do tipo INTEREST é responsabilidade da camada de serviço.
 
 ### Exemplo
 
@@ -880,9 +935,11 @@ Representa um registro histórico de movimentação financeira.
 
 Uma transação é imutável após sua criação.
 
+Cada transação possui seu próprio id.
+
 ### Responsabilidades
 
-* Registrar operações realizadas nas contas.
+* Representar operações realizadas nas contas.
 * Armazenar informações necessárias para geração de extrato.
 * Representar depósitos, saques, transferências e rendimentos.
 
@@ -912,11 +969,13 @@ Uma transação é imutável após sua criação.
 
 * Deve possuir conta destino.
 * Não deve possuir conta origem.
+* operationId deve ser nulo
 
 #### Saque
 
 * Deve possuir conta origem.
 * Não deve possuir conta destino.
+* operationId deve ser nulo
 
 #### Transferência
 
@@ -928,13 +987,20 @@ Uma transação é imutável após sua criação.
 
 * Deve possuir conta destino.
 * Não deve possuir conta origem.
+* operationId deve ser nulo
 
 #### Valor
 
 * Deve ser maior que zero.
 * Não pode ser nulo.
 
-### Factory Methods
+### Criação Controlada
+
+A entidade não expõe construtor público.
+
+Todas as instâncias são criadas através de métodos de fábrica estáticos que garantem a validação do estado da transação antes da sua criação.
+
+## Factory Methods
 
 A criação de transações é centralizada através de métodos estáticos:
 
@@ -944,7 +1010,7 @@ A criação de transações é centralizada através de métodos estáticos:
 * `transferReceived(...)`
 * `interest(...)`
 
-Isso garante que nenhuma transação inválida seja criada.
+Isso centraliza a criação das transações e garante que todas as validações de consistência sejam executadas durante a construção do objeto.
 
 ### Identidade
 
@@ -954,14 +1020,16 @@ A identidade da entidade é definida pelo campo `id`.
 
 ## Enums
 
+Os enums possuem uma descrição textual utilizada pela camada de apresentação através do método toString().
+
 ### AccountType
 
 Representa os tipos de conta disponíveis.
 
 Valores:
 
-* CHECKING
-* SAVINGS
+CHECKING("Conta Corrente")
+SAVINGS("Conta Poupança")
 
 ---
 
@@ -971,11 +1039,11 @@ Representa os tipos de transação possíveis.
 
 Valores:
 
-* DEPOSIT
-* WITHDRAW
-* TRANSFER_SENT
-* TRANSFER_RECEIVED
-* INTEREST
+* DEPOSIT("Depósito")
+* WITHDRAW("Saque")
+* TRANSFER_SENT("Transferência Enviada")
+* TRANSFER_RECEIVED("Transferência Recebida")
+* INTEREST("Rendimento")
 
 ---
 
@@ -1000,7 +1068,7 @@ Client
 
 O `Client` é a raiz do agregado.
 
-Nenhum outro objeto possui permissão para modificar diretamente seus dados internos.
+Nenhum objeto externo deve modificar diretamente seus atributos. Alterações são realizadas através dos métodos expostos pela própria entidade.
 
 Todas as alterações devem ocorrer através dos métodos expostos pela própria entidade.
 
@@ -1015,8 +1083,8 @@ Todas as alterações devem ocorrer através dos métodos expostos pela própria
 * CPF é imutável após criação;
 * nome pode ser alterado;
 * email pode ser alterado;
-* cada CPF deve ser único no sistema;
-* cada email deve ser único no sistema.
+* CPF e email devem ser únicos no sistema.
+* A garantia de unicidade é realizada pela camada de serviço durante operações de cadastro e alteração.
 
 ---
 
@@ -1026,8 +1094,11 @@ A estrutura interna é composta por:
 
 ```text
 Account
+ ├── UUID id
+ ├── UUID clientId
  ├── AccountIdentity
- └── Money (saldo)
+ ├── Money (saldo)
+ └── LocalDateTime creationTime
 ```
 
 A entidade `Account` é a raiz do agregado.
@@ -1050,7 +1121,7 @@ Account
 
 * depósitos devem possuir valor positivo;
 * saques devem possuir valor positivo;
-* o saldo nunca pode ultrapassar o limite definido pela conta;
+* o saldo nunca pode ficar abaixo do limite mínimo definido pela implementação concreta.
 * contas só podem ser removidas quando o saldo for zero.
 
 ---
@@ -1081,6 +1152,8 @@ Isso reduz acoplamento e simplifica persistência.
 
 ### Regras
 
+# ATENÇÂO
+
 * uma conta sempre pertence a um único cliente;
 * um cliente pode possuir várias contas;
 * ao remover um cliente, todas as suas contas devem ser removidas;
@@ -1090,13 +1163,19 @@ Isso reduz acoplamento e simplifica persistência.
 
 # Estrutura da Entidade Transaction
 
+# TALVEZ COLOCAR QUE TODAS AS TRANSAÇOES TEM ID UNICO E OPERATIONID NULO EM DEPOSITO SAQUE REDIMENTO
+
 A estrutura da transação é composta por:
 
 ```text
 Transaction
+ ├── UUID id
+ ├── UUID operationId
+ ├── TransactionType
  ├── Money
  ├── AccountIdentity (origem)
- └── AccountIdentity (destino)
+ ├── AccountIdentity (destino)
+ └── LocalDateTime
 ```
 
 A entidade `Transaction` é imutável após sua criação.
@@ -1134,6 +1213,8 @@ Origem: conta
 Destino: conta
 OperationId obrigatório
 ```
+
+TRANSFER_SENT e TRANSFER_RECEIVED compartilham o mesmo operationId, permitindo correlacionar os dois lados da mesma operação.
 
 #### Rendimento
 
@@ -1324,33 +1405,36 @@ Benefícios:
 
 ---
 
-### Serviços de Domínio
+### Serviços de Aplicação
 
-A camada de Serviço coordena operações entre entidades sem armazenar estado.
+Os serviços da aplicação coordenam casos de uso envolvendo múltiplas entidades e repositórios.
 
 Exemplos:
 
-- `ClientService`
-- `AccountService`
-- `TransactionService`
-
-Seu papel é orquestrar casos de uso utilizando as regras já definidas pelas entidades.
+ClientService
+AccountService
+TransactionService
 
 ---
 
 ## Rich Domain Model
-
+# ATENÇÂO
 O projeto segue uma abordagem de **Rich Domain Model**.
 
 As entidades possuem comportamento próprio e não atuam apenas como estruturas de dados.
 
 Exemplos:
 
+### Account
 ```
 account.deposit(amount);
 account.withdraw(amount);
 savingsAccount.applyPendingInterests(clock);
 ```
+
+### Transaction
+
+A entidade Transaction também protege suas próprias invariantes através de validações executadas durante sua criação, impedindo a existência de registros inconsistentes.
 
 Em vez de possuir objetos anêmicos e concentrar toda lógica na camada de serviço, o comportamento permanece próximo dos dados que ele manipula.
 
@@ -1399,27 +1483,33 @@ Isso evita propagação de estados incorretos pelo sistema.
 
 ---
 
-## Inversão de Dependência Temporal
+## Controle Explícito do Tempo
 
 O domínio não depende diretamente do relógio do sistema.
 
-Sempre que informações temporais são necessárias, utiliza-se:
+Sempre que informações temporais são necessárias, utiliza-se uma instância de:
 
 ```
 Clock
-```
 
 Exemplos:
 
-```
+```java
 LocalDateTime.now(clock);
 ```
+
+Essa abordagem é utilizada em:
+
+criação de contas;
+criação de transações;
+cálculo de juros da poupança.
 
 Benefícios:
 
 - testes determinísticos;
 - simulação de passagem do tempo;
 - cálculo previsível de juros.
+- independência do horário da máquina.
 
 ---
 
@@ -1427,16 +1517,14 @@ Benefícios:
 
 As entidades não possuem qualquer conhecimento sobre repositórios.
 
-Nenhuma entidade conhece:
+Nenhuma entidade possui dependência direta de:
 
-```
-Repositórios
-Serviços
-```
+- repositórios;
+- serviços;
 
 Exemplo:
 
-`SavingsAccount` calcula juros, mas não cria transações nem salva dados.
+SavingsAccount calcula juros, mas não cria transações nem salva dados.
 
 Essa separação mantém o domínio independente da infraestrutura.
 
@@ -1455,6 +1543,10 @@ Exemplo:
 ```
 SavingsAccount.applyPendingInterests()
 ```
+
+A entidade calcula os rendimentos pendentes e retorna os valores aplicados.
+
+A transformação desses rendimentos em transações é responsabilidade da camada de serviço.
 
 ### Registro histórico
 
@@ -1523,15 +1615,17 @@ Dessa forma:
 
 A conta poupança utiliza uma estratégia de **Lazy Interest Application**.
 
-Ao invés de depender de processos agendados para aplicar rendimentos mensalmente, os juros são calculados apenas quando a conta é acessada.
+Ao invés de depender de processos agendados para aplicar rendimentos mensalmente, os juros são calculados apenas quando a conta realiza operações financeiras relevantes.
 
 Eventos que disparam a atualização:
 
 - consulta de saldo;
+- consulta de extrato;
 - depósito;
 - saque;
-- transferência;
-- consulta de extrato.
+- transferência.
+
+A aplicação dos juros é realizada pela camada de serviço antes da execução dessas operações.
 
 ### Juros Retroativos
 
@@ -1570,7 +1664,7 @@ Exemplos:
 
 - remoção de cliente exige todas as contas zeradas;
 - remoção de conta exige saldo zero;
-- transferências geram duas transações independentes;
+- transferências geram dois registros correlacionados através de um mesmo operationId;
 - juros geram registros próprios no extrato.
 
 Isso garante que o estado do sistema permaneça coerente em qualquer momento.
