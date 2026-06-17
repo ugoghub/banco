@@ -53,9 +53,7 @@ Durante sua inicialização são criados:
 ```text
 Repositórios
     ↓
-Camada de serviço
-    ↓
-ApplicationService
+Serviços
 ```
 
 A construção ocorre uma única vez durante o início da aplicação.
@@ -68,6 +66,13 @@ ApplicationContext context =
 ```
 
 Após a criação do contexto, os componentes já estão conectados e prontos para uso.
+
+---
+
+### Controle temporal
+O ApplicationContext recebe uma instância de Clock durante sua construção e a compartilha com os componentes que dependem de informações temporais.
+
+Isso permite execução determinística de testes e controle da passagem do tempo sem dependência direta do relógio do sistema.
 
 ---
 
@@ -149,6 +154,17 @@ getAccountTransactions(...)
 
 ---
 
+## Conversão de referências
+Em diversos casos de uso o ApplicationService converte referências públicas utilizadas pela interface em identificadores internos utilizados pelos serviços.
+
+Exemplo:
+
+CPF → ClientId
+
+Essa conversão reduz o acoplamento da interface com a estrutura interna do domínio.
+
+---
+
 ## Coordenação de Serviços
 
 Em alguns casos de uso, o ApplicationService precisa coordenar múltiplos serviços para concluir uma operação.
@@ -192,19 +208,18 @@ Interface de Usuário
  │
  ▼
 ApplicationService.transfer(...)
- │
- ▼
+ ↓
 TransactionService.transfer(...)
- │
- ▼
+ ↓
+AccountService
+ ↓
 Account.withdraw(...)
 Account.deposit(...)
- │
- ▼
+ ↓
 TransactionRepository.save(...)
 ```
 
-A camada de aplicação apenas encaminha a solicitação para os serviços responsáveis.
+A camada de aplicação normalmente delega a execução para os serviços responsáveis, mas também pode coordenar múltiplos serviços quando um caso de uso exige mais de uma operação.
 
 ---
 

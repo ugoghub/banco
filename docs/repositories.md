@@ -57,7 +57,7 @@ Permitir:
 * consulta por CPF;
 * consulta por email;
 * consulta por ID;
-* atualização de email;
+* atualização do índice de email;
 * remoção de clientes.
 
 ---
@@ -158,7 +158,7 @@ Essa estrutura permite:
 
 * localizar contas rapidamente;
 * recuperar todas as contas de um cliente;
-* validar unicidade do AccountIdentity.
+* permitir consultas para validação de unicidade do AccountIdentity.
 
 ---
 
@@ -218,7 +218,29 @@ Essa organização permite:
 
 ---
 
+## Imutabilidade do histórico
+
+As transações retornadas pelo repositório são expostas através de uma cópia imutável da coleção interna.
+
+Isso impede que consumidores modifiquem diretamente o histórico armazenado pelo repositório.
+
+---
+
+## Preservação do histórico
+
+O TransactionRepository não possui operações de remoção.
+
+Uma vez registrada, uma transação permanece armazenada no histórico.
+
+Consequentemente, a remoção de uma conta não implica a remoção de suas transações.
+
+Essa decisão preserva rastreabilidade e auditabilidade das operações financeiras realizadas pelo sistema.
+
+---
+
 ## Persistência em Memória
+
+Como os repositórios armazenam referências para os próprios objetos do domínio, alterações realizadas nas entidades são refletidas automaticamente sem necessidade de operações explícitas de atualização.
 
 Todos os dados da aplicação permanecem exclusivamente em memória durante a execução.
 
@@ -300,3 +322,5 @@ A arquitetura atual permite futura migração para:
 * APIs externas.
 
 Mantendo os contratos públicos dos repositórios e preservando as regras de negócio existentes.
+
+A adoção futura de uma solução persistente provavelmente exigirá a introdução de mecanismos explícitos de atualização e sincronização de estado que atualmente não são necessários devido ao armazenamento em memória por referência.

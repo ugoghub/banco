@@ -39,11 +39,11 @@ A camada é composta pelos seguintes elementos:
 ```text
 App
 Controllers
-InputReader
 Menus
 Formatters
+Selectors
+InputReader
 ConsoleMessages
-Selector
 ```
 
 ---
@@ -99,6 +99,45 @@ AccountTransactionController
 * encaminhar operações para o ApplicationService;
 * apresentar resultados;
 * exibir mensagens de erro;
+* capturar DomainException e convertê-las em mensagens amigáveis ao usuário.
+
+---
+
+### AuthController
+
+Responsável por:
+
+* login via CPF;
+* login via email;
+* cadastro de clientes.
+
+### ClientController
+
+Responsável por:
+
+* exibição dos dados do cliente;
+* valteração de nome;
+* alteração de email;
+* remoção de cliente.
+
+### AccountController
+
+Responsável por:
+
+* criação de contas;
+* remoção de contas;
+* seleção de contas;
+* navegação para o menu da conta.
+
+### AccountTransactionController
+
+Responsável por:
+
+* depósitos;
+* saques;
+* transferências;
+* consulta de saldo;
+* consulta de extrato.
 
 ---
 
@@ -204,6 +243,76 @@ A separação entre exibição e controle permite:
 
 ---
 
+## Formatters
+
+Responsáveis por transformar objetos do domínio e DTOs em representações adequadas para exibição ao usuário.
+
+Exemplos:
+
+```text
+CpfFormatter
+MoneyFormatter
+ClientFormatter
+StatementFormatter
+AccountIdentityFormatter
+```
+
+### Responsabilidades:
+
+* formatação de CPF;
+* formatação monetária;
+* formatação de extratos;
+* formatação de identidades de conta;
+* formatação de dados do cliente.
+
+### Benefícios
+* centralização da lógica de apresentação;
+* eliminação de duplicação;
+* separação entre exibição e domínio.
+
+---
+
+## Selectors
+
+Componentes auxiliares responsáveis por permitir que o usuário escolha um elemento dentre uma coleção disponível.
+
+Exemplo:
+
+```text
+AccountSelector
+```
+
+### Responsabilidades
+* exibir opções numeradas;
+* validar a escolha do usuário;
+* retornar o objeto selecionado.
+
+### Benefícios
+* reutilização da lógica de seleção;
+* redução de duplicação nos controllers;
+* maior organização da interface.
+
+---
+
+## ConsoleMessages
+
+Classe utilitária responsável pela exibição padronizada de mensagens no console.
+
+### Tipos de mensagem
+```text
+Info
+Success
+Highlight
+Error
+```
+### Responsabilidades
+* centralizar saída textual;
+* padronizar mensagens;
+* aplicar cores ANSI;
+* melhorar legibilidade da interface.
+
+---
+
 ## Fluxo de Execução
 
 Uma operação típica segue o fluxo abaixo:
@@ -275,20 +384,10 @@ A interface converte entradas em Value Objects antes de encaminhar a operação 
 Exemplo:
 
 ```text
-String
-   │
-   ▼
-Cpf
-
-String
-   │
-   ▼
-Email
-
-String
-   │
-   ▼
-PersonName
+Cpf::new
+Email::new
+PersonName::new
+Money.of(...)
 ```
 
 Isso garante que todas as validações ocorram antes da execução dos casos de uso.
@@ -308,10 +407,25 @@ Camada de Aplicação
 
 Ela não possui acesso direto a:
 
-* Camada de Serviço;
-* Repositórios;
-* Entidades;
-* Estruturas internas do domínio.
+- Serviços internos da aplicação;
+- Repositórios;
+- Entidades do domínio;
+- Estruturas internas de persistência.
+
+A interface pode utilizar Value Objects para validar e representar dados antes de encaminhar operações para a camada de aplicação.
+
+---
+
+## Autenticação
+
+O sistema utiliza um mecanismo simplificado de autenticação para fins acadêmicos.
+
+O acesso pode ser realizado através de:
+
+* CPF;
+* email.
+
+Não existe controle de senha ou autenticação persistente.
 
 ---
 
