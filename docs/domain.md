@@ -98,7 +98,7 @@ Cliente
 
 Um cliente pode possuir múltiplas contas correntes e/ou poupança.
 
-Cada conta mantém seu próprio saldo e seu próprio histórico de transações.
+Cada conta mantém seu próprio saldo e seu próprio histórico de transações. -1y
 
 As transações registram eventos financeiros ocorridos em uma conta, permitindo rastreabilidade e consulta de extrato.
 
@@ -414,22 +414,21 @@ Representa valores monetários do sistema.
 * evitar uso direto de `BigDecimal` nas regras de negócio;
 * garantir precisão monetária.
 
+---
+
 ### Características
 
 * imutável;
 * utiliza escala fixa de 2 casas decimais;
 * utiliza arredondamento `HALF_EVEN`.
 
-#### Money como "final class"
+---
 
-# ATENÇÂO 
-faltou citar o construtor que é privado record construtor obrigatoriamente publico
+### Money como "final class"
 
 Money foi implementado como uma classe final imutável em vez de um record.
 
 Apesar de representar um valor, o objeto encapsula comportamento de domínio relevante, incluindo operações monetárias, regras de arredondamento, comparações e lógica própria de igualdade baseada em valor financeiro.
-
-Essa abordagem evita o uso direto de BigDecimal nas regras de negócio e centraliza toda a lógica monetária em um único objeto.
 
 #### Comparação
 
@@ -440,11 +439,21 @@ Money implementa Comparable<Money>, permitindo ordenação e comparação direta
 A igualdade é baseada no valor monetário e não na representação interna do BigDecimal.
 
 Exemplo:
-
+```
 100.0
-100.00
 
+100.00
+```
 são considerados equivalentes.
+
+---
+
+
+### Beneficíos da Abordagem
+
+Essa abordagem evita o uso direto de BigDecimal nas regras de negócio e centraliza toda a lógica monetária em um único objeto.
+
+---
 
 ### Operações disponíveis
 
@@ -454,7 +463,7 @@ são considerados equivalentes.
 * comparação;
 * negação de valor.
 
-### Exemplos
+#### Exemplos
 
 ```
 Money balance = Money.of("100.00");
@@ -462,17 +471,23 @@ Money balance = Money.of("100.00");
 balance = balance.add(Money.of("50.00"));
 ```
 
+---
+
 ### Métodos utilitários
 
 * `isZero()`
 * `isNegativeOrZero()`
 * `isGreaterThan(...)`
 
+---
+
 ### Constantes
 
 ```
 Money.ZERO
 ```
+
+---
 
 ### Exceções
 
@@ -935,8 +950,6 @@ Representa um registro histórico de movimentação financeira.
 
 Uma transação é imutável após sua criação.
 
-Cada transação possui seu próprio id.
-
 ### Responsabilidades
 
 * Representar operações realizadas nas contas.
@@ -1152,12 +1165,10 @@ Isso reduz acoplamento e simplifica persistência.
 
 ### Regras
 
-# ATENÇÂO
-
-* uma conta sempre pertence a um único cliente;
 * um cliente pode possuir várias contas;
-* ao remover um cliente, todas as suas contas devem ser removidas;
-* o cliente só pode ser removido quando todas as contas estiverem aptas para exclusão.
+* uma conta sempre pertence a um único cliente;
+* o cliente só pode ser removido quando todas as suas contas estiverem aptas para exclusão;
+* ao remover um cliente, todas as suas contas são removidas juntamente com ele.
 
 ---
 
@@ -1238,6 +1249,8 @@ Account
    └── Transaction
 ```
 
+### Saldo
+
 As transações não alteram o saldo.
 
 Elas representam apenas o histórico dos eventos já executados.
@@ -1245,6 +1258,12 @@ Elas representam apenas o histórico dos eventos já executados.
 O saldo é controlado exclusivamente pela entidade `Account`.
 
 Essa separação evita inconsistências entre histórico e estado atual.
+
+### Persistência do Histórico
+
+As transações possuem ciclo de vida independente da conta.
+
+Mesmo após a remoção de uma conta, seu histórico de movimentações permanece preservado para fins de auditoria e rastreabilidade.
 
 ---
 
@@ -1418,25 +1437,43 @@ TransactionService
 ---
 
 ## Rich Domain Model
-# ATENÇÂO
-O projeto segue uma abordagem de **Rich Domain Model**.
 
-As entidades possuem comportamento próprio e não atuam apenas como estruturas de dados.
+O projeto segue uma abordagem de Rich Domain Model.
 
-Exemplos:
+As entidades não atuam apenas como estruturas de dados. Elas encapsulam comportamento e são responsáveis por proteger suas próprias regras de negócio e invariantes.
 
-### Account
-```
+### Exemplos
+
+#### Account
+A entidade `Account` executa suas próprias operações financeiras:
+
+```text
 account.deposit(amount);
 account.withdraw(amount);
+```
+
+#### SavingsAccount
+A entidade "SavingsAccount" controla internamente o cálculo dos rendimentos:
+
+```text
 savingsAccount.applyPendingInterests(clock);
 ```
 
-### Transaction
+#### Transaction
 
-A entidade Transaction também protege suas próprias invariantes através de validações executadas durante sua criação, impedindo a existência de registros inconsistentes.
+A entidade Transaction também protege suas próprias invariantes durante a criação, impedindo a existência de registros inconsistentes.
 
-Em vez de possuir objetos anêmicos e concentrar toda lógica na camada de serviço, o comportamento permanece próximo dos dados que ele manipula.
+### Benefícios
+
+Essa abordagem mantém o comportamento próximo dos dados que ele manipula, evitando modelos anêmicos onde toda a lógica fica concentrada na camada de serviço.
+
+#### Como consequência:
+
+* as regras permanecem encapsuladas nas entidades;
+* a consistência do domínio é preservada pelo próprio modelo;
+* a camada de serviço atua principalmente como orquestradora de casos de uso;
+* a evolução das regras de negócio torna-se mais simples e previsível.
+
 
 ---
 
