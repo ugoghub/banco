@@ -65,7 +65,9 @@ Os tipos de transação suportados são:
 * transferência recebida;
 * rendimento de poupança.
 
-As transações não alteram saldo diretamente. Elas atuam como registro histórico das operações executadas pelas contas.
+As transações não alteram saldo diretamente.
+
+Elas representam o registro histórico das operações já executadas pelo domínio e pelos serviços da aplicação.
 
 Todas as transações possuem:
 
@@ -74,7 +76,7 @@ Todas as transações possuem:
 - tipo;
 - valor monetário.
 
-Apenas transações de transferência utilizam um operationId, permitindo correlacionar os registros de envio e recebimento da mesma operação.
+Apenas transações relacionadas a transferências utilizam um operationId, permitindo correlacionar os registros de envio e recebimento gerados pela mesma operação financeira.
 
 ---
 
@@ -98,7 +100,7 @@ Cliente
 
 Um cliente pode possuir múltiplas contas correntes e/ou poupança.
 
-Cada conta mantém seu próprio saldo e seu próprio histórico de transações. -1y
+Cada conta mantém seu próprio saldo e seu próprio histórico de transações. 
 
 As transações registram eventos financeiros ocorridos em uma conta, permitindo rastreabilidade e consulta de extrato.
 
@@ -257,6 +259,8 @@ Os Value Objects representam conceitos do domínio que não possuem identidade p
 
 Todos os Value Objects do sistema são imutáveis, realizam validação no momento da criação e garantem que estados inválidos não sejam propagados para o restante da aplicação.
 
+Todos os Value Objects implementam igualdade baseada exclusivamente em seus valores.
+
 ## AccountIdentity
 
 Representa a identificação pública de uma conta bancária.
@@ -321,7 +325,8 @@ Responsável pela geração automática de novas identidades de conta.
 ### Observações
 
 A fábrica gera apenas valores válidos para agência e número da conta.
-A verificação de unicidade da identidade bancária é responsabilidade da camada de serviço, que pode consultar o repositório antes da criação definitiva da conta.
+
+A verificação de unicidade da identidade bancária é responsabilidade da camada de serviço através do AccountService, que utiliza o repositório para garantir que a identidade gerada ainda não esteja em uso. que pode consultar o repositório antes da criação definitiva da conta.
 
 ---
 
@@ -380,8 +385,8 @@ Representa o endereço de email do cliente.
 
 * não pode ser nulo;
 * deve possuir formato válido;
-* deve conter usuário e domínio.
-* deve possuir uma extensão de domínio válida.
+* deve conter usuário e domínio;
+* deve seguir um formato estrutural válido de endereço eletrônico.
 
 ### Normalização
 
@@ -540,7 +545,7 @@ O uso de Value Objects permite:
 * eliminação de estados inválidos;
 * redução de código defensivo em serviços e entidades;
 * comparações baseadas em valor, implementadas pelos próprios Value Objects;
-* maior clareza semântica das regras de negócio;
+* maior clareza semântica das regras de negócio.
 
 Com isso, entidades e serviços podem assumir que os dados recebidos já estão válidos, simplificando significativamente a lógica do domínio.
 
@@ -553,6 +558,9 @@ Com isso, entidades e serviços podem assumir que os dados recebidos já estão 
 A classe Account define o comportamento comum compartilhado por todos os tipos de conta, centralizando regras de depósito, saque, validação de valores e gerenciamento de saldo.
 
 Em vez de permitir que cada conta implemente completamente sua lógica de movimentação, a classe abstrata controla o fluxo principal e delega apenas as regras específicas para as subclasses.
+
+A implementação atual utiliza uma forma simplificada do padrão Template Method, onde a estrutura do algoritmo de movimentação permanece centralizada em Account, enquanto as subclasses fornecem apenas parâmetros de comportamento através de métodos abstratos.
+
 
 ---
 
@@ -661,19 +669,19 @@ Sempre que a conta participa de uma operação coordenada pelo TransactionServic
 Exemplo:
 
 Criação da conta:
-01/01/2025
+01/01/2026
 
 Último rendimento aplicado:
-01/01/2025
+01/01/2026
 
 Data atual:
-01/04/2025
+01/04/2026
 
 Ao acessar a conta:
 
-Janeiro → Fevereiro
-Fevereiro → Março
-Março → Abril
+01/01 → 01/02
+01/02 → 01/03
+01/03 → 01/04
 ```
 Os três meses de rendimento são aplicados retroativamente.
 
@@ -740,6 +748,9 @@ Para cada rendimento aplicado é criada uma transação:
 ```text
 Transaction.interest(...)
 ```
+
+Quando múltiplos meses estão pendentes, uma transação de rendimento é criada para cada mês processado.
+
 Isso garante que:
 
 * o saldo seja atualizado;
@@ -768,8 +779,6 @@ O saldo sempre reflete todos os rendimentos acumulados.
 ### Escalabilidade
 
 Somente contas efetivamente acessadas precisam processar juros.
-
-### Desacoplamento
 
 ### Desacoplamento
 
@@ -810,7 +819,7 @@ Representa um cliente cadastrado no sistema.
 * CPF não pode ser nulo.
 * Email não pode ser nulo.
 * CPF é imutável após criação.
-* O cliente pode alterar nome e email.
+* O cliente pode alterar nome e email através de métodos específicos de domínio.
 * Alterações são realizadas através dos métodos de domínio utilizando Value Objects previamente validados.
 
 ### Identidade
@@ -906,8 +915,9 @@ Herda de `Account`.
 
 ### Responsabilidades
 
-* Calcular e disponibilizar rendimentos mensais automaticamente.
+* Calcular rendimentos mensais pendentes quando solicitado.
 * Controlar a data da última aplicação de juros.
+* Determinar quantos períodos de rendimento estão pendentes.
 
 ### Atributos adicionais
 
@@ -942,6 +952,8 @@ Novo saldo:
 
 R$ 1.005,00
 
+Após a aplicação, o novo saldo passa a ser utilizado como base para o cálculo dos rendimentos futuros.
+
 ---
 
 ## Transaction
@@ -961,7 +973,7 @@ Uma transação é imutável após sua criação.
 | Campo               | Tipo            |
 | ------------------- | --------------- |
 | id                  | UUID            |
-| operationId         | UUID            |
+| operationId         | UUID / null     |
 | type                | TransactionType |
 | amount              | Money           |
 | sourceIdentity      | AccountIdentity |
@@ -1041,8 +1053,8 @@ Representa os tipos de conta disponíveis.
 
 Valores:
 
-CHECKING("Conta Corrente")
-SAVINGS("Conta Poupança")
+* CHECKING("Conta Corrente")
+* SAVINGS("Conta Poupança")
 
 ---
 
@@ -1082,8 +1094,6 @@ Client
 O `Client` é a raiz do agregado.
 
 Nenhum objeto externo deve modificar diretamente seus atributos. Alterações são realizadas através dos métodos expostos pela própria entidade.
-
-Todas as alterações devem ocorrer através dos métodos expostos pela própria entidade.
 
 ### Responsabilidades
 
@@ -1168,13 +1178,11 @@ Isso reduz acoplamento e simplifica persistência.
 * um cliente pode possuir várias contas;
 * uma conta sempre pertence a um único cliente;
 * o cliente só pode ser removido quando todas as suas contas estiverem aptas para exclusão;
-* ao remover um cliente, todas as suas contas são removidas juntamente com ele.
+* a remoção do cliente implica a remoção de suas contas, desde que todas estejam aptas para exclusão.
 
 ---
 
 # Estrutura da Entidade Transaction
-
-# TALVEZ COLOCAR QUE TODAS AS TRANSAÇOES TEM ID UNICO E OPERATIONID NULO EM DEPOSITO SAQUE REDIMENTO
 
 A estrutura da transação é composta por:
 
@@ -1193,6 +1201,12 @@ A entidade `Transaction` é imutável após sua criação.
 
 Seu objetivo é registrar eventos financeiros ocorridos dentro do sistema.
 
+### Identidade
+
+Toda transação possui um identificador único (id).
+
+O campo operationId é utilizado apenas em transferências para correlacionar os registros de envio e recebimento da mesma operação.
+
 ### Responsabilidades
 
 * registrar movimentações;
@@ -1208,6 +1222,7 @@ Cada tipo de transação possui estrutura própria:
 ```text
 Origem: null
 Destino: conta
+OperationId: null
 ```
 
 #### Saque
@@ -1215,6 +1230,7 @@ Destino: conta
 ```text
 Origem: conta
 Destino: null
+OperationId: null
 ```
 
 #### Transferência
@@ -1232,6 +1248,7 @@ TRANSFER_SENT e TRANSFER_RECEIVED compartilham o mesmo operationId, permitindo c
 ```text
 Origem: null
 Destino: conta
+OperationId: null
 ```
 
 ---
@@ -1303,6 +1320,8 @@ Conta Destino
 └── TRANSFER_RECEIVED
 ```
 
+Nenhuma das transações é registrada caso a transferência falhe durante as validações ou durante a etapa de débito.
+
 ---
 
 # Rendimentos da Poupança
@@ -1310,11 +1329,13 @@ Conta Destino
 Os rendimentos não são tratados como simples atualização de saldo.
 
 Cada rendimento aplicado gera:
-
+# ATENÇÃO
 ```text
-1 atualização de saldo
-+
-1 Transaction INTEREST
+TransactionService verifica por atualizações de rendimentos
+↓
+SavingsAccount calcula os rendimentos pendentes
+↓
+TransactionService registra uma Transaction INTEREST para cada rendimento aplicado
 ```
 
 Isso garante:
@@ -1336,7 +1357,7 @@ As seguintes regras devem ser sempre verdadeiras:
 
 ### Conta
 
-* Saldo nunca ultrapassa o limite permitido.
+* O saldo nunca pode ficar abaixo do limite permitido para o tipo de conta.
 * Conta só pode ser removida quando seu saldo for zero.
 
 ### Conta Corrente
@@ -1356,10 +1377,15 @@ As seguintes regras devem ser sempre verdadeiras:
 
 ### Sistema
 
+* Toda AccountIdentity é única no sistema.
 * Toda conta pertence a um cliente.
 * Todo histórico financeiro é representado por transações.
 * Nenhum rendimento pode ser perdido mesmo após longos períodos sem movimentação.
 
+
+### Histórico Financeiro
+
+* Toda movimentação financeira efetivamente executada deve possuir uma transação correspondente registrada no histórico.
 ---
 
 # Princípios de Modelagem Utilizados
@@ -1430,9 +1456,9 @@ Os serviços da aplicação coordenam casos de uso envolvendo múltiplas entidad
 
 Exemplos:
 
-ClientService
-AccountService
-TransactionService
+- ClientService
+- AccountService
+- TransactionService
 
 ---
 
@@ -1456,8 +1482,12 @@ account.withdraw(amount);
 A entidade "SavingsAccount" controla internamente o cálculo dos rendimentos:
 
 ```text
-savingsAccount.applyPendingInterests(clock);
+savingsAccount.applyPendingInterests();
 ```
+
+A entidade calcula e aplica os rendimentos.
+
+A criação das transações de rendimento permanece responsabilidade do TransactionService.
 
 #### Transaction
 
@@ -1524,22 +1554,19 @@ Isso evita propagação de estados incorretos pelo sistema.
 
 O domínio não depende diretamente do relógio do sistema.
 
-Sempre que informações temporais são necessárias, utiliza-se uma instância de:
+Sempre que informações temporais são necessárias, utiliza-se uma instância de Clock
+
+Exemplo:
 
 ```
-Clock
-
-Exemplos:
-
-```java
 LocalDateTime.now(clock);
 ```
 
 Essa abordagem é utilizada em:
 
-criação de contas;
-criação de transações;
-cálculo de juros da poupança.
+- criação de contas;
+- criação de transações;
+- cálculo de juros da poupança.
 
 Benefícios:
 
@@ -1558,6 +1585,7 @@ Nenhuma entidade possui dependência direta de:
 
 - repositórios;
 - serviços;
+- infraestrutura de persistência.
 
 Exemplo:
 
@@ -1581,7 +1609,7 @@ Exemplo:
 SavingsAccount.applyPendingInterests()
 ```
 
-A entidade calcula os rendimentos pendentes e retorna os valores aplicados.
+A entidade calcula e aplica os rendimentos pendentes ao saldo, retornando os valores efetivamente aplicados.
 
 A transformação desses rendimentos em transações é responsabilidade da camada de serviço.
 
@@ -1603,9 +1631,29 @@ Assim:
 
 ---
 
+## Baixo Acoplamento Entre Camadas
+
+As camadas da aplicação se comunicam através de contratos bem definidos.
+
+O domínio não conhece:
+
+* serviços;
+* repositórios;
+* interface de usuário.
+
+Os serviços não conhecem detalhes da interface.
+
+A interface acessa o sistema exclusivamente através da camada de aplicação.
+
+Essa separação reduz dependências e facilita futuras evoluções da arquitetura.
+
+---
+
 ## Template Method para Variações de Conta
 
 As diferenças entre tipos de conta são implementadas utilizando o padrão **Template Method**.
+
+A classe Account controla o fluxo completo de depósito e saque, enquanto as subclasses definem apenas o saldo mínimo permitido.
 
 A classe abstrata:
 
@@ -1652,7 +1700,7 @@ Dessa forma:
 
 A conta poupança utiliza uma estratégia de **Lazy Interest Application**.
 
-Ao invés de depender de processos agendados para aplicar rendimentos mensalmente, os juros são calculados apenas quando a conta realiza operações financeiras relevantes.
+Ao invés de depender de processos agendados para aplicar rendimentos mensalmente, os juros são calculados apenas quando a conta participa de operações ou consultas que exigem atualização de seu estado.
 
 Eventos que disparam a atualização:
 
@@ -1674,9 +1722,11 @@ Exemplo:
 - nenhum acesso até junho;
 - ao acessar a conta em junho, todos os meses pendentes são processados automaticamente.
 
+Os rendimentos são aplicados utilizando capitalização composta, pois cada rendimento passa a integrar o saldo utilizado no cálculo dos períodos seguintes.
+
 ### Atualização Transparente
 
-A atualização ocorre antes da execução da operação solicitada.
+A atualização ocorre antes da execução da operação ou consulta solicitada.
 
 Dessa forma:
 
@@ -1690,6 +1740,7 @@ Dessa forma:
 - reduz complexidade operacional;
 - mantém consistência financeira;
 - garante cálculo correto mesmo após longos períodos sem movimentação.
+- evita processamento desnecessário de contas inativas.
 
 ---
 
@@ -1703,5 +1754,6 @@ Exemplos:
 - remoção de conta exige saldo zero;
 - transferências geram dois registros correlacionados através de um mesmo operationId;
 - juros geram registros próprios no extrato.
+- remoção de cliente exige que todas as suas contas estejam aptas para exclusão;
 
 Isso garante que o estado do sistema permaneça coerente em qualquer momento.

@@ -540,7 +540,7 @@ A remoção de contas é validada considerando as regras de negócio do domínio
 * contas com saldo zerado podem ser removidas;
 * contas com saldo diferente de zero não podem ser removidas;
 * remoção individual de contas válidas;
-* remoção de todas as contas pertencentes a um cliente;
+* remoção em lote de todas as contas pertencentes ao cliente;
 * impossibilidade de consultar contas removidas.
 
 ### Regras para remoção de clientes
@@ -548,8 +548,19 @@ A remoção de contas é validada considerando as regras de negócio do domínio
 O serviço também valida se um cliente pode ter todas as suas contas removidas:
 
 * clientes sem contas podem ser removidos;
-* * clientes cujas contas possuem saldo exatamente igual a zero podem ser removidos;
-* clientes que possuem qualquer conta com saldo positivo ou negativo não podem ser removidos.
+* clientes cujas contas possuem saldo exatamente igual a zero podem ser removidos;
+* clientes que possuem qualquer conta com saldo diferente de zero não podem ser removidos.
+
+### Validação para remoção de clientes
+
+Antes da remoção de um cliente, o serviço verifica se todas as suas contas estão aptas para exclusão.
+
+Os testes garantem que:
+
+* clientes sem contas podem ser removidos;
+* clientes cujas contas possuem saldo igual a zero podem ser removidos;
+* a existência de qualquer conta com saldo diferente de zero impede a remoção;
+* a validação considera corretamente múltiplas contas vinculadas ao mesmo cliente.
 
 ### Validações
 
@@ -569,7 +580,7 @@ O `ClientService` é responsável pelo gerenciamento dos clientes cadastrados no
 
 Os testes verificam:
 
-* criação de clientes válidos;
+* criação de clientes e posterior recuperação de seus dados de identificação;
 * recuperação do CPF através do e-mail;
 * recuperação do identificador interno (`UUID`) através do CPF.
 
@@ -589,7 +600,8 @@ As operações de alteração cadastral são validadas através dos seguintes ce
 
 * alteração de nome;
 * alteração de e-mail;
-* atualização correta dos dados armazenados no repositório;
+* persistência correta das alterações realizadas;
+* recuperação dos novos valores após a atualização;
 * rejeição de alteração para o mesmo nome atual do cliente.
 * rejeição de alteração para o mesmo email atual do cliente.
 * rejeição de alteração para um email já utilizado por outro cliente.
@@ -612,7 +624,15 @@ São verificados diversos cenários de erro:
 * alteração de e-mail de cliente inexistente;
 * remoção de cliente inexistente;
 * consulta de e-mail inexistente;
-* obtenção de identificador de cliente inexistente.
+
+### Garantias fornecidas pela suíte
+
+Os testes asseguram que:
+
+* CPF e e-mail permaneçam únicos no sistema;
+* alterações cadastrais atualizem corretamente os mecanismos de busca;
+* clientes removidos deixem de estar acessíveis por qualquer forma de consulta;
+* as exceções de domínio sejam lançadas para operações inválidas.
 
 Esses testes asseguram que o serviço responda adequadamente a operações inválidas e mantenha a consistência dos dados da aplicação.
 
@@ -692,15 +712,10 @@ Também são validados cenários relacionados à consistência transacional.
 
 Os testes garantem que:
 
-* o crédito só ocorre após o débito ser concluído com sucesso;
-* falhas durante as validações impedem qualquer movimentação;
-* os saldos permanecem inalterados quando a operação é rejeitada.
-
-Os testes garantem que:
-
-* falhas no débito impedem o crédito da conta de destino;
-* nenhuma movimentação parcial é executada;
-* os saldos permanecem inalterados quando a operação falha.
+* o crédito somente ocorra após a conclusão bem-sucedida do débito;
+* falhas em qualquer etapa impeçam movimentações parciais;
+* nenhuma alteração de saldo seja aplicada quando a transferência é rejeitada;
+* os saldos permaneçam consistentes após falhas.
 
 Isso assegura que a transferência seja tratada como uma operação indivisível.
 
@@ -715,7 +730,7 @@ Os testes verificam:
 * geração de identificadores únicos para cada registro;
 * criação correta de transações de depósito;
 * criação correta de transações de saque;
-* criação correta de transações de transferência.
+* criação correta das transações TRANSFER_SENT e TRANSFER_RECEIVED.
 
 ### Histórico de depósitos
 
@@ -735,6 +750,10 @@ Os testes garantem que:
 * não exista conta de destino associada.
 
 ### Histórico de transferências
+
+Geração de identificadores únicos para cada transação.
+
+Compartilhamento de operationId entre os dois lados da mesma transferência.
 
 Os testes verificam a geração correta dos dois lados da operação:
 
@@ -843,7 +862,7 @@ São garantidos os seguintes comportamentos:
 * utilização do saldo atualizado no momento do débito;
 * manutenção da consistência dos saldos de origem e destino.
 
-Também é validado que ambas as contas envolvidas possam receber seus respectivos rendimentos pendentes antes da transferência ser processada.
+Também é validado que ambas as contas envolvidas recebem seus respectivos rendimentos pendentes antes da transferência ser processada.
 
 ### Geração de transações de rendimento
 
@@ -864,7 +883,7 @@ Os testes cobrem cenários em que uma conta permanece sem movimentação durante
 São verificadas:
 
 * aplicação de um rendimento para cada mês pendente;
-* criação de uma transação de rendimento para cada período processado;
+* criação de uma transação INTEREST individual para cada mês pendente processado.
 * atualização correta do saldo final após múltiplas capitalizações sucessivas.
 
 Esse cenário garante que o sistema consiga recuperar corretamente períodos extensos sem movimentação financeira.
@@ -876,6 +895,8 @@ Os testes também verificam que:
 * consultar o histórico da conta dispara a aplicação de juros pendentes;
 * o extrato retornado já inclui as transações de rendimento geradas automaticamente;
 * a consulta não produz duplicidade de registros.
+
+Assim como na consulta de saldo, consultas repetidas ao extrato não geram novas aplicações de juros para períodos já processados.
 
 Esse comportamento assegura que qualquer visualização do histórico reflita o estado financeiro real da conta no momento da consulta.
 
@@ -1083,10 +1104,10 @@ A suíte atual fornece cobertura para os seguintes componentes:
 
 Componentes de infraestrutura não possuem atualmente suítes de testes dedicadas.
 
-Os repositórios são exercitados indiretamente pelos testes das camadas de serviço e aplicação, já que essas suítes utilizam as implementações reais em memória para armazenar e recuperar dados durante a execução dos cenários.
+Os repositórios em memória são exercitados indiretamente pelos testes das camadas de serviço e aplicação. Como essas suítes utilizam as implementações reais de armazenamento em memória, operações de persistência, consulta, atualização e remoção são verificadas como parte dos fluxos de negócio testados.
 
 Por outro lado, componentes como a camada de interface com o usuário (UI) e as classes de inicialização da aplicação não fazem parte da suíte de testes atual.
 
 O foco dos testes está concentrado na validação das regras de negócio, na consistência das operações financeiras e na integração entre os serviços e o domínio, que representam o núcleo funcional da aplicação.
 
-Dessa forma, a cobertura existente garante que os principais fluxos e invariantes do domínio bancário sejam exercitados e validados de maneira confiável.
+Dessa forma, a cobertura existente valida os principais fluxos da aplicação, os invariantes do domínio bancário e a integração entre as camadas da arquitetura, fornecendo um elevado grau de confiança na correção das regras de negócio implementadas.

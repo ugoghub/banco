@@ -2,19 +2,19 @@
 
 ## Visão Geral
 
-A camada de interface é responsável pela interação entre o usuário e o sistema.
+A Camada de Interface (UI) é responsável pela interação entre o usuário e o sistema.
 
 Seu objetivo é receber entradas, apresentar informações e encaminhar solicitações para a camada de aplicação.
 
-Toda regra de negócio permanece fora da interface.
+Toda regra de negócio permanece fora da camada de interface.
 
-A Interface atua apenas como um mecanismo de comunicação entre o usuário e os casos de uso disponíveis.
+A camada de interface atua apenas como um mecanismo de comunicação entre o usuário e os casos de uso disponíveis.
 
 ---
 
 ## Responsabilidades
 
-A camada de interface é responsável por:
+responsável por:
 
 * exibir menus;
 * coletar entradas do usuário;
@@ -23,7 +23,7 @@ A camada de interface é responsável por:
 * apresentar resultados;
 * encaminhar operações para a camada de aplicação.
 
-Não é responsabilidade da interface:
+Não é responsável por:
 
 * executar regras de negócio;
 * acessar repositórios;
@@ -50,7 +50,7 @@ ConsoleMessages
 
 ## App
 
-Representa o ponto de entrada da interface.
+Representa o ponto de entrada da camada de interface.
 
 Responsável por:
 
@@ -65,17 +65,20 @@ Fluxo simplificado:
 Usuário
    │
    ▼
-  App
+App
    │
    ▼
 Controller
+   │
+   ▼
+ApplicationService
 ```
 
 ---
 
 ## Controllers
 
-Os controllers representam agrupamentos de funcionalidades da interface.
+Os controllers representam agrupamentos de funcionalidades da camada de interface.
 
 Cada controller é responsável por um conjunto específico de operações.
 
@@ -97,6 +100,7 @@ AccountTransactionController
 
 * solicitar dados ao InputReader;
 * encaminhar operações para o ApplicationService;
+* utilizar o ApplicationService como ponto único de acesso aos casos de uso da aplicação;
 * apresentar resultados;
 * exibir mensagens de erro;
 * capturar DomainException e convertê-las em mensagens amigáveis ao usuário.
@@ -116,7 +120,7 @@ Responsável por:
 Responsável por:
 
 * exibição dos dados do cliente;
-* valteração de nome;
+* alteração de nome;
 * alteração de email;
 * remoção de cliente.
 
@@ -145,7 +149,7 @@ Responsável por:
 
 A separação por controllers permite:
 
-* organização da interface;
+* organização da camada de interface;
 * redução de métodos excessivamente grandes;
 * facilidade de manutenção;
 * maior legibilidade.
@@ -239,7 +243,7 @@ A separação entre exibição e controle permite:
 
 * menus mais organizados;
 * menor duplicação;
-* facilidade para alterar a aparência da interface.
+* facilidade para alterar a aparência da camada de interface.
 
 ---
 
@@ -290,7 +294,7 @@ AccountSelector
 ### Benefícios
 * reutilização da lógica de seleção;
 * redução de duplicação nos controllers;
-* maior organização da interface.
+* maior organização da camada de interface.
 
 ---
 
@@ -309,7 +313,17 @@ Error
 * centralizar saída textual;
 * padronizar mensagens;
 * aplicar cores ANSI;
-* melhorar legibilidade da interface.
+* melhorar legibilidade da camada de interface.
+
+---
+
+## Relação com a Camada de Aplicação
+
+Toda funcionalidade disponível ao usuário é acessada através do ApplicationService.
+
+A interface não coordena serviços individualmente, não executa regras de negócio e não possui conhecimento sobre a estrutura interna do domínio.
+
+Essa abordagem mantém a interface desacoplada das regras de negócio e centraliza a orquestração dos casos de uso na camada de aplicação.
 
 ---
 
@@ -350,7 +364,7 @@ ApplicationService
 Controllers
    │
    ▼
-Interface (Formatação / Mensagens)
+Formatação/Mensagens
    │
    ▼
 Usuário
@@ -412,7 +426,7 @@ Ela não possui acesso direto a:
 - Entidades do domínio;
 - Estruturas internas de persistência.
 
-A interface pode utilizar Value Objects para validar e representar dados antes de encaminhar operações para a camada de aplicação.
+A interface depende diretamente da camada de aplicação e utiliza Value Objects apenas para validação e representação de entradas fornecidas pelo usuário.
 
 ---
 
@@ -440,7 +454,7 @@ A organização atual proporciona:
 * reaproveitamento da camada de aplicação;
 * possibilidade futura de substituir a interface sem alterar regras de negócio.
 
-A arquitetura permite que a interface de console seja substituída futuramente por:
+Como as regras de negócio permanecem isoladas nas camadas inferiores, a interface atual pode ser substituída futuramente por::
 
 * interface gráfica;
 * aplicação web;

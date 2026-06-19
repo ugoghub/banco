@@ -158,7 +158,7 @@ Essa estrutura permite:
 
 * localizar contas rapidamente;
 * recuperar todas as contas de um cliente;
-* permitir consultas para validação de unicidade do AccountIdentity.
+* permitir localização rápida de contas através de sua identidade bancária.
 
 ---
 
@@ -176,6 +176,8 @@ Permitir:
 ---
 
 ### Estrutura Utilizada
+
+O histórico é organizado por AccountId(UUID) interno.
 
 ```
 Map<UUID, List<Transaction>>
@@ -218,6 +220,22 @@ Essa organização permite:
 
 ---
 
+## Relação com a Camada de Serviços
+
+Os repositórios são utilizados exclusivamente pelos serviços da aplicação.
+
+Eles não são acessados diretamente pela interface nem pela camada de aplicação.
+
+Fluxo:
+
+```text
+Services
+    │
+    ▼
+Repositories
+```
+---
+
 ## Imutabilidade do histórico
 
 As transações retornadas pelo repositório são expostas através de uma cópia imutável da coleção interna.
@@ -240,7 +258,9 @@ Essa decisão preserva rastreabilidade e auditabilidade das operações financei
 
 ## Persistência em Memória
 
-Como os repositórios armazenam referências para os próprios objetos do domínio, alterações realizadas nas entidades são refletidas automaticamente sem necessidade de operações explícitas de atualização.
+Como os repositórios armazenam referências para os próprios objetos do domínio, alterações realizadas diretamente nas entidades são refletidas automaticamente nas estruturas armazenadas.
+
+Por esse motivo, a implementação atual não necessita de operações explícitas de atualização (update), já que os objetos manipulados pelos serviços são os mesmos objetos mantidos pelos repositórios.
 
 Todos os dados da aplicação permanecem exclusivamente em memória durante a execução.
 
@@ -289,8 +309,8 @@ Exemplos de regras que NÃO pertencem aos repositórios:
 
 * saldo insuficiente;
 * aplicação de juros;
-* CPF duplicado;
-* email duplicado;
+* validação de CPF duplicado;
+* validação de email duplicado;
 * remoção de contas com saldo.
 
 Essas validações são executadas pelos serviços da aplicação utilizando os dados fornecidos pelos repositórios.
@@ -308,6 +328,16 @@ A estratégia adotada oferece:
 * independência de banco de dados.
 
 Além disso, a existência da camada de repositórios permite futura substituição da implementação atual por uma solução persistente sem alterações significativas na lógica da aplicação.
+
+---
+
+## Repositórios em Memória
+
+Os repositórios atuais não representam contratos de persistência independentes.
+
+Cada repositório possui uma implementação concreta em memória utilizada diretamente pela aplicação.
+
+Essa escolha foi adotada para simplificar o projeto acadêmico, mantendo a possibilidade de evolução futura para mecanismos persistentes.
 
 ---
 

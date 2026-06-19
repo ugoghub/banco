@@ -28,6 +28,7 @@ Não é responsabilidade da camada de aplicação:
 * manipular persistência;
 * implementar cálculos financeiros;
 * armazenar estado.
+* acessar repositórios diretamente.
 
 ---
 
@@ -84,6 +85,8 @@ Toda interação da interface com o sistema ocorre através desta classe.
 
 O ApplicationService atua como um Facade sobre os serviços internos da aplicação.
 
+O ApplicationService representa a única dependência da camada de interface em relação às camadas inferiores da aplicação.
+
 Exemplo:
 
 ```text
@@ -99,9 +102,6 @@ Isso impede que a interface acesse diretamente:
 * Services;
 * Repositórios;
 * Entidades de negócio.
-
-A interface pode utilizar Value Objects para validar entradas antes da execução dos casos de uso.
-
 ---
 
 ## Organização dos Casos de Uso
@@ -165,6 +165,16 @@ Essa conversão reduz o acoplamento da interface com a estrutura interna do dom�
 
 ---
 
+## Relação com a Camada de Serviços
+
+A camada de aplicação não substitui os serviços.
+
+Os serviços continuam responsáveis pela execução dos casos de uso e pelas interações com o domínio.
+
+O ApplicationService atua como uma fachada que organiza e expõe essas operações para a interface do usuário.
+
+---
+
 ## Coordenação de Serviços
 
 Em alguns casos de uso, o ApplicationService precisa coordenar múltiplos serviços para concluir uma operação.
@@ -190,9 +200,9 @@ ApplicationService
 Passos executados:
 
 1. localizar cliente;
-2. verificar contas existentes;
-3. validar remoção;
-4. remover contas;
+2. obter identificador interno do cliente;
+3. validar se as contas podem ser removidas;
+4. remover contas do cliente;
 5. remover cliente.
 
 A coordenação ocorre na camada de aplicação, mantendo cada serviço focado em sua própria responsabilidade.
