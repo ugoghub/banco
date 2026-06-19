@@ -1,13 +1,4 @@
-service.md
-accountService valida conta?
 
-Regras Aplicadas
-O serviço garante:
-
-geração de AccountIdentity único;
-validação de conta existente;
-remoção apenas quando permitido;
-validação de contas vinculadas ao cliente.
 
 ----------------------------------------------------------------------------------
 

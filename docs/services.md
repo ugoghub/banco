@@ -8,6 +8,8 @@ Ela atua como intermediária entre a camada de aplicação, o domínio e os repo
 
 Enquanto as entidades concentram as regras de negócio fundamentais, os serviços são responsáveis por orquestrar essas regras dentro dos fluxos da aplicação.
 
+Os serviços também concentram regras de aplicação que dependem de consultas aos repositórios ou da coordenação entre múltiplas entidades.
+
 ---
 
 ## Responsabilidades
@@ -20,6 +22,8 @@ A camada de serviços é responsável por:
 * garantir consistência das operações;
 * aplicar validações de aplicação;
 * transformar entidades em DTOs quando necessário.
+* coordenar múltiplos repositórios quando necessário;
+* coordenar operações transacionais da aplicação;
 
 Não é responsabilidade da camada de serviços:
 
@@ -95,8 +99,8 @@ Durante as operações o serviço garante:
 * CPF único;
 * email único;
 * cliente existente;
-* alteração válida de dados.
-
+* impedimento de alteração para o mesmo nome atual;
+* impedimento de alteração para o mesmo email atual.
 ---
 
 ## AccountService
@@ -109,7 +113,7 @@ Responsável pelo ciclo de vida das contas bancárias.
 * encerramento de contas;
 * consulta de contas de um cliente;
 * busca de contas;
-* validações relacionadas à remoção.
+* validações relacionadas à remoção;
 
 ---
 
@@ -154,7 +158,7 @@ AccountIdentityFactory
 
 para geração automática dos identificadores bancários.
 
-A unicidade é validada através do repositório antes da criação definitiva.
+A geração é repetida até que seja encontrado um AccountIdentity ainda não utilizado no sistema.
 
 ---
 
@@ -162,7 +166,7 @@ A unicidade é validada através do repositório antes da criação definitiva.
 
 Responsável pelas operações financeiras do sistema.
 
-É o serviço mais complexo da aplicação.
+É o serviço responsável pela coordenação das operações financeiras do sistema.
 
 ---
 
@@ -173,7 +177,7 @@ Responsável pelas operações financeiras do sistema.
 * transferências;
 * consulta de saldo;
 * geração de extrato;
-* aplicação automática de juros;
+* coordenação da aplicação automática de juros;
 * registro de transações.
 
 ---
@@ -200,9 +204,21 @@ getTransactionHistoryByAccountIdentity(...)
 
 ---
 
-## Aplicação Automática de Juros
+## Coordenação de Transferências
+Uma transferência gera duas transações independentes:
+
+TRANSFER_SENT
+TRANSFER_RECEIVED
+
+Ambas compartilham o mesmo operationId, permitindo rastrear a operação completa.
+
+---
+
+## Coordenação da Aplicação Automática de Juros
 
 Antes de qualquer operação financeira, o serviço garante que os juros pendentes sejam processados.
+
+Todas as operações públicas do TransactionService utilizam internamente um fluxo único de carregamento de conta que garante a atualização prévia dos rendimentos pendentes.
 
 Fluxo simplificado:
 
@@ -234,8 +250,13 @@ Os juros são aplicados automaticamente antes de:
 
 ### Geração de Transações de Juros
 
-Após a aplicação dos rendimentos:
+SavingsAccount é responsável por calcular os rendimentos pendentes.
 
+TransactionService é responsável por transformar esses rendimentos em registros históricos através de Transaction.interest(...).
+
+Exemplo:
+
+Após a aplicação dos rendimentos:
 ```
 SavingsAccount.applyPendingInterests(...)
 ```
@@ -256,17 +277,29 @@ Dessa forma:
 
 ---
 
+## Centralização do Histórico
+Toda criação de transações ocorre exclusivamente dentro do TransactionService.
+
+Nenhuma entidade realiza persistência de histórico diretamente.
+
+Isso garante consistência e centraliza o registro das movimentações financeiras.
+
+---
+
 ## Estratégia de Extrato
 
 O extrato não é produzido diretamente pelas entidades.
 
-O processo ocorre em três etapas:
+O processo ocorre em quatro etapas:
 
 ```text
 TransactionRepository
         │
         ▼
 Transaction
+        │
+        ▼
+TransactionService
         │
         ▼
 StatementData
@@ -280,6 +313,8 @@ O DTO `StatementData` representa a visão pública do histórico para as camadas
 
 A camada de serviços é responsável por criar DTOs utilizados pela aplicação.
 
+Os DTOs representam visões específicas dos dados necessárias para as camadas superiores, evitando exposição direta das entidades do domínio.
+
 Atualmente:
 
 ```text
@@ -289,13 +324,11 @@ StatementData
 
 são produzidos pelos serviços.
 
-Essa abordagem evita exposição direta das entidades para outras camadas.
-
 ---
 
 ## Tratamento de Exceções
 
-Os serviços utilizam exclusivamente exceções do domínio.
+Os serviços utilizam exceções específicas da aplicação e do domínio para representar situações inválidas ou impossíveis de executar.
 
 Exemplos:
 

@@ -32,6 +32,35 @@ Cada seção deste documento apresenta os cenários testados e as garantias forn
 
 ---
 
+## Utilitários de Teste
+
+Para reduzir duplicação e melhorar a legibilidade dos cenários foi criado o helper:
+
+```text
+AccountFactory
+```
+
+Esse utilitário fornece instâncias prontas de contas utilizadas pelos testes.
+
+Exemplos:
+```text
+CheckingAccount account =
+        AccountFactory.checking(clock);
+
+SavingsAccount account =
+        AccountFactory.savings(clock);
+```
+As contas geradas possuem:
+
+* clientId válido;
+* AccountIdentity válido;
+* saldo inicial zero;
+* Clock configurável.
+
+O objetivo é permitir que cada teste foque apenas no comportamento que está sendo validado, eliminando código repetitivo de construção de objetos.
+
+---
+
 ## Value Objects
 
 Os Value Objects representam conceitos fundamentais do domínio e são responsáveis por garantir a integridade dos dados antes que estes sejam utilizados pelas entidades e serviços da aplicação.
@@ -143,7 +172,6 @@ O Value Object `Money` representa valores monetários utilizados em todas as ope
 
 * arredondamento automático para duas casas decimais;
 * arredondamento de resultados de multiplicação;
-* preservação da precisão em operações sucessivas.
 
 **Imutabilidade**
 
@@ -202,7 +230,7 @@ A suíte de testes garante que:
 * todos os objetos permanecem imutáveis após construídos;
 * regras de normalização são aplicadas de forma consistente;
 * igualdade e hash code respeitam o valor representado e não a identidade do objeto;
-* operações monetárias mantêm precisão adequada para o domínio bancário.
+* operações monetárias aplicam arredondamento e comparação de forma consistente.
 
 ---
 
@@ -229,6 +257,9 @@ Os seguintes cenários são cobertos:
 * rejeição de criação com nome nulo;
 * rejeição de criação com CPF nulo;
 * rejeição de criação com e-mail nulo.
+
+
+A entidade não realiza validações de formato diretamente. Ela exige instâncias válidas de PersonName, Cpf e Email, delegando essas validações aos respectivos Value Objects.
 
 ### Garantias fornecidas
 
@@ -289,7 +320,9 @@ Os testes verificam que:
 
 ## ContaCorrente
 
-A entidade `CheckingAccount` implementa o comportamento específico da conta corrente, incluindo suporte a limite de cheque especial.
+A entidade `CheckingAccount` implementa o comportamento específico da conta corrente, incluindo suporte a cheque especial de R$ 1.000,00.
+
+A conta corrente permite saldo negativo até o limite de cheque especial configurado.
 
 ### Limite de crédito
 
@@ -323,6 +356,17 @@ Os testes cobrem os seguintes cenários:
 * aplicação sucessiva de juros em meses futuros;
 * processamento de vários meses pendentes em uma única execução;
 * cálculo correto da capitalização composta ao longo do tempo.
+
+### Retorno do Método de Aplicação de Juros
+
+O método responsável pela aplicação dos juros retorna uma lista contendo os rendimentos efetivamente aplicados durante a execução.
+
+Essa abordagem permite que camadas superiores convertam os rendimentos em transações de histórico sem acoplar o domínio à persistência.
+
+### Capitalização Composta
+
+Os rendimentos são calculados utilizando capitalização composta, fazendo com que os juros de meses anteriores passem a compor a base de cálculo dos meses seguintes.
+
 
 ### Regras de aniversário
 
@@ -367,6 +411,16 @@ Os testes validam a criação e o comportamento dos diferentes tipos de transaç
 * transferência enviada (`TRANSFER_SENT`);
 * transferência recebida (`TRANSFER_RECEIVED`);
 * rendimento de poupança (`INTEREST`).
+
+### Identificadores
+
+Toda transação recebe um identificador único (`id`) gerado no momento da criação.
+
+Os testes garantem que:
+
+* transações distintas nunca compartilham o mesmo identificador;
+* registros de uma mesma transferência possuem IDs diferentes;
+* apenas o `operationId` é compartilhado entre as duas partes da transferência.
 
 ### Criação de transações
 
@@ -419,16 +473,29 @@ Os testes garantem que:
 * a conta beneficiada é registrada como destino;
 * o valor do rendimento é preservado.
 
+### OperationId
+
+Transferências utilizam um identificador de operação compartilhado (`operationId`).
+
+Esse identificador permite relacionar os registros de envio e recebimento pertencentes à mesma transferência.
+
+Os testes garantem que:
+
+* o `operationId` é preservado em ambos os registros;
+* transferências não podem ser criadas com `operationId` nulo.
+
 ### Validações
 
-A entidade rejeita tentativas de criação de transações inválidas, incluindo:
+Todos os tipos de transação exigem um valor monetário positivo.
+
+Os testes garantem que não é possível criar transações com:
 
 * contas nulas;
-* valores nulos;
-* valores iguais a zero;
-* valores negativos;;
 * `Clock` nulo;
-* `operationId` nulo em transferências.
+* `operationId` nulo em transferências;
+* valor nulo;
+* valor igual a zero;
+* valor negativo;
 
 Essas validações garantem que apenas movimentações consistentes possam ser registradas no histórico financeiro do sistema.
 
@@ -899,7 +966,6 @@ Esses cenários validam operações financeiras ponta a ponta através da camada
 Os testes garantem que:
 
 * clientes sem contas possam ser removidos;
-* clientes cujas contas estejam aptas para remoção possam ser removidos.
 * o processo seja concluído sem lançamento de exceções quando todas as regras forem satisfeitas.
 
 ### Validações
@@ -918,8 +984,9 @@ Nesses casos, a aplicação deve propagar corretamente as exceções de domínio
 
 Em conjunto, os testes do `ApplicationService` asseguram que:
 
-* a fachada exponha corretamente as funcionalidades do sistema;
+* a fachada exponha corretamente os principais casos de uso do sistema;
 * os serviços internos sejam coordenados adequadamente;
+* o ApplicationContext componha corretamente os serviços utilizados pela aplicação;
 * operações completas possam ser executadas através de uma única interface;
 * exceções de domínio sejam propagadas corretamente;
 * os fluxos principais da aplicação funcionem de forma integrada.
@@ -932,7 +999,7 @@ A suíte de testes foi implementada utilizando **JUnit 5** e tem como objetivo p
 
 Todos os testes são executados inteiramente em memória, sem dependência de banco de dados, sistemas externos ou mecanismos de mensageria. Essa abordagem proporciona execuções rápidas, previsíveis e independentes do ambiente.
 
-Os serviços utilizam repositórios em memória durante os testes, permitindo que cada cenário seja executado de forma isolada e determinística.
+Os testes utilizam implementações de repositório sem dependências externas, permitindo que cada cenário seja executado de forma isolada e determinística.
 
 Funcionalidades dependentes de tempo são validadas através da injeção de instâncias de `Clock`, garantindo a reprodução exata de cenários relacionados ao cálculo de juros e demais regras temporais.
 

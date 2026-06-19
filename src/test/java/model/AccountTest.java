@@ -227,10 +227,6 @@ public class AccountTest {
         );
     }
 
-    // =========================
-    // Balance
-    // =========================
-
     @Test
     void shouldWithdrawMoney() {
 
