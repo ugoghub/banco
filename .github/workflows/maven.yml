@@ -4,12 +4,13 @@ on:
   push:
     branches:
       - main
-      - master
 
   pull_request:
     branches:
       - main
-      - master
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -17,7 +18,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -29,59 +29,24 @@ jobs:
           cache: maven
 
       - name: Build and run tests
-        run: mvn clean test
+        run: mvn clean verify
 
-      - name: JaCoCo Coverage Summary
-        uses: madrapps/jacoco-report@v1.7.1
-        with:
-          paths: target/site/jacoco/jacoco.xml
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate JaCoCo report
+        run: mvn jacoco:report
 
       - name: Upload JaCoCo Report
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
-          path: target/site/jacoco
+          path: target/site/jacoco/
 
-      - name: Generate JaCoCo report
-        run: mvn jacoco:report
+      - name: Generate JaCoCo Badges
+        uses: cicirello/jacoco-badge-generator@v2
+        with:
+          generate-branches-badge: true
+          badges-directory: badges
 
-      - name: Publish Coverage Summary
-        run: |
-          echo "# Coverage Report" >> $GITHUB_STEP_SUMMARY
-
-          TOTAL_LINE=$(tail -n 1 target/site/jacoco/jacoco.csv)
-
-          IFS=',' read -r GROUP PACKAGE CLASS \
-          INSTR_MISSED INSTR_COVERED \
-          BRANCH_MISSED BRANCH_COVERED \
-          LINE_MISSED LINE_COVERED \
-          COMPLEXITY_MISSED COMPLEXITY_COVERED \
-          METHOD_MISSED METHOD_COVERED \
-          CLASS_MISSED CLASS_COVERED <<< "$TOTAL_LINE"
-
-          calc_percent () {
-            local covered=$1
-            local missed=$2
-            local total=$((covered + missed))
-
-            if [ "$total" -eq 0 ]; then
-              echo "100"
-            else
-              echo $((100 * covered / total))
-            fi
-          }
-
-          INSTR_PCT=$(calc_percent $INSTR_COVERED $INSTR_MISSED)
-          BRANCH_PCT=$(calc_percent $BRANCH_COVERED $BRANCH_MISSED)
-          LINE_PCT=$(calc_percent $LINE_COVERED $LINE_MISSED)
-          METHOD_PCT=$(calc_percent $METHOD_COVERED $METHOD_MISSED)
-          CLASS_PCT=$(calc_percent $CLASS_COVERED $CLASS_MISSED)
-
-          echo "| Metric | Coverage |" >> $GITHUB_STEP_SUMMARY
-          echo "|---------|----------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Instructions | ${INSTR_PCT}% |" >> $GITHUB_STEP_SUMMARY
-          echo "| Branches | ${BRANCH_PCT}% |" >> $GITHUB_STEP_SUMMARY
-          echo "| Lines | ${LINE_PCT}% |" >> $GITHUB_STEP_SUMMARY
-          echo "| Methods | ${METHOD_PCT}% |" >> $GITHUB_STEP_SUMMARY
-          echo "| Classes | ${CLASS_PCT}% |" >> $GITHUB_STEP_SUMMARY
+      - name: Commit coverage badges
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Update JaCoCo badges

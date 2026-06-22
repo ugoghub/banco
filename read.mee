@@ -1,4 +1,4 @@
-# Banco Digital Java
+# BankLite
 
 Sistema bancário desenvolvido em Java com foco em boas práticas de modelagem orientada a objetos, separação de responsabilidades e aplicação de conceitos de Domain-Driven Design (DDD) — abordagem simplificada.
 
@@ -595,6 +595,19 @@ Os testes cobrem:
 * geração de extratos;
 * remoção de contas;
 * remoção de clientes.
+
+## Estratégia de Cobertura
+
+A cobertura de testes está concentrada nas camadas responsáveis pelas regras de negócio:
+
+- Value Objects;
+- Entidades;
+- Serviços;
+- Casos de uso da aplicação.
+
+As camadas de Interface e apresentação possuem cobertura reduzida por conterem predominantemente lógica de interação com o usuário e baixo valor de negócio.
+
+Essa abordagem prioriza a validação das regras críticas do domínio e dos fluxos financeiros da aplicação.
 
 ---
 
