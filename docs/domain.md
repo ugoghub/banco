@@ -164,6 +164,8 @@ Classe base para todas as exceções do domínio.
 
 Seu objetivo é fornecer um tipo comum para captura e tratamento de erros relacionados às regras da aplicação.
 
+Todas as exceções do domínio são unchecked exceptions (RuntimeException), permitindo propagação natural até a camada responsável pelo tratamento.
+
 ---
 
 ## ValidationException
@@ -182,18 +184,18 @@ Essas exceções normalmente são lançadas durante a criação de Value Objects
 
 ### Exceções
 
-| Exceção                         | Responsabilidade                           |
-| ------------------------------- | ------------------------------------------ |
-| InvalidCpfException             | CPF inválido                               |
-| InvalidEmailException           | Email inválido                             |
-| InvalidPersonNameException      | Nome inválido                              |
-| InvalidAmountException          | Valor monetário inválido                   |
-| InvalidBranchException          | Agência inválida                           |
-| InvalidAccountNumberException   | Número de conta inválido                   |
-| InvalidAccountIdentityException | Identidade de conta inválida               |
-| InvalidClientIdException        | Identificador de cliente inválido          |
-| InvalidClockException           | Relógio inválido                           |
-| InvalidTransactionException     | Estado inválido para criação de transações |
+| Exceção                         | Responsabilidade                                           |
+| ------------------------------- |------------------------------------------------------------|
+| InvalidCpfException             | CPF inválido                                               |
+| InvalidEmailException           | Email inválido                                             |
+| InvalidPersonNameException      | Nome inválido                                              |
+| InvalidAmountException          | Valor monetário inválido                                   |
+| InvalidBranchException          | Agência inválida                                           |
+| InvalidAccountNumberException   | Número de conta inválido                                   |
+| InvalidAccountIdentityException | Identidade de conta inválida                               |
+| InvalidClientIdException        | UUID de cliente inválido ou nulo                           |
+| InvalidClockException           | Clock nulo ou inválido para <br/>operações dependentes de tempo |
+| InvalidTransactionException     | Estado inválido para criação de transações                 |
 
 ---
 
@@ -247,6 +249,7 @@ A separação entre validação, regras de negócio e recursos inexistentes perm
 * mensagens de erro mais precisas;
 * tratamento específico quando necessário;
 * desacoplamento entre interface, aplicação e domínio;
+* tratamento centralizado de erros pela camada de interface;
 * evolução futura sem impactar a camada de apresentação.
 
 Essa estrutura segue os princípios de Domain-Driven Design, onde exceções representam falhas relevantes do domínio e não apenas erros técnicos da plataforma.

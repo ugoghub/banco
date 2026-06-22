@@ -122,8 +122,9 @@ Interface de Usuário (UI)
 Camada de Aplicação
  ↓
 Serviços
- ├── Domínio
- └── Repositórios
+ ↓
+Domain
+Repositories
 ```
 
 ---
@@ -216,6 +217,7 @@ Esta organização proporciona:
 * isolamento das regras de negócio;
 * possibilidade de substituir a interface sem impactar o domínio;
 * possibilidade de substituir a estratégia de persistência sem alterar as regras do sistema.
+* possibilidade de substituir a interface de console por API REST, aplicação web ou interface gráfica;
 
 
 ---
@@ -236,7 +238,7 @@ ApplicationService
    ▼
 Service
    │
-   ├── Domínio
+   ├── Entidades do Domínio
    └── Repositórios
 ```
 
@@ -274,6 +276,18 @@ O projeto utiliza um **Composition Root manual**, implementado através da class
 Essa classe é responsável por criar e conectar todos os componentes necessários para o funcionamento da aplicação.
 
 A inicialização ocorre sem o uso de frameworks de injeção de dependência, mantendo o projeto totalmente independente de bibliotecas externas.
+
+---
+
+### Controle Temporal
+
+O ApplicationContext também é responsável por compartilhar a instância de Clock utilizada pela aplicação.
+
+Essa instância é fornecida aos componentes que dependem de informações temporais, permitindo:
+
+* testes determinísticos;
+* simulação da passagem do tempo;
+* cálculo previsível dos rendimentos da poupança.
 
 ---
 
@@ -372,6 +386,7 @@ A utilização de um Composition Root manual proporciona:
 * facilidade de testes;
 * independência de frameworks;
 * possibilidade futura de migrar para um container de DI sem alterações significativas nas regras de negócio.
+* controle determinístico do tempo através de Clock;
 
 ---
 
@@ -412,11 +427,11 @@ Essa abordagem permite:
 
 O mesmo `Clock` é compartilhado entre os componentes que dependem de operações temporais.
 
-Atualmente ele é utilizado principalmente por:
+Atualmente o Clock é utilizado por componentes responsáveis por operações dependentes de tempo, incluindo:
 
-* `SavingsAccount`;
-* `Transaction`;
-* `TransactionService`.
+* SavingsAccount;
+* Transaction;
+* TransactionService.
 
 ---
 
@@ -468,7 +483,7 @@ O sistema utiliza Data Transfer Objects (DTOs) para comunicação entre as camad
 
 Os DTOs são implementados utilizando records imutáveis do Java.
 
-Os DTOs são utilizados principalmente como contratos de saída da camada de aplicação, evitando que entidades do domínio sejam expostas diretamente para a UI.
+Os DTOs são utilizados principalmente como contratos de saída da camada de aplicação, evitando que entidades do domínio sejam expostas diretamente para a camada de Interface.
 
 ### DTOs Existentes
 
@@ -546,6 +561,36 @@ catch (ValidationException e)
 
 sem depender de implementações específicas.
 
+A interface é responsável apenas por converter exceções em mensagens amigáveis ao usuário, sem tentar corrigir estados inválidos do domínio.
+
+---
+
+## Rich Domain Model
+
+A arquitetura adota um modelo de domínio rico.
+
+As entidades encapsulam comportamento e protegem suas próprias regras de negócio.
+
+Exemplos:
+
+* Account executa depósitos e saques;
+* SavingsAccount calcula rendimentos;
+* Client controla alterações dos seus próprios dados;
+* Transaction valida sua própria consistência.
+
+Os serviços coordenam operações entre entidades, mas não concentram as regras de negócio.
+
+
+---
+
+## Atualização Preguiçosa de Juros
+
+A aplicação de juros da poupança segue uma estratégia de Lazy Interest Application.
+
+O cálculo permanece no domínio (SavingsAccount), enquanto a aplicação automática dos rendimentos, a criação das transações INTEREST e o registro no histórico são coordenados pelo TransactionService.
+
+Essa separação mantém o domínio desacoplado de persistência e infraestrutura.
+
 ---
 
 ## Testabilidade
@@ -580,7 +625,19 @@ TransactionService(
 )
 ```
 
-Isso elimina dependências ocultas e facilita a criação de cenários de teste.
+Isso elimina dependências ocultas, facilita a criação de cenários de teste e torna o fluxo de composição da aplicação explícito.
+
+---
+
+## Persistência em Memória
+
+Os repositórios armazenam referências para os objetos do domínio.
+
+Consequentemente:
+
+* não existem operações explícitas de update;
+* Como os objetos são armazenados por referência, alterações realizadas nas entidades são refletidas automaticamente sem necessidade de operações explícitas de atualização.
+* a persistência permanece inteiramente em memória durante a execução da aplicação.
 
 ---
 
@@ -608,7 +665,7 @@ Substituição dos repositórios em memória por:
 * MySQL;
 * MongoDB.
 
-Sem alterações significativas nas entidades e regras de domínio.
+Sem alterações significativas nas regras de domínio e nos casos de uso da aplicação.
 
 ---
 
@@ -661,3 +718,5 @@ A arquitetura foi construída priorizando:
 * foco em modelagem de domínio.
 
 Embora o projeto utilize armazenamento em memória e composição manual de dependências, sua estrutura segue princípios aplicados em sistemas corporativos reais, permitindo evolução gradual sem necessidade de reestruturações significativas.
+
+As decisões arquiteturais adotadas priorizam a proteção das regras de negócio e a independência do domínio em relação aos detalhes de infraestrutura.

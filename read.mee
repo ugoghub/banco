@@ -12,7 +12,7 @@ Este projeto foi desenvolvido com o objetivo de praticar e demonstrar conhecimen
 * Domain-Driven Design (DDD) — abordagem simplificada;
 * Value Objects;
 * Entidades de Domínio;
-* Arquitetura em Camadas
+* Arquitetura em Camadas;
 * Testes automatizados com JUnit 5;
 * Separação de responsabilidades;
 * Modelagem de regras de negócio.
@@ -29,7 +29,7 @@ O foco principal está na consistência do domínio e na organização da arquit
 * Domain-Driven Design (DDD) — abordagem simplificada
 * Arquitetura em Camadas
 * Modelo de Domínio Rico
-* Princípios SOLID
+* Princípios SOLID (com destaque para SRP e LSP)
 * Separação de Responsabilidades
 
 ## Modelagem de Domínio
@@ -39,6 +39,8 @@ O foco principal está na consistência do domínio e na organização da arquit
 * Exceções de Domínio
 * Encapsulamento de Regras de Negócio
 * Imutabilidade
+* Template Method
+* Lazy Interest Application
 
 ## Comunicação entre Camadas
 
@@ -48,6 +50,9 @@ O foco principal está na consistência do domínio e na organização da arquit
 
 * Repository Pattern (Padrão de Repositório)
 * Service Layer Pattern (Padrão de Camada de Serviço)
+* Facade Pattern (ApplicationService)
+* Template Method (Account)
+* Factory Method (Transaction)
 * Repositórios em Memória
 
 ## Qualidade de Código
@@ -57,6 +62,7 @@ O foco principal está na consistência do domínio e na organização da arquit
 * Programação Defensiva
 * Validações Explícitas
 * Testabilidade
+* Controle Determinístico do Tempo (Clock)
 
 ## Tecnologias e Ferramentas
 
@@ -74,7 +80,7 @@ O foco principal está na consistência do domínio e na organização da arquit
 ## Clientes
 
 * Cadastro de clientes;
-* Consulta de clientes;
+* Consulta dos dados cadastrais do cliente;
 * Alteração de nome;
 * Alteração de e-mail;
 * Remoção de clientes.
@@ -83,7 +89,7 @@ O foco principal está na consistência do domínio e na organização da arquit
 
 * Criação de contas correntes;
 * Criação de contas poupança;
-* Consulta de contas por cliente;
+* Consulta das contas do cliente;
 * Remoção de contas sem saldo.
 
 ## Operações Financeiras
@@ -101,9 +107,9 @@ O foco principal está na consistência do domínio e na organização da arquit
 
 ## Conta Poupança
 
-* Rendimento mensal automático de 0,5%;
+* Aplicação automática de juros pendentes durante operações da conta;
+* Aplicação retroativa de rendimentos após períodos sem movimentação;
 * Capitalização composta;
-* Recuperação automática de juros pendentes;
 * Registro dos rendimentos no histórico de transações.
 
 ## Histórico de Transações
@@ -141,11 +147,11 @@ Os rendimentos da conta poupança são registrados através de transações do t
 
 Dessa forma, todas as alterações de saldo ficam registradas no histórico da conta.
 
-## Aplicação de Juros por Competência
+## Aplicação Preguiçosa de Juros (Lazy Interest Application)
 
 Cada conta poupança possui sua própria data de aniversário, definida pela data de criação da conta.
 
-Os rendimentos mensais vencem sempre nessa data.
+Os rendimentos tornam-se elegíveis para aplicação nessa data.
 
 Exemplo:
 
@@ -167,6 +173,8 @@ Os juros não são processados continuamente nem aplicados automaticamente na da
 
 Dessa forma, mesmo que o cliente permaneça longos períodos sem movimentar a conta, todos os rendimentos pendentes serão calculados corretamente na próxima atualização.
 
+Os rendimentos são aplicados de forma composta, pois cada juro incorporado ao saldo passa a participar do cálculo dos períodos seguintes.
+
 Exemplo:
 
 Conta criada em 15/01
@@ -176,9 +184,12 @@ Conta criada em 15/01
 * 15/04 → rendimento disponível;
 * 20/04 → cliente acessa a conta.
 
-Ao acessar a conta em 20/04, o sistema identifica todos os rendimentos pendentes, aplica os juros acumulados e atualiza o saldo da conta de forma consistente.
+Ao acessar a conta em 20/04 e executar operações que exigem estado atualizado da conta, o sistema identifica todos os rendimentos pendentes, aplica os juros acumulados e atualiza o saldo da conta de forma consistente.
 
 As transações de rendimento são registradas no momento em que a atualização ocorre, utilizando a data e hora atuais da aplicação. Entretanto, o cálculo dos juros considera corretamente todos os períodos pendentes desde a última atualização da conta.
+
+Os rendimentos não recebem a data retroativa da competência.
+Cada transação INTEREST é registrada com a data e hora em que os juros pendentes foram efetivamente aplicados.
 
 ---
 
@@ -188,19 +199,15 @@ O sistema foi desenvolvido utilizando uma arquitetura em camadas, buscando separ
 
 ```text
 Interface de Usuário (UI)
-    │
-    ▼
+        │
+        ▼
 Camada de Aplicação
 (ApplicationService)
-    │
-    ▼
+        │
+        ▼
 Camada de Serviço
- ├── ClientService
- ├── AccountService
- └── TransactionService
-    │
-    ├── Domínio
-    └── Repositórios
+    ↙        ↘
+Domain     Repositories
 ```
 
 ## Camadas
@@ -222,17 +229,23 @@ A camada de UI não contém regras de negócio.
 
 ### Camada de Aplicação
 
-Representada pela classe `ApplicationService`.
+#### ApplicationContext
+
+A composição das dependências da aplicação é realizada pelo ApplicationContext, que atua como Composition Root do sistema.
+
+#### ApplicationService
 
 Responsável por:
 
+não contém regras de negócio.
+
 * orquestrar casos de uso;
-* coordenar serviços de domínio;
+* coordenar múltiplos serviços quando necessário.
 * fornecer uma interface simplificada para a camada de UI.
 
-A UI nunca acessa diretamente os serviços internos.
+A camada de Interface nunca acessa diretamente os serviços internos.
 
-O ApplicationService atua como fachada da aplicação, concentrando os casos de uso consumidos pela camada de UI.
+O ApplicationService atua como fachada da aplicação, concentrando os casos de uso consumidos pela camada de Interface.
 
 ---
 
@@ -240,7 +253,7 @@ O ApplicationService atua como fachada da aplicação, concentrando os casos de 
 
 Contém os serviços responsáveis pela execução das operações do sistema.
 
-Os serviços não concentram as regras de negócio principais do sistema.
+Os serviços coordenam operações envolvendo múltiplas entidades e repositórios, enquanto as regras de negócio permanecem concentradas no domínio.
 
 As regras pertencem ao domínio e às entidades. Os serviços são responsáveis por coordenar operações, validar fluxos e interagir com os repositórios.
 
@@ -270,7 +283,7 @@ Responsável por:
 * saques;
 * transferências;
 * geração de extratos;
-* aplicação automática de juros pendentes.
+* aplicação de juros pendentes.
 
 ---
 
@@ -278,7 +291,7 @@ Responsável por:
 
 Contém toda a regra de negócio do sistema.
 
-O domínio é composto por entidades, value objects e regras de negócio.
+O domínio é composto por entidades, value objects, enums, exceções de domínio e regras de negócio.
 
 O domínio não depende de:
 
@@ -310,9 +323,12 @@ src
 │   ├── Email
 │   ├── PersonName
 │   ├── AccountIdentity
-│   └── AccountIdentityGenerator
+│   └── AccountIdentityFactory
 │
 ├── service
+│   ├── dto
+│   │    ├── ClientData
+│   │    └── StatementData
 │   ├── ClientService
 │   ├── AccountService
 │   └── TransactionService
@@ -489,8 +505,8 @@ mvn --version
 ## Clonar o Repositório
 
 ```bash
-git clone <url-do-repositorio>
-cd banco-digital-java
+git clone https://github.com/hugoovargas/sistema-bancario-java.git
+cd sistema-bancario-java
 ```
 
 ---
@@ -521,16 +537,14 @@ Exemplo de utilização:
 5. Realizar transferências;
 6. Consultar saldo;
 7. Consultar extrato;
-8. Remover contas sem saldo;
-9. Remover clientes com todas as contas sem saldo.
+8. Remover contas com saldo zerado;
+9. Remover clientes cujas contas estejam aptas para exclusão.
 
 ---
 
 # Executando os Testes
 
-O projeto possui uma suíte abrangente de testes automatizados utilizando:
-
-* JUnit 5
+O projeto possui uma suíte abrangente de testes automatizados utilizando JUnit 5 e cobertura de código monitorada com JaCoCo.
 
 Executar todos os testes:
 
@@ -613,13 +627,12 @@ Possíveis evoluções para o projeto:
 ## Arquitetura
 
 * separação em módulos Maven;
-* Persistência desacoplada através de interfaces de repositório;
+* Introdução de contratos (interfaces) para os repositórios, permitindo múltiplas implementações de persistência.
 * implementação de injeção de dependência.
 
 ## API
 
 * criação de API REST com Spring Boot;
-* documentação OpenAPI/Swagger;
 * autenticação e autorização.
 
 ## Observabilidade
@@ -632,7 +645,6 @@ Possíveis evoluções para o projeto:
 
 * testes de integração;
 * testes end-to-end;
-* cobertura automatizada com JaCoCo.
 
 ---
 
@@ -643,7 +655,8 @@ Este projeto foi desenvolvido com foco em modelagem de domínio, boas práticas 
 A implementação prioriza:
 
 * encapsulamento;
-* imutabilidade em Value Objects;
+* modelo de domínio rico;
+* value objects imutáveis;
 * separação de responsabilidades;
 * regras de negócio explícitas;
 * testabilidade;
