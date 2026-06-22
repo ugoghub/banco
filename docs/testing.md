@@ -32,6 +32,30 @@ Cada seção deste documento apresenta os cenários testados e as garantias forn
 
 ---
 
+## Escopo da Cobertura
+
+A métrica de cobertura considera apenas componentes que contêm regras de negócio ou comportamento relevante para a aplicação.
+
+Incluídos:
+
+- Value Objects;
+- Entidades;
+- Serviços;
+- ApplicationService;
+- Repositórios.
+
+Excluídos:
+
+- UI;
+- Menus;
+- Formatadores;
+- Mensagens;
+- Componentes de apresentação.
+
+Essa abordagem segue a prática comum de priorizar a validação automatizada do domínio e dos casos de uso da aplicação.
+
+---
+
 ## Utilitários de Teste
 
 Para reduzir duplicação e melhorar a legibilidade dos cenários foi criado o helper:

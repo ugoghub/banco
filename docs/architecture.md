@@ -599,6 +599,16 @@ A arquitetura foi construída com forte preocupação em testabilidade.
 
 Diversas decisões arquiteturais foram tomadas visando facilitar testes automatizados.
 
+### Cobertura de Código
+
+A cobertura de testes é gerada através do JaCoCo.
+
+As métricas priorizam as camadas responsáveis por comportamento e regras de negócio.
+
+Classes de interface de usuário (UI), menus, formatadores e classes de inicialização podem ser excluídas da cobertura por não conterem lógica de domínio significativa.
+
+Essa abordagem evita distorções nas métricas e mantém o foco da cobertura sobre os componentes que efetivamente implementam regras do sistema.
+
 ### Clock Injetável
 
 O uso de `Clock` permite controlar o tempo durante os testes.

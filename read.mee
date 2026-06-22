@@ -1,4 +1,12 @@
-# BankLite
+# Banco Digital Java (BankLite)
+
+![Build](https://github.com/ugoghub/banco/actions/workflows/maven.yml/badge.svg)
+
+![Coverage](badges/jacoco.svg)
+
+![Branches](badges/branches.svg)
+
+# Visão Geral
 
 Sistema bancário desenvolvido em Java com foco em boas práticas de modelagem orientada a objetos, separação de responsabilidades e aplicação de conceitos de Domain-Driven Design (DDD) — abordagem simplificada.
 
@@ -72,6 +80,15 @@ O foco principal está na consistência do domínio e na organização da arquit
 * GitHub Actions
 * Git
 
+## Qualidade
+
+- Java 21
+- JUnit 5
+- JaCoCo
+- GitHub Actions CI
+- Rich Domain Model
+- Domain-Driven Design (DDD)
+- Arquitetura em Camadas
 
 ---
 
@@ -596,18 +613,20 @@ Os testes cobrem:
 * remoção de contas;
 * remoção de clientes.
 
-## Estratégia de Cobertura
+## Cobertura de Testes
 
-A cobertura de testes está concentrada nas camadas responsáveis pelas regras de negócio:
+A cobertura de código é gerada automaticamente através do JaCoCo durante a execução da pipeline do GitHub Actions.
+
+A métrica considera apenas as camadas que contêm regras de negócio e comportamento relevante para o domínio:
 
 - Value Objects;
 - Entidades;
 - Serviços;
-- Casos de uso da aplicação.
+- Camada de Aplicação.
 
-As camadas de Interface e apresentação possuem cobertura reduzida por conterem predominantemente lógica de interação com o usuário e baixo valor de negócio.
+A camada de Inteface não participa da cobertura por possuir responsabilidade exclusivamente de apresentação e navegação, sem regras de negócio próprias.
 
-Essa abordagem prioriza a validação das regras críticas do domínio e dos fluxos financeiros da aplicação.
+Dessa forma, a cobertura reflete com maior precisão a qualidade dos testes sobre o comportamento do sistema.
 
 ---
 
