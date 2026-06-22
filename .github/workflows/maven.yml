@@ -42,3 +42,46 @@ jobs:
         with:
           name: jacoco-report
           path: target/site/jacoco
+
+      - name: Generate JaCoCo report
+        run: mvn jacoco:report
+
+      - name: Publish Coverage Summary
+        run: |
+          echo "# Coverage Report" >> $GITHUB_STEP_SUMMARY
+
+          TOTAL_LINE=$(tail -n 1 target/site/jacoco/jacoco.csv)
+
+          IFS=',' read -r GROUP PACKAGE CLASS \
+          INSTR_MISSED INSTR_COVERED \
+          BRANCH_MISSED BRANCH_COVERED \
+          LINE_MISSED LINE_COVERED \
+          COMPLEXITY_MISSED COMPLEXITY_COVERED \
+          METHOD_MISSED METHOD_COVERED \
+          CLASS_MISSED CLASS_COVERED <<< "$TOTAL_LINE"
+
+          calc_percent () {
+            local covered=$1
+            local missed=$2
+            local total=$((covered + missed))
+
+            if [ "$total" -eq 0 ]; then
+              echo "100"
+            else
+              echo $((100 * covered / total))
+            fi
+          }
+
+          INSTR_PCT=$(calc_percent $INSTR_COVERED $INSTR_MISSED)
+          BRANCH_PCT=$(calc_percent $BRANCH_COVERED $BRANCH_MISSED)
+          LINE_PCT=$(calc_percent $LINE_COVERED $LINE_MISSED)
+          METHOD_PCT=$(calc_percent $METHOD_COVERED $METHOD_MISSED)
+          CLASS_PCT=$(calc_percent $CLASS_COVERED $CLASS_MISSED)
+
+          echo "| Metric | Coverage |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Instructions | ${INSTR_PCT}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branches | ${BRANCH_PCT}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Lines | ${LINE_PCT}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Methods | ${METHOD_PCT}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Classes | ${CLASS_PCT}% |" >> $GITHUB_STEP_SUMMARY
