@@ -1,31 +1,28 @@
 # Banco Digital Java (BankLite)
 
 ![Build](https://github.com/ugoghub/banco/actions/workflows/maven.yml/badge.svg)
-
 ![Coverage](badges/jacoco.svg)
-
 ![Branches](badges/branches.svg)
 
 # Visão Geral
 
-Sistema bancário desenvolvido em Java com foco em boas práticas de modelagem orientada a objetos, separação de responsabilidades e aplicação de conceitos de Domain-Driven Design (DDD) — abordagem simplificada.
+Sistema bancário desenvolvido em Java com foco em modelagem rica de domínio, arquitetura em camadas e testes automatizados.
 
-O projeto simula operações bancárias reais, incluindo gerenciamento de clientes, contas correntes, contas poupança, depósitos, saques, transferências e cálculo automático de rendimentos.
+O projeto implementa operações bancárias reais utilizando conceitos de Domain-Driven Design (DDD), Rich Domain Model, Value Objects e boas práticas de orientação a objetos.
+
+## Destaques
+
+- Java 21
+- Rich Domain Model
+- Domain-Driven Design (DDD) — abordagem simplificada
+- Arquitetura em Camadas
+- CI com GitHub Actions
+- Cobertura de código com JaCoCo
+- Aplicação preguiçosa de juros (Lazy Interest Application)
 
 ## Objetivos do Projeto
 
-Este projeto foi desenvolvido com o objetivo de praticar e demonstrar conhecimentos em:
-
-* Programação Orientada a Objetos (POO);
-* Domain-Driven Design (DDD) — abordagem simplificada;
-* Value Objects;
-* Entidades de Domínio;
-* Arquitetura em Camadas;
-* Testes automatizados com JUnit 5;
-* Separação de responsabilidades;
-* Modelagem de regras de negócio.
-
-O foco principal está na consistência do domínio e na organização da arquitetura, priorizando clareza e manutenibilidade do código.
+O projeto foi desenvolvido para consolidar conhecimentos em modelagem de domínio, arquitetura de software e desenvolvimento backend utilizando Java, com foco na implementação de regras de negócio, testabilidade e organização em camadas.
 
 ---
 
@@ -52,12 +49,12 @@ O foco principal está na consistência do domínio e na organização da arquit
 
 ## Comunicação entre Camadas
 
-* DTOs (Objetos de Transferência de Dados)
+* DTOs imutáveis utilizando Java Records
 
 ## Padrões Utilizados
 
-* Repository Pattern (Padrão de Repositório)
-* Service Layer Pattern (Padrão de Camada de Serviço)
+* Repository Pattern
+* Service Layer Pattern
 * Facade Pattern (ApplicationService)
 * Template Method (Account)
 * Factory Method (Transaction)
@@ -79,16 +76,6 @@ O foco principal está na consistência do domínio e na organização da arquit
 * JaCoCo
 * GitHub Actions
 * Git
-
-## Qualidade
-
-- Java 21
-- JUnit 5
-- JaCoCo
-- GitHub Actions CI
-- Rich Domain Model
-- Domain-Driven Design (DDD)
-- Arquitetura em Camadas
 
 ---
 
@@ -170,44 +157,6 @@ Cada conta poupança possui sua própria data de aniversário, definida pela dat
 
 Os rendimentos tornam-se elegíveis para aplicação nessa data.
 
-Exemplo:
-
-Conta criada em 15/01
-
-* 15/02 → primeiro rendimento disponível;
-* 15/03 → segundo rendimento disponível;
-* 15/04 → terceiro rendimento disponível.
-
-O sistema utiliza uma estratégia de aplicação tardia (*Lazy Interest Application*).
-
-Os juros não são processados continuamente nem aplicados automaticamente na data de vencimento. Em vez disso, os rendimentos pendentes são calculados e aplicados quando ocorre alguma operação que exige atualização da conta, como:
-
-* consulta de saldo;
-* consulta de extrato;
-* depósitos;
-* saques;
-* transferências.
-
-Dessa forma, mesmo que o cliente permaneça longos períodos sem movimentar a conta, todos os rendimentos pendentes serão calculados corretamente na próxima atualização.
-
-Os rendimentos são aplicados de forma composta, pois cada juro incorporado ao saldo passa a participar do cálculo dos períodos seguintes.
-
-Exemplo:
-
-Conta criada em 15/01
-
-* 15/02 → rendimento disponível;
-* 15/03 → rendimento disponível;
-* 15/04 → rendimento disponível;
-* 20/04 → cliente acessa a conta.
-
-Ao acessar a conta em 20/04 e executar operações que exigem estado atualizado da conta, o sistema identifica todos os rendimentos pendentes, aplica os juros acumulados e atualiza o saldo da conta de forma consistente.
-
-As transações de rendimento são registradas no momento em que a atualização ocorre, utilizando a data e hora atuais da aplicação. Entretanto, o cálculo dos juros considera corretamente todos os períodos pendentes desde a última atualização da conta.
-
-Os rendimentos não recebem a data retroativa da competência.
-Cada transação INTEREST é registrada com a data e hora em que os juros pendentes foram efetivamente aplicados.
-
 ---
 
 # Arquitetura
@@ -252,27 +201,22 @@ A composição das dependências da aplicação é realizada pelo ApplicationCon
 
 #### ApplicationService
 
-Responsável por:
+O ApplicationService não contém regras de negócio. Atua como fachada da aplicação, concentrando os casos de uso consumidos pela camada de Interface.
+Assim, a camada de Interface nunca acessa diretamente os serviços internos.
 
-não contém regras de negócio.
+Funções:
 
 * orquestrar casos de uso;
 * coordenar múltiplos serviços quando necessário.
 * fornecer uma interface simplificada para a camada de UI.
 
-A camada de Interface nunca acessa diretamente os serviços internos.
-
-O ApplicationService atua como fachada da aplicação, concentrando os casos de uso consumidos pela camada de Interface.
-
 ---
 
 ### Camada de Serviço
 
-Contém os serviços responsáveis pela execução das operações do sistema.
+Contém os serviços responsáveis por coordenar os casos de uso da aplicação.
 
-Os serviços coordenam operações envolvendo múltiplas entidades e repositórios, enquanto as regras de negócio permanecem concentradas no domínio.
-
-As regras pertencem ao domínio e às entidades. Os serviços são responsáveis por coordenar operações, validar fluxos e interagir com os repositórios.
+Os serviços orquestram operações envolvendo múltiplas entidades e repositórios, enquanto as regras de negócio permanecem concentradas no domínio.
 
 #### ClientService
 
@@ -310,12 +254,7 @@ Contém toda a regra de negócio do sistema.
 
 O domínio é composto por entidades, value objects, enums, exceções de domínio e regras de negócio.
 
-O domínio não depende de:
-
-* UI;
-* repositories;
-* services;
-* persistência.
+O domínio representa o núcleo do sistema e permanece completamente independente das camadas de aplicação, interface e persistência.
 
 As regras são implementadas diretamente nas entidades e value objects.
 
@@ -373,135 +312,6 @@ src
 ```
 
 ---
-
-# Principais Decisões de Projeto
-
-## Uso de Value Objects
-
-Conceitos do domínio que possuem validações próprias foram modelados como Value Objects.
-
-Exemplos:
-
-* `Cpf`
-* `Email`
-* `PersonName`
-* `Money`
-* `AccountIdentity`
-
-Benefícios:
-
-* validação centralizada;
-* objetos sempre válidos;
-* maior legibilidade;
-* redução de duplicação de código.
-
----
-
-## Uso de Money
-
-Valores monetários não são representados por `double`.
-
-O sistema utiliza o Value Object `Money`, baseado em `BigDecimal`.
-
-Benefícios:
-
-* precisão financeira;
-* arredondamento controlado;
-* operações monetárias seguras.
-
----
-
-## Uso de DTOs
-
-A comunicação entre as camadas da aplicação não expõe diretamente entidades do domínio.
-
-Para transferência de dados são utilizados DTOs (Data Transfer Objects), representados através de records imutáveis.
-
-Exemplos:
-
-* `ClientData`
-* `StatementData`
-
-Benefícios:
-
-* desacoplamento entre camadas;
-* exposição controlada de informações;
-* redução de dependências entre UI e domínio;
-* maior clareza na comunicação entre serviços e aplicação.
-
----
-
-## Injeção de Clock
-
-O sistema utiliza `java.time.Clock` em vez de acessar diretamente o horário do sistema.
-
-Benefícios:
-
-* testes determinísticos;
-* simulação de datas futuras para validação de rendimentos;
-* validação de regras dependentes de tempo, como o cálculo de juros da poupança;
-
----
-
-## Juros na Conta Poupança
-
-A responsabilidade pelo cálculo dos rendimentos pertence à entidade `SavingsAccount`.
-
-A conta:
-
-* conhece a regra de rendimento;
-* calcula os juros pendentes;
-* mantém o estado relacionado ao último rendimento aplicado.
-
-A entidade não possui dependência de repositories ou services.
-
----
-
-## Transações de Juros
-
-Os rendimentos gerados pela poupança são registrados como transações reais.
-
-O método:
-
-```java
-Transaction.interest(...)
-```
-
-foi criado para representar rendimentos no extrato.
-
-Benefícios:
-
-* histórico completo;
-* rastreabilidade;
-* transparência das operações.
-
----
-
-## Aplicação Automática de Juros
-
-O `TransactionService` aplica juros pendentes automaticamente antes de:
-
-* depósitos;
-* saques;
-* transferências;
-* consultas de saldo;
-* consultas de extrato.
-
-Isso garante que o saldo permaneça consistente mesmo após longos períodos sem movimentação.
-
----
-
-## Persistência em Memória
-
-Os repositories utilizam armazenamento em memória.
-
-Objetivo:
-
-* manter foco na modelagem do domínio;
-* simplificar o projeto;
-* evitar complexidade de infraestrutura.
-
-A substituição por banco de dados pode ser realizada futuramente sem impacto significativo no domínio.
 
 # Como Executar
 
@@ -613,7 +423,7 @@ Os testes cobrem:
 * remoção de contas;
 * remoção de clientes.
 
-## Cobertura de Testes
+## Camadas Cobertas
 
 A cobertura de código é gerada automaticamente através do JaCoCo durante a execução da pipeline do GitHub Actions.
 
@@ -624,7 +434,7 @@ A métrica considera apenas as camadas que contêm regras de negócio e comporta
 - Serviços;
 - Camada de Aplicação.
 
-A camada de Inteface não participa da cobertura por possuir responsabilidade exclusivamente de apresentação e navegação, sem regras de negócio próprias.
+A camada de Interface não participa da cobertura por possuir responsabilidade exclusivamente de apresentação e navegação, sem regras de negócio próprias.
 
 Dessa forma, a cobertura reflete com maior precisão a qualidade dos testes sobre o comportamento do sistema.
 
@@ -634,15 +444,15 @@ Dessa forma, a cobertura reflete com maior precisão a qualidade dos testes sobr
 
 A documentação técnica do projeto está dividida em arquivos específicos.
 
-| Documento         | Descrição                             |
-| ----------------- | ------------------------------------- |
-| `architecture.md` | Arquitetura geral do sistema          |
-| `domain.md`       | Modelo de domínio e regras de negócio |
-| `application.md`  | Camada de aplicação                   |
-| `service.md`      | Serviços do sistema                   |
-| `repositories.md` | Repositórios e persistência           |
-| `ui.md`           | Interface de usuário                  |
-| `testing.md`      | Estratégia e cobertura de testes      |
+|             Documento                   |               Descrição               |
+|-----------------------------------------|---------------------------------------|
+| [architecture.md](docs/architecture.md) |     Arquitetura geral do sistema      |
+| [domain.md](docs/domain.md)             | Modelo de domínio e regras de negócio |
+| [application.md](docs/application.md)   |        Camada de aplicação            |
+| [service.md](docs/service.md)           |         Serviços do sistema           |
+| [repositories.md](docs/repositories.md) |      Repositórios e persistência      |
+| [ui.md](docs/ui.md)                     |         Interface de usuário          |
+| [testing.md](docs/testing.md)           |     Estratégia e cobertura de testes  |
 
 ---
 
@@ -660,7 +470,7 @@ Possíveis evoluções para o projeto:
 
 * separação em módulos Maven;
 * Introdução de contratos (interfaces) para os repositórios, permitindo múltiplas implementações de persistência.
-* implementação de injeção de dependência.
+* Migração do Composition Root manual para um container de Injeção de Dependências (Spring, CDI ou similar).
 
 ## API
 
